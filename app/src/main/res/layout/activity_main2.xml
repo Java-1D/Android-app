@@ -9,7 +9,7 @@
     android:paddingTop="10dp"
     android:paddingEnd="10dp"
     android:paddingBottom="10dp"
-    tools:context=".MainActivity2">
+    tools:context=".RegisterActivity">
 
     <TextView
         android:id="@+id/register"

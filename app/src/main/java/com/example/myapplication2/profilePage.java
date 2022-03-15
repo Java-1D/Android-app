@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 public class profilePage extends AppCompatActivity implements View.OnClickListener {
 
@@ -30,7 +29,7 @@ public class profilePage extends AppCompatActivity implements View.OnClickListen
                 startActivity(new Intent(profilePage.this, EditProfilePage.class));
                 break;
             case R.id.backArrow:
-                startActivity((new Intent(profilePage.this, MainActivity.class)));
+                startActivity((new Intent(profilePage.this, LoginActivity.class)));
                 break;
 
         }

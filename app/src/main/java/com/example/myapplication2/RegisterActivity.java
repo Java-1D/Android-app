@@ -18,11 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.function.Predicate;
-
-public class MainActivity2 extends AppCompatActivity implements View.OnClickListener {
+public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView registerWord, registerUser;
     private EditText username, password, name, email;
@@ -37,7 +34,6 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_main2);
 
         mAuth = FirebaseAuth.getInstance();
-
 
         TextView haveAnAccount = (TextView) findViewById(R.id.alreadyhaveAccount);
         haveAnAccount.setOnClickListener(this);
@@ -56,7 +52,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.alreadyhaveAccount:
-                startActivity(new Intent(this, MainActivity.class));
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
             case R.id.button:
                 registerUser();
@@ -98,10 +94,10 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
 //                                    @Override
 //                                    public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            Toast.makeText(MainActivity2.this, "User has been registered successfully", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(RegisterActivity.this, "User has been registered successfully", Toast.LENGTH_LONG).show();
                                             progressBar.setVisibility(View.GONE);
                                         } else {
-                                            Toast.makeText(MainActivity2.this, "Failed to register", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(RegisterActivity.this, "Failed to register", Toast.LENGTH_LONG).show();
                                             progressBar.setVisibility(View.GONE);
                                         }
                                     }

@@ -8,11 +8,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.material.button.MaterialButton;
-
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +32,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.register:
-                startActivity(new Intent(MainActivity.this, MainActivity2.class));
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                 break;
             case R.id.textView:
-                startActivity(new Intent(MainActivity.this, profilePage.class));
+                startActivity(new Intent(LoginActivity.this, profilePage.class));
                 break;
             case R.id.loginbtn:
-                startActivity(new Intent(MainActivity.this, FilterPage.class));
+                startActivity(new Intent(LoginActivity.this, FilterPage.class));
 
         }
     }
