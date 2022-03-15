@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication2">
         <activity
+            android:name=".ViewEventsActivity"
+            android:exported="false" />
+        <activity
             android:name=".FilterPage"
             android:exported="false" />
         <activity

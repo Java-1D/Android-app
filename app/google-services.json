@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "708582724431",
-    "project_id": "auth-d3684",
-    "storage_bucket": "auth-d3684.appspot.com"
+    "project_number": "830457136957",
+    "project_id": "study-buddy-app-39d63",
+    "storage_bucket": "study-buddy-app-39d63.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:708582724431:android:9aa18e97afb1893e0eab3a",
+        "mobilesdk_app_id": "1:830457136957:android:b9fc86f656abbd74cda754",
         "android_client_info": {
           "package_name": "com.example.myapplication2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "708582724431-cgq4t3kr3t3lidpkmbk49mve0ohfee54.apps.googleusercontent.com",
+          "client_id": "830457136957-ggtvcru14j4l3vdse99fn34fmjoukahh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAmyRjM4ymtygTsG4Ztkv3inaBMSXiZ2sg"
+          "current_key": "AIzaSyArF6T65mCbvUH9Zx-cIpvD9AN__kyjFv8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "708582724431-cgq4t3kr3t3lidpkmbk49mve0ohfee54.apps.googleusercontent.com",
+              "client_id": "830457136957-ggtvcru14j4l3vdse99fn34fmjoukahh.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
