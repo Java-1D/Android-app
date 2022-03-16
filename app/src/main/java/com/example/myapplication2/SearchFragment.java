@@ -1,4 +1,4 @@
-package com.example.bottomnavbar;
+package com.example.myapplication2;
 
 import android.os.Bundle;
 
