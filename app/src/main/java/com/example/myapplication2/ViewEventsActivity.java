@@ -35,7 +35,7 @@ public class ViewEventsActivity extends AppCompatActivity {
         eventsList = findViewById(R.id.events_list);
 
         // Query
-        Query query = firebaseFirestore.collection("Event");
+        Query query = firebaseFirestore.collection("Events");
         Log.d(TAG, query.toString());
 
         // RecyclerOptions

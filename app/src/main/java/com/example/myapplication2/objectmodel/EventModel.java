@@ -17,6 +17,8 @@ public class EventModel {
     ArrayList<String> userJoined;
     String venue;
 
+    public EventModel() {} //no arg constructor for firebase
+
     public EventModel(int capacity, String description, Date eventCreated, Date eventEnd, Date eventStart, String imagePath, String module, String status, String title, String userCreated, ArrayList<String> userJoined, String venue) {
         this.capacity = capacity;
         this.description = description;
