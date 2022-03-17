@@ -59,8 +59,9 @@ public class ViewEventsActivity extends AppCompatActivity {
                 // binds query object  (TestModel) to recycler view TestViewHolder
                 Log.d(TAG, model.toString());
                 Log.d(TAG, String.valueOf(holder));
+                Log.d(TAG, model.getTitle());
                 holder.event_title.setText(model.getTitle());
-                holder.user_created.setText(model.getUserCreated());
+                holder.event_description.setText(model.getDescription());
 
             }
 
@@ -78,15 +79,16 @@ public class ViewEventsActivity extends AppCompatActivity {
     private class EventViewHolder extends RecyclerView.ViewHolder {
 
         // Declare Text view and set data
+        private TextView capacity;
 
         private TextView event_title;
-        private TextView user_created;
+        private TextView event_description;
 
         // passed in the item from oncreate
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             event_title = (TextView) itemView.findViewById(R.id.event_title);
-            user_created = (TextView) itemView.findViewById(R.id.user_created);
+            event_description = (TextView) itemView.findViewById(R.id.event_desc);
         }
 
 

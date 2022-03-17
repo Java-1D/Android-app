@@ -1,25 +1,39 @@
 package com.example.myapplication2.objectmodel;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.example.myapplication2.database.EventsDb;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 public class EventModel {
+    private static final String TAG = "Event Model";
     private int capacity;
     private String description;
     Date eventCreated;
     Date eventEnd;
     Date eventStart;
-    String imagePath;
-    String module;
+    DocumentReference imagePath;
+    DocumentReference module;
     String status;
     String title;
-    String userCreated;
-    ArrayList<String> userJoined;
-    String venue;
+    DocumentReference userCreated;
+    ArrayList<DocumentReference> userJoined;
+    DocumentReference venue;
 
-    public EventModel() {} //no arg constructor for firebase
+    public EventModel() {
+    } //no arg constructor for firebase
 
-    public EventModel(int capacity, String description, Date eventCreated, Date eventEnd, Date eventStart, String imagePath, String module, String status, String title, String userCreated, ArrayList<String> userJoined, String venue) {
+    public EventModel(int capacity, String description, Date eventCreated, Date eventEnd, Date eventStart, DocumentReference imagePath, DocumentReference module, String status, String title, DocumentReference userCreated, ArrayList<DocumentReference> userJoined, DocumentReference venue) {
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
@@ -74,19 +88,19 @@ public class EventModel {
         this.eventStart = eventStart;
     }
 
-    public String getImagePath() {
+    public DocumentReference getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(String imagePath) {
+    public void setImagePath(DocumentReference imagePath) {
         this.imagePath = imagePath;
     }
 
-    public String getModule() {
+    public DocumentReference getModule() {
         return module;
     }
 
-    public void setModule(String module) {
+    public void setModule(DocumentReference module) {
         this.module = module;
     }
 
@@ -107,26 +121,40 @@ public class EventModel {
     }
 
     public String getUserCreated() {
-        return userCreated;
+//        userCreated.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document.exists()) {
+//                        String userName = document.getString("name");
+//                    }
+//                }
+//
+//            }
+//        });
+//
+//        return userName;
+        return "Not";
     }
 
-    public void setUserCreated(String userCreated) {
+    public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
     }
 
-    public ArrayList<String> getUserJoined() {
+    public ArrayList<DocumentReference> getUserJoined() {
         return userJoined;
     }
 
-    public void setUserJoined(ArrayList<String> userJoined) {
+    public void setUserJoined(ArrayList<DocumentReference> userJoined) {
         this.userJoined = userJoined;
     }
 
-    public String getVenue() {
+    public DocumentReference getVenue() {
         return venue;
     }
 
-    public void setVenue(String venue) {
+    public void setVenue(DocumentReference venue) {
         this.venue = venue;
     }
 
@@ -138,13 +166,13 @@ public class EventModel {
                 ", eventCreated=" + eventCreated +
                 ", eventEnd=" + eventEnd +
                 ", eventStart=" + eventStart +
-                ", imagePath='" + imagePath + '\'' +
-                ", module='" + module + '\'' +
+                ", imagePath=" + imagePath +
+                ", module=" + module +
                 ", status='" + status + '\'' +
                 ", title='" + title + '\'' +
-                ", userCreated='" + userCreated + '\'' +
+                ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue='" + venue + '\'' +
+                ", venue=" + venue +
                 '}';
     }
 }
