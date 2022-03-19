@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 public class FilterPage extends AppCompatActivity {
 
-    String[] items = {"Material", "Design", "Compoents", "Android", "5.0 Lollipop"};
+    String[] items = {"Material", "Design", "Components", "Android", "5.0 Lollipop"};
     AutoCompleteTextView autoCompleteTxt;
     ArrayAdapter<String> adapterItems;
 
