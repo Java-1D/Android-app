@@ -1,6 +1,7 @@
 package com.example.myapplication2.objectmodel;
 
-class LocationModel {
+
+public class LocationModel {
 
     public static final String TAG = "Location Model";
     private String imagePath;

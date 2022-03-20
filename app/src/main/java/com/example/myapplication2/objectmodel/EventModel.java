@@ -1,16 +1,6 @@
 package com.example.myapplication2.objectmodel;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.example.myapplication2.database.EventsDb;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +21,10 @@ public class EventModel {
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private DocumentReference venue;
+    private DocumentReference locationReference;
 
     private ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
 
     public EventModel() {
     } //no arg constructor for firebase
@@ -55,7 +46,7 @@ public class EventModel {
         this.title = title;
         this.userCreated = userCreated;
         this.userJoined = userJoined;
-        this.venue = venue;
+        this.locationReference = venue;
     }
 
     public int getCapacity() {
@@ -138,23 +129,7 @@ public class EventModel {
         this.title = title;
     }
 
-    public String getUserCreated() {
-//        userCreated.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-//                        String userName = document.getString("name");
-//                    }
-//                }
-//
-//            }
-//        });
-//
-//        return userName;
-        return "Not";
-    }
+    public DocumentReference getUserCreated() {return userCreated;}
 
     public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
@@ -168,12 +143,12 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getVenue() {
-        return venue;
+    public DocumentReference getLocationReference() {
+        return locationReference;
     }
 
-    public void setVenue(DocumentReference venue) {
-        this.venue = venue;
+    public void setLocationReference(DocumentReference locationReference) {
+        this.locationReference = locationReference;
     }
 
     @Override
@@ -191,7 +166,7 @@ public class EventModel {
                 ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue=" + venue +
+                ", venue=" + locationReference +
                 '}';
     }
 }
