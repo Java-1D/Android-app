@@ -1,16 +1,18 @@
 package com.example.myapplication2.objectmodel;
 
+
 public class LocationModel {
 
-    String imagePath;
-    String title;
+    public static final String TAG = "Location Model";
+    private String imagePath;
+    private String title;
+
+    LocationModel() {
+    }
 
     public LocationModel(String imagePath, String title) {
         this.imagePath = imagePath;
         this.title = title;
-    }
-
-    LocationModel() {
     }
 
     public String getImagePath() {

@@ -3,33 +3,44 @@ package com.example.myapplication2.objectmodel;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public class EventModel {
-    private static final String TAG = "Event Model";
+
+    public static final String TAG = "Event Model";
     private int capacity;
     private String description;
-    Date eventCreated;
-    Date eventEnd;
-    Date eventStart;
-    DocumentReference imagePath;
-    DocumentReference module;
-    String status;
-    String title;
-    DocumentReference userCreated;
-    ArrayList<DocumentReference> userJoined;
-    DocumentReference locationReference;
+    private Date eventCreated;
+    private Date eventEnd;
+    private Date eventStart;
+    private DocumentReference imagePath;
+    private Date lastUpdated;
+    private DocumentReference module;
+    private String status;
+    private String title;
+    private DocumentReference userCreated;
+    private ArrayList<DocumentReference> userJoined;
+    private DocumentReference locationReference;
+
+    private ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
 
     public EventModel() {
     } //no arg constructor for firebase
 
-    public EventModel(int capacity, String description, Date eventCreated, Date eventEnd, Date eventStart, DocumentReference imagePath, DocumentReference module, String status, String title, DocumentReference userCreated, ArrayList<DocumentReference> userJoined, DocumentReference venue) {
+    public EventModel(int capacity, String description, Date eventCreated,
+                      Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
+                      DocumentReference module, String status, String title,
+                      DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
+                      DocumentReference venue) {
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
         this.eventEnd = eventEnd;
         this.eventStart = eventStart;
         this.imagePath = imagePath;
+        this.lastUpdated = lastUpdated;
         this.module = module;
         this.status = status;
         this.title = title;
@@ -90,6 +101,14 @@ public class EventModel {
         return module;
     }
 
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
     public void setModule(DocumentReference module) {
         this.module = module;
     }
@@ -141,6 +160,7 @@ public class EventModel {
                 ", eventEnd=" + eventEnd +
                 ", eventStart=" + eventStart +
                 ", imagePath=" + imagePath +
+                ", lastUpdated="+ lastUpdated +
                 ", module=" + module +
                 ", status='" + status + '\'' +
                 ", title='" + title + '\'' +

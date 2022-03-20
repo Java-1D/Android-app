@@ -6,6 +6,7 @@ import java.util.Date;
 
 public class UserModel {
 
+    public static final String TAG = "User Model";
 
     private String email;
     private String name;
