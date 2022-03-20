@@ -1,6 +1,6 @@
 package com.example.myapplication2.objectmodel;
 
-class LocationModel {
+public class LocationModel {
 
     String imagePath;
     String title;
