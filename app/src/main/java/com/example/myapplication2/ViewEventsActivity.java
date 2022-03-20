@@ -79,11 +79,12 @@ public class ViewEventsActivity extends AppCompatActivity {
                 holder.event_description.setText(model.getDescription());
 
                 // Get location
+                setLocationDetails(model.getLocationReference(),holder);
 
 
             }
 
-            private void setLocationText(DocumentReference locationReference, EventViewHolder holder){
+            private void setLocationDetails(DocumentReference locationReference, EventViewHolder holder){
                 locationReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {

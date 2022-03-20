@@ -1,16 +1,6 @@
 package com.example.myapplication2.objectmodel;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.example.myapplication2.database.EventsDb;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +18,7 @@ public class EventModel {
     String title;
     DocumentReference userCreated;
     ArrayList<DocumentReference> userJoined;
-    DocumentReference venue;
+    DocumentReference locationReference;
 
     public EventModel() {
     } //no arg constructor for firebase
@@ -45,7 +35,7 @@ public class EventModel {
         this.title = title;
         this.userCreated = userCreated;
         this.userJoined = userJoined;
-        this.venue = venue;
+        this.locationReference = venue;
     }
 
     public int getCapacity() {
@@ -134,12 +124,12 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getVenue() {
-        return venue;
+    public DocumentReference getLocationReference() {
+        return locationReference;
     }
 
-    public void setVenue(DocumentReference venue) {
-        this.venue = venue;
+    public void setLocationReference(DocumentReference locationReference) {
+        this.locationReference = locationReference;
     }
 
     @Override
@@ -156,7 +146,7 @@ public class EventModel {
                 ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue=" + venue +
+                ", venue=" + locationReference +
                 '}';
     }
 }
