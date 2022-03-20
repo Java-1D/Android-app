@@ -117,4 +117,20 @@ public class ProfileModel {
     public void setUserId(DocumentReference userId) {
         this.userId = userId;
     }
+
+    @Override
+    public String toString() {
+        return "ProfileModel{" +
+                "eventsCreated=" + eventsCreated +
+                ", eventsJoined=" + eventsJoined +
+                ", imagePath=" + imagePath +
+                ", modules=" + modules +
+                ", name='" + name + '\'' +
+                ", pillar='" + pillar + '\'' +
+                ", profileCreated=" + profileCreated +
+                ", profileUpdated=" + profileUpdated +
+                ", term=" + term +
+                ", userId=" + userId +
+                '}';
+    }
 }

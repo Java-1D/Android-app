@@ -42,4 +42,13 @@ public class ImageModel {
     public void setUserUploaded(DocumentReference userUploaded) {
         this.userUploaded = userUploaded;
     }
+
+    @Override
+    public String toString() {
+        return "ImageModel{" +
+                "dateUploaded=" + dateUploaded +
+                ", imageRef='" + imageRef + '\'' +
+                ", userUploaded=" + userUploaded +
+                '}';
+    }
 }

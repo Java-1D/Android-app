@@ -23,7 +23,13 @@ public class EventModel {
     private ArrayList<DocumentReference> userJoined;
     private DocumentReference locationReference;
 
-    private ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+    public enum eventState { // To Be Improved Upon
+        upcoming,
+        ongoing,
+        completed
+    }
+
+    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
 
     public EventModel() {
@@ -151,6 +157,10 @@ public class EventModel {
         this.locationReference = locationReference;
     }
 
+    public String getStatuses(int index) {
+        return statuses.get(index);
+    }
+
     @Override
     public String toString() {
         return "EventModel{" +
@@ -160,13 +170,14 @@ public class EventModel {
                 ", eventEnd=" + eventEnd +
                 ", eventStart=" + eventStart +
                 ", imagePath=" + imagePath +
-                ", lastUpdated="+ lastUpdated +
+                ", lastUpdated=" + lastUpdated +
                 ", module=" + module +
                 ", status='" + status + '\'' +
                 ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue=" + locationReference +
+                ", locationReference=" + locationReference +
                 '}';
     }
+
 }
