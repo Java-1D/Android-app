@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.myapplication2.objectmodel.EventModel;
-import com.example.myapplication2.objectmodel.UsersModel;
+import com.example.myapplication2.objectmodel.UserModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -76,7 +76,7 @@ public class ViewEventsActivity extends AppCompatActivity {
                 locationReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        UsersModel city = documentSnapshot.toObject(UsersModel.class);
+                        UserModel city = documentSnapshot.toObject(UserModel.class);
                     }
                 });
             }

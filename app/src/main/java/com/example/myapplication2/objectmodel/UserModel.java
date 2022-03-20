@@ -4,7 +4,28 @@ import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Date;
 
-public class UsersModel {
+public class UserModel {
+
+
+    private String email;
+    private String name;
+    private String password;
+    private DocumentReference profile;
+    private Date userCreated;
+    private String username;
+
+    public UserModel() {
+    }
+
+    public UserModel(String email, String name, String password, DocumentReference profile, Date userCreated, String username) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.profile = profile;
+        this.userCreated = userCreated;
+        this.username = username;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -53,21 +74,17 @@ public class UsersModel {
         this.username = username;
     }
 
-    private String email;
-    private String name;
-    private String password;
-    private DocumentReference profile;
-    private Date userCreated;
-    private String username;
-
-    public UsersModel() { }
-
-    public UsersModel(String email, String name, String password, DocumentReference profile, Date userCreated, String username) {
-        this.email = email;
-        this.name = name;
-        this.password = password;
-        this.profile = profile;
-        this.userCreated = userCreated;
-        this.username = username;
+    @Override
+    public String toString() {
+        return "UserModel{" +
+                "email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", profile=" + profile +
+                ", userCreated=" + userCreated +
+                ", username='" + username + '\'' +
+                '}';
     }
+
+
 }
