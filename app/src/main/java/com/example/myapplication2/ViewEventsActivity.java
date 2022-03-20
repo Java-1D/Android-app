@@ -13,8 +13,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.objectmodel.UsersModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -63,6 +67,18 @@ public class ViewEventsActivity extends AppCompatActivity {
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
 
+                // Get location
+
+
+            }
+
+            private void setLocationText(DocumentReference locationReference){
+                locationReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        UsersModel city = documentSnapshot.toObject(UsersModel.class);
+                    }
+                });
             }
 
 
@@ -83,6 +99,9 @@ public class ViewEventsActivity extends AppCompatActivity {
 
         private TextView event_title;
         private TextView event_description;
+        private TextView status;
+        private TextView location;
+
 
         // passed in the item from oncreate
         public EventViewHolder(@NonNull View itemView) {

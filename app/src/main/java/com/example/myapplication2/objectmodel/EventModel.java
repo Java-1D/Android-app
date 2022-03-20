@@ -120,23 +120,7 @@ public class EventModel {
         this.title = title;
     }
 
-    public String getUserCreated() {
-//        userCreated.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-//                        String userName = document.getString("name");
-//                    }
-//                }
-//
-//            }
-//        });
-//
-//        return userName;
-        return "Not";
-    }
+    public DocumentReference getUserCreated() {return userCreated;}
 
     public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
