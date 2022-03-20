@@ -57,13 +57,7 @@ public class EventsDb {
                         }
                     }
                 });
-
                 return null;
     }
-    
-    
-
-
-
 
 }
