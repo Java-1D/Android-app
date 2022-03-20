@@ -43,6 +43,16 @@ public class ImageModel {
         this.userUploaded = userUploaded;
     }
 
+    @Override
+    public String toString() {
+        return "ImageModel{" +
+                "dateUploaded=" + dateUploaded +
+                ", imageRef='" + imageRef + '\'' +
+                ", userUploaded=" + userUploaded +
+                '}';
+
+    }
+
     public static class UserModel {
         public String name, email;
         public UserModel(){
