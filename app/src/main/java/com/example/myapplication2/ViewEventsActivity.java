@@ -43,7 +43,7 @@ public class ViewEventsActivity extends AppCompatActivity {
                 .setQuery(query, EventModel.class)
                 .build();
 
-        // Recyler Adapter
+        // Recycler Adapter
         adapter = new FirestoreRecyclerAdapter<EventModel, EventViewHolder>(options) {
             @NonNull
             @Override

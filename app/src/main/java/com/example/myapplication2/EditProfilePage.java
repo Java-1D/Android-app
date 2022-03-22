@@ -24,7 +24,6 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
             case R.id.confirmButton:
                 startActivity(new Intent(EditProfilePage.this, profilePage.class));
                 break;
-
         }
     }
 }

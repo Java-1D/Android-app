@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application 2</string>
+    <string name="app_name">Study Buddy</string>
     <string name="todo">TODO</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign in</string>
