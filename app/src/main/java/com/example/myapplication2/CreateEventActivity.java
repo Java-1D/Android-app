@@ -3,6 +3,7 @@ package com.example.myapplication2;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,9 +42,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     Intent intent;
 
+    Uri picUri;
+
     static final String TAG = "Create Events";
-    static final int REQUEST_IMAGE_GET = 1;
-    static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
+
+    static final int REQUEST_ID_CAMERA = 1;
+    static final int REQUEST_ID_STORAGE = 2;
+    static final int REQUEST_CROP_PIC = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +69,22 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         // TODO: Should we do a network check here?
         createButton.setOnClickListener(this);
         locationImage.setOnClickListener(this);
+
+        // TODO: Add this into main activity to ask when they first open the app (?)
+//        // Check for permission to camera and gallery
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                    == PackageManager.PERMISSION_DENIED){
+//                String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+//                requestPermissions(permission, 112);
+//            }
+//        }
     }
 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.createButton:
-
                 // TODO: Push data onto firebase
 
                 // Create explicit event to go into MainPage
@@ -79,85 +93,35 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 break;
 
             case R.id.locationImageCreate:
-                // Check for permission to camera and gallery
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            == PackageManager.PERMISSION_DENIED){
-                        String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                        requestPermissions(permission, 112);
-                    }
-                }
-
                 // Create implicit event to go into the person's gallery
-                if(checkAndRequestPermissions(CreateEventActivity.this)){
-                    chooseImage(CreateEventActivity.this);
-                }
+                chooseImage(CreateEventActivity.this);
         }
     }
 
-    public static boolean checkAndRequestPermissions(final Activity context) {
-        int WExtstorePermission = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int cameraPermission = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.CAMERA);
-        List<String> listPermissionsNeeded = new ArrayList<>();
-        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.CAMERA);
-        }
-        if (WExtstorePermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(context,
-                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
-                    REQUEST_ID_MULTIPLE_PERMISSIONS);
-
-            return false;
-        }
-        return true;
-    }
-
-    // Handled permission Result
-    @Override
-    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_ID_MULTIPLE_PERMISSIONS:
-                if (ContextCompat.checkSelfPermission(CreateEventActivity.this,
-                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(),
-                            "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
-                            .show();
-                } else if (ContextCompat.checkSelfPermission(CreateEventActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(),
-                            "FlagUp Requires Access to Your Storage.",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    chooseImage(CreateEventActivity.this);
-                }
-                break;
-        }
-    }
-
-    // function to let the user to choose image from camera or gallery
+    // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
+    // Edited the part where user can still click and request individually
+    // Function to let the user to choose image from camera or gallery
     private void chooseImage(Context context){
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
-        // create a dialog for showing the optionsMenu
+        // Create a dialog for showing the optionsMenu
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        // set the items in builder
+        // Set the items in builder
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(optionsMenu[i].equals("Take Photo")){
-                    // Open the camera and get the photo
-                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
+                    if (checkAndRequestPermission(CreateEventActivity.this, Manifest.permission.CAMERA, REQUEST_ID_CAMERA)) {
+                        // Implicit event access camera
+                        Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(takePicture, REQUEST_ID_CAMERA);
+                    }
                 }
                 else if(optionsMenu[i].equals("Choose from Gallery")){
-                    // choose from  external storage
-                    Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto , 1);
+                    if (checkAndRequestPermission(CreateEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_ID_STORAGE)) {
+                        // Implicit event to access storage
+                        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(pickPhoto , REQUEST_ID_STORAGE);
+                    }
                 }
                 else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
@@ -167,34 +131,105 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         builder.show();
     }
 
+
+    // Implicit event return and to obtain data
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
             switch (requestCode) {
-                case 0:
+                case REQUEST_ID_CAMERA:
                     if (resultCode == RESULT_OK && data != null) {
                         Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
                         locationImage.setImageBitmap(selectedImage);
+                        performCrop();
                     }
                     break;
-                case 1:
+                case REQUEST_ID_STORAGE:
                     if (resultCode == RESULT_OK && data != null) {
                         Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                        if (selectedImage != null) {
-                            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                            if (cursor != null) {
-                                cursor.moveToFirst();
-                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                String picturePath = cursor.getString(columnIndex);
-                                locationImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                                cursor.close();
-                            }
-                        }
+                        locationImage.setImageURI(selectedImage);
+                        performCrop();
                     }
                     break;
             }
+        }
+    }
+
+    private void performCrop() {
+        // take care of exceptions
+        try {
+            // call the standard crop action intent (the user device may not support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            // indicate image type and Uri
+            cropIntent.setDataAndType(picUri, "image/*");
+            // set crop properties
+            cropIntent.putExtra("crop", "true");
+            // indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 2);
+            cropIntent.putExtra("aspectY", 1);
+            // indicate output X and Y
+            cropIntent.putExtra("outputX", 256);
+            cropIntent.putExtra("outputY", 256);
+            // retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            // start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, REQUEST_CROP_PIC);
+        }
+        // respond to users whose devices do not support the crop action
+        catch (ActivityNotFoundException anfe) {
+            Toast toast = Toast
+                    .makeText(this, "This device doesn't support the crop action!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
+    // Check and request for permission to use camera and external storage function
+    // A static method that can be used everywhere
+    public static boolean checkAndRequestPermission(final Activity context, String permission, int requestCode) {
+        int WExtstorePermission = ContextCompat.checkSelfPermission(context, permission);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        // Check if permission have already been allowed
+        if (WExtstorePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(permission);
+        }
+
+        // Check if permission is needed
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(context,
+                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
+                    requestCode);
+
+            return false;
+        }
+        return true;
+    }
+
+    // Handled permission results
+    // Adapted to go right into the implicit intent if it is allowed
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_ID_CAMERA:
+                // if permission is not granted
+                if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), R.string.camera_access, Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(takePicture, requestCode);
+                }
+                break;
+            case REQUEST_ID_STORAGE:
+                if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), R.string.storage_access, Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(pickPhoto , requestCode);
+                }
+                break;
         }
     }
 }
