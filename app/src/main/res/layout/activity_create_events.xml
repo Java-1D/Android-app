@@ -30,9 +30,9 @@
     <!-- TODO: how do we want to implement the date/time?
                will this be a dropdown or text?-->
 <!--    TODO: think about how to use timepicker and datepicker-->
-    <DatePicker
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+<!--    <DatePicker-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content" />-->
 <!--    <TimePicker-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content" />-->
