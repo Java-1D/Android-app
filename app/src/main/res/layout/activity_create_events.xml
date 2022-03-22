@@ -6,13 +6,6 @@
     android:orientation="vertical"
     tools:context=".CreateEventActivity">
 
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create Event"
-        android:id="@+id/createButton" />
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,6 +29,13 @@
 
     <!-- TODO: how do we want to implement the date/time?
                will this be a dropdown or text?-->
+<!--    TODO: think about how to use timepicker and datepicker-->
+    <DatePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+<!--    <TimePicker-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content" />-->
     
     <EditText
         android:layout_width="match_parent"
@@ -43,4 +43,9 @@
         android:id="@+id/topicCreate" />
 
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Event"
+        android:id="@+id/createButton" />
 </LinearLayout>
