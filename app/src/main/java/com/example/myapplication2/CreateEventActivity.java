@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -26,10 +28,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
@@ -42,7 +47,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     Intent intent;
 
-    Uri picUri;
+    Uri selectedImage;
 
     static final String TAG = "Create Events";
 
@@ -140,29 +145,41 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             switch (requestCode) {
                 case REQUEST_ID_CAMERA:
                     if (resultCode == RESULT_OK && data != null) {
-                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        locationImage.setImageBitmap(selectedImage);
+                        Bitmap selectedImages = (Bitmap) data.getExtras().get("data");
+                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        selectedImages.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                        String path = MediaStore.Images.Media.insertImage(getContentResolver(), selectedImages, "Title", null);
+                        selectedImage = Uri.parse(path);
                         performCrop();
+
                     }
                     break;
                 case REQUEST_ID_STORAGE:
                     if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        locationImage.setImageURI(selectedImage);
+                        selectedImage = data.getData();
                         performCrop();
                     }
                     break;
+                case REQUEST_CROP_PIC:
+                    if (resultCode == RESULT_OK && data != null) {
+                        // get the returned data
+                        Bundle extras = data.getExtras();
+                        // get the cropped bitmap
+                        Bitmap thePic = extras.getParcelable("data");
+                        locationImage.setImageBitmap(thePic);
+                    }
             }
         }
     }
 
+    // Crop images
     private void performCrop() {
         // take care of exceptions
         try {
             // call the standard crop action intent (the user device may not support it)
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             // indicate image type and Uri
-            cropIntent.setDataAndType(picUri, "image/*");
+            cropIntent.setDataAndType(selectedImage, "image/*");
             // set crop properties
             cropIntent.putExtra("crop", "true");
             // indicate aspect of desired crop
@@ -232,4 +249,5 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 break;
         }
     }
+
 }
