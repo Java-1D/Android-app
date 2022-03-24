@@ -23,4 +23,6 @@
     <string name="select">Select Item</string>
     <string name="camera_access">Camera access is required</string>
     <string name="storage_access">Storage access is required.</string>
+
+    <string name="set_image_button">Select image</string>
 </resources>

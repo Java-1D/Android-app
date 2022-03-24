@@ -9,7 +9,14 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/locationImageCreate" />
+        android:id="@+id/cropImageView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/setImageButton"
+        android:text="@string/set_image_button"
+        android:layout_gravity="center"/>
 
 
     <EditText
