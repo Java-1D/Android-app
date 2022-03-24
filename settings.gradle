@@ -10,6 +10,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+        // https://stackoverflow.com/questions/69468492/how-can-i-add-jitpack-io-as-a-repository-in-my-build-gradle-correctly
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "My Application 2"
