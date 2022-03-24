@@ -79,7 +79,7 @@ public class ViewEventsActivity extends AppCompatActivity {
                 holder.event_description.setText(model.getDescription());
 
                 // Get location
-                setLocationDetails(model.getLocationReference(),holder);
+                setLocationDetails(model.getVenue(),holder);
 
 
             }
