@@ -8,6 +8,8 @@ import java.util.Date;
 
 public class EventModel {
 
+    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
     public static final String TAG = "Event Model";
     private int capacity;
     private String description;
@@ -21,16 +23,7 @@ public class EventModel {
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private DocumentReference locationReference;
-
-    public enum eventState { // To Be Improved Upon
-        upcoming,
-        ongoing,
-        completed
-    }
-
-    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
-
+    private DocumentReference venue;
 
     public EventModel() {
     } //no arg constructor for firebase
@@ -52,7 +45,7 @@ public class EventModel {
         this.title = title;
         this.userCreated = userCreated;
         this.userJoined = userJoined;
-        this.locationReference = venue;
+        this.venue = venue;
     }
 
     public int getCapacity() {
@@ -123,8 +116,17 @@ public class EventModel {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus() {
+        Date currentDate = new Date();
+        if (currentDate.compareTo(this.eventStart) < 0) {
+            this.status = "upcoming";
+        }
+        else if (currentDate.compareTo(this.eventEnd) > 0) {
+            this.status = "completed";
+        }
+        else {
+            this.status = "ongoing";
+        }
     }
 
     public String getTitle() {
@@ -149,12 +151,12 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getLocationReference() {
-        return locationReference;
+    public DocumentReference getVenue() {
+        return venue;
     }
 
-    public void setLocationReference(DocumentReference locationReference) {
-        this.locationReference = locationReference;
+    public void setVenue(DocumentReference venue) {
+        this.venue = venue;
     }
 
     public String getStatuses(int index) {
@@ -176,7 +178,7 @@ public class EventModel {
                 ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", locationReference=" + locationReference +
+                ", venue=" + venue +
                 '}';
     }
 
