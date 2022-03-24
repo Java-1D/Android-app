@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.myapplication2.fragments.HomeFragment;
+import com.example.myapplication2.fragments.SearchFragment;
+import com.example.myapplication2.fragments.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 

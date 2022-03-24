@@ -1,23 +1,40 @@
-package com.example.myapplication2;
+package com.example.myapplication2.archive;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication2.R;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.objectmodel.LocationModel;
+import com.example.myapplication2.objectmodel.UserModel;
+import com.example.myapplication2.utils.Utils;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+// View Events Activity is the activity responsible for getting data from firebase and populating the screen with it
 public class ViewEventsActivity extends AppCompatActivity {
 
     private static final String TAG = "Test";
@@ -63,7 +80,25 @@ public class ViewEventsActivity extends AppCompatActivity {
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
 
+                // Get location
+                setLocationDetails(model.getLocationReference(),holder);
+
+
             }
+
+            private void setLocationDetails(DocumentReference locationReference, EventViewHolder holder){
+                locationReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        LocationModel location = documentSnapshot.toObject(LocationModel.class);
+                        holder.location.setText(location.getTitle());
+                        Bitmap imageBitmap = Utils.getImageBitmap(location.getImagePath());
+                        holder.locationImage.setImageBitmap(imageBitmap);
+                    }
+                });
+            }
+
+
 
 
         };
@@ -83,6 +118,10 @@ public class ViewEventsActivity extends AppCompatActivity {
 
         private TextView event_title;
         private TextView event_description;
+        private TextView status;
+        private TextView location;
+        private ImageView locationImage;
+
 
         // passed in the item from oncreate
         public EventViewHolder(@NonNull View itemView) {

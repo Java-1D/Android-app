@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-public class profilePage extends AppCompatActivity implements View.OnClickListener {
+public class ProfilePage extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +26,10 @@ public class profilePage extends AppCompatActivity implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.editButton:
-                startActivity(new Intent(profilePage.this, EditProfilePage.class));
+                startActivity(new Intent(ProfilePage.this, EditProfilePage.class));
                 break;
             case R.id.backArrow:
-                startActivity((new Intent(profilePage.this, LoginActivity.class)));
+                startActivity((new Intent(ProfilePage.this, LoginActivity.class)));
                 break;
 
         }
