@@ -1,55 +1,21 @@
 package com.example.myapplication2;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import com.canhub.cropper.CropImage;
-import com.canhub.cropper.CropImageActivity;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
-import com.canhub.cropper.CropImageView;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
     Button createButton;
@@ -64,12 +30,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     Uri selectedImageUri;
 
-    String currentPhotoPath;
-
     static final String TAG = "CreateEvents";
 
-    static final int REQUEST_ID_CAMERA = 1;
-    static final int REQUEST_ID_STORAGE = 2;
 
     // TODO: Check out glide and picasso for handling photos
     // http://bumptech.github.io/glide/doc/download-setup.html
@@ -111,26 +73,25 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.setImageButton:
                 // Start new CropActivity provided by library
-                CropImage.activity().setAspectRatio(1, 1).start(this);
+                // https://github.com/CanHub/Android-Image-Cropper
+                CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
+                options.setAspectRatio(1,1);
+
+                activityResultLauncher.launch(options);
+
         }
     }
 
-    // Handle implicit intent calls
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED) {
-            switch (requestCode) {
-                case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
-                    CropImage.ActivityResult result = CropImage.getActivityResult(data);
+    // https://github.com/CanHub/Android-Image-Cropper/issues/199
+    private final ActivityResultLauncher<CropImageContractOptions> activityResultLauncher = registerForActivityResult(new CropImageContract(),
+            result -> {
 
-                    if (resultCode == RESULT_OK) {
-                        Uri resultUri = result.getUriContent();
-                        cropImageView.setImageURI(resultUri);
-                    } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                        Exception error = result.getError();
-                    }
-            }
-        }
-    }
+                if (result.isSuccessful()) {
+                    selectedImageUri = result.getUriContent();
+                    cropImageView.setImageURI(selectedImageUri);
+                } else {
+                    Log.d(TAG, ": error");
+                }
+
+            });
 }
