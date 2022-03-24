@@ -110,10 +110,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 break;
 
             case R.id.setImageButton:
-                //ArrayList<String> permissions = new ArrayList<>(Arrays.asList(Manifest.permission.CAMERA, Manifest.permission.))
-
-                // Create implicit event to go into the person's gallery
-                // if (checkAndRequestPermission(MainPageActivity.this, ))
+                // Start new CropActivity provided by library
                 CropImage.activity().setAspectRatio(1, 1).start(this);
         }
     }
