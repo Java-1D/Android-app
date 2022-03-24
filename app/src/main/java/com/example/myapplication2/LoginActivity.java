@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                 break;
             case R.id.textView:
-                startActivity(new Intent(LoginActivity.this, profilePage.class));
+                startActivity(new Intent(LoginActivity.this, ProfilePage.class));
                 break;
             case R.id.loginbtn:
                 startActivity(new Intent(LoginActivity.this, FilterPage.class));

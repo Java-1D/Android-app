@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication2">
         <activity
-            android:name=".ViewEventsActivity"
+            android:name=".archive.ViewEventsActivity"
             android:exported="false" />
         <activity
             android:name=".FilterPage"
@@ -19,7 +19,7 @@
             android:name=".EditProfilePage"
             android:exported="false" />
         <activity
-            android:name=".profilePage"
+            android:name=".ProfilePage"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"

@@ -42,4 +42,15 @@ public class ImageModel {
     public void setUserUploaded(DocumentReference userUploaded) {
         this.userUploaded = userUploaded;
     }
+
+    public static class UserModel {
+        public String name, email;
+        public UserModel(){
+
+        }
+        public UserModel(String name, String email) {
+            this.name = name;
+            this.email = email;
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication2;
+package com.example.myapplication2.archive;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication2.R;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.LocationModel;
 import com.example.myapplication2.objectmodel.UserModel;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+// View Events Activity is the activity responsible for getting data from firebase and populating the screen with it
 public class ViewEventsActivity extends AppCompatActivity {
 
     private static final String TAG = "Test";
