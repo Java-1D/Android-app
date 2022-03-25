@@ -30,6 +30,9 @@
             android:name=".archive.ViewEventsActivity"
             android:exported="false" />
         <activity
+            android:name=".MainPageActivity"
+            android:exported="false" />
+        <activity
             android:name=".FilterPage"
             android:exported="false" />
         <activity

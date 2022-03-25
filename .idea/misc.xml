@@ -26,15 +26,21 @@
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/dropdown_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/list_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/strings.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_edit_profile_page.xml" value="0.2453125" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_filter_page.xml" value="0.2453125" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_main.xml" value="0.2453125" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_main2.xml" value="0.2453125" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_mainpage.xml" value="0.19583333333333333" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_profile_page.xml" value="0.264" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/activity_view_events.xml" value="0.24635416666666668" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/event_item.xml" value="0.24635416666666668" />
-        <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/layout/fragment_first.xml" value="0.24635416666666668" />
+        <entry key="app/src/main/res/layout/activity_edit_profile_page.xml" value="0.2078125" />
+        <entry key="app/src/main/res/layout/activity_filter_page.xml" value="0.2078125" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.2078125" />
+        <entry key="app/src/main/res/layout/activity_main2.xml" value="0.2078125" />
+        <entry key="app/src/main/res/layout/activity_mainpage.xml" value="0.1925925925925926" />
+        <entry key="app/src/main/res/layout/activity_profile_page.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/activity_view_events.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/layout/event_item.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.15" />
+        <entry key="app/src/main/res/layout/fragment_second.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_third.xml" value="0.28229166666666666" />
+        <entry key="app/src/main/res/layout/item_contact.xml" value="0.17664235432942704" />
+        <entry key="app/src/main/res/layout/list_item.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/main_listing.xml" value="0.28206787109375" />
+        <entry key="app/src/main/res/layout/my_row.xml" value="0.2845849802371542" />
       </map>
     </option>
   </component>
