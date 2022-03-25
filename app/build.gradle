@@ -65,8 +65,6 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    // For newer version of cropper, view https://www.youtube.com/watch?v=DfDj9EadOLk
-
     // https://github.com/ArthurHub/Android-Image-Cropper
     implementation 'com.github.CanHub:Android-Image-Cropper:4.2.0'
 
