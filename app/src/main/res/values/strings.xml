@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application 2</string>
+    <string name="app_name">Study Buddy</string>
     <string name="todo">TODO</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign in</string>
@@ -21,4 +21,11 @@
     <string name="pillar">Pillar</string>
     <string name="chadmaximus_googly_com_us">ChadMaximus@googly.com.us</string>
     <string name="select">Select Item</string>
+
+
+<!--    Used for accessing to camera/gallery for images -->
+    <string name="camera_access">Camera access is required</string>
+    <string name="storage_access">Storage access is required.</string>
+    <string name="set_image_button">Select image</string>
+
 </resources>

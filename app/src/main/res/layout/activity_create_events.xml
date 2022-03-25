@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CreateEventActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cropImageView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/setImageButton"
+        android:text="@string/set_image_button"
+        android:layout_gravity="center"/>
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/eventTitleCreate" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/eventDescriptionCreate" />
+    
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/venueCreate" />
+
+    <!-- TODO: how do we want to implement the date/time?
+               will this be a dropdown or text?-->
+<!--    TODO: think about how to use timepicker and datepicker-->
+<!--    <DatePicker-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content" />-->
+<!--    <TimePicker-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content" />-->
+    
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/topicCreate" />
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Event"
+        android:id="@+id/createButton" />
+</LinearLayout>
