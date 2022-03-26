@@ -42,6 +42,12 @@ public class EventModel {
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
     private DocumentReference venue;
+<<<<<<< HEAD
+=======
+
+    private ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
+>>>>>>> fixes to firestore
 
     public EventModel() {} //no arg constructor for firebase
 

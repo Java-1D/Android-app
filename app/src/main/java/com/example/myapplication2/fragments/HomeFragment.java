@@ -18,9 +18,17 @@ import android.widget.TextView;
 import com.example.myapplication2.R;
 import com.example.myapplication2.archive.ViewEventsActivity;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.objectmodel.LocationModel;
+import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.EventViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -43,7 +51,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
         // Inflate the layout for this fragment
         eventsList = view.findViewById(R.id.recyclerView);
-//        eventsList.setHasFixedSize(true);
+        eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
         eventsList.setAdapter(adapter);
 
@@ -59,7 +67,7 @@ public class HomeFragment extends Fragment {
 
         // Query
         Query query = firebaseFirestore.collection("Events");
-        Log.d(TAG, query.toString());
+        Log.d(TAG, "Query" + query.toString());
 
         FirestoreRecyclerOptions<EventModel> options = new FirestoreRecyclerOptions.Builder<EventModel>()
                 .setQuery(query, EventModel.class)
@@ -84,7 +92,26 @@ public class HomeFragment extends Fragment {
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
                 // Get location
-                //setLocationDetails(model.getLocationReference(),holder);
+//                setLocationDetails(model.getLocationReference(),holder);
+                setLocationDetails(model.getVenue(),holder);
+
+            }
+            private void setLocationDetails(DocumentReference locationReference, EventViewHolder holder){
+                locationReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                Log.d("TAG", document.getString("title")); //Print the name
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
 
             }
         };
