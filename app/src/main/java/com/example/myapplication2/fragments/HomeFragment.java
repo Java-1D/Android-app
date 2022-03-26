@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, "DESC" + model.getDescription());
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
-//                EventDetails.setEventImage(model.getImagePath(),holder);
+                EventDetails.setEventImage(model.getImage_path(),holder);
             }
 
         };

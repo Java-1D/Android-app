@@ -45,11 +45,18 @@ public class EventModel {
 
     public EventModel() {} //no arg constructor for firebase
 
+<<<<<<< HEAD
     public EventModel(int capacity, String description, Date eventCreated,
                       Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
                       DocumentReference module, String status, String title,
                       DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
                       DocumentReference venue) {
+=======
+    public EventModel() {
+    } //no arg constructor for firebase
+
+    public EventModel(int capacity, String description, Date event_created, Date event_end, Date event_start, DocumentReference image_path, Date last_updated, DocumentReference module, String status, String title, DocumentReference user_created, ArrayList<DocumentReference> user_joined, DocumentReference venue) {
+>>>>>>> working with images
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
@@ -64,6 +71,7 @@ public class EventModel {
         this.userJoined = userJoined;
         this.venue = venue;
     }
+
 
     public int getCapacity() {
         return capacity;
@@ -81,12 +89,21 @@ public class EventModel {
         this.description = description;
     }
 
+<<<<<<< HEAD
     public Date getEventCreated() {
         return eventCreated;
     }
 
     public void setEventCreated(Date eventCreated) {
         this.eventCreated = eventCreated;
+=======
+    public Date getEvent_created() {
+        return event_created;
+    }
+
+    public void setEvent_created(Date event_created) {
+        this.event_created = event_created;
+>>>>>>> working with images
     }
 
     public Date getEventEnd() {
@@ -105,20 +122,34 @@ public class EventModel {
         this.eventStart = eventStart;
     }
 
+<<<<<<< HEAD
     public DocumentReference getImagePath() {
         return imagePath;
+=======
+    public DocumentReference getImage_path() {
+        return image_path;
+>>>>>>> working with images
     }
 
     public void setImagePath(DocumentReference imagePath) {
         this.imagePath = imagePath;
     }
 
+<<<<<<< HEAD
     public Date getLastUpdated() {
         return lastUpdated;
     }
 
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
+=======
+    public Date getLast_updated() {
+        return last_updated;
+>>>>>>> working with images
+    }
+
+    public DocumentReference getModule() {
+        return module;
     }
 
     public DocumentReference getModule() {
@@ -158,12 +189,21 @@ public class EventModel {
         this.title = title;
     }
 
+<<<<<<< HEAD
     public DocumentReference getUserCreated() {
         return userCreated;
     }
 
     public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
+=======
+    public DocumentReference getUser_created() {
+        return user_created;
+    }
+
+    public void setUser_created(DocumentReference user_created) {
+        this.user_created = user_created;
+>>>>>>> working with images
     }
 
     public ArrayList<DocumentReference> getUserJoined() {
@@ -187,6 +227,7 @@ public class EventModel {
         return "EventModel{" +
                 "capacity=" + capacity +
                 ", description='" + description + '\'' +
+<<<<<<< HEAD
                 ", eventCreated=" + eventCreated +
                 ", eventEnd=" + eventEnd +
                 ", eventStart=" + eventStart +
@@ -197,6 +238,18 @@ public class EventModel {
                 ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
+=======
+                ", event_created=" + event_created +
+                ", event_end=" + event_end +
+                ", event_start=" + event_start +
+                ", image_path=" + image_path +
+                ", last_updated=" + last_updated +
+                ", module=" + module +
+                ", status='" + status + '\'' +
+                ", title='" + title + '\'' +
+                ", user_created=" + user_created +
+                ", user_joined=" + user_joined +
+>>>>>>> working with images
                 ", venue=" + venue +
                 '}';
     }
