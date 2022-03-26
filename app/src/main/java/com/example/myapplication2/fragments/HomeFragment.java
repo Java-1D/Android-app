@@ -1,8 +1,6 @@
-<<<<<<< HEAD:app/src/main/java/com/example/myapplication2/fragments/HomeFragment.java
+
 package com.example.myapplication2.fragments;
-=======
-package com.example.myapplication2;
->>>>>>> b1a2cee (Added modules in profile page and camera and gallery for edit profile page):app/src/main/java/com/example/myapplication2/HomeFragment.java
+
 
 import android.os.Bundle;
 

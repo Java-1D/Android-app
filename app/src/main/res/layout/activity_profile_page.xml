@@ -4,13 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD
+
     tools:context=".ProfilePage"
     android:background="@drawable/gradient_bg">
-=======
-    android:background="@drawable/gradient_bg"
-    tools:context=".profilePage">
->>>>>>> b1a2cee (Added modules in profile page and camera and gallery for edit profile page)
+
 
     <ImageView
         android:id="@+id/profilePicture"
