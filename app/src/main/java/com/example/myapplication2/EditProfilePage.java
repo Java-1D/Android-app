@@ -142,13 +142,11 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
             case R.id.confirmButton:
                 startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
                 break;
-<<<<<<< HEAD
-=======
-            case R.id.backButton:
-                startActivity(new Intent(EditProfilePage.this, profilePage.class));
+    case R.id.backButton:
+                startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
                 break;
 
->>>>>>> b1a2cee (Added modules in profile page and camera and gallery for edit profile page)
+
         }
     }
 }
