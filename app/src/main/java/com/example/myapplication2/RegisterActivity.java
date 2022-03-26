@@ -79,38 +79,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             email.requestFocus();
         }
 
-        else {
-            progressBar.setVisibility(View.VISIBLE);
-            mAuth.createUserWithEmailAndPassword(enteredEmail, enteredPassword)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-//                            if (task.isSuccessful()) {
-//                                User user = new User(enteredName, enteredEmail);
-//
-//                                FirebaseDatabase.getInstance().getReference("Users")
-//                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                                        .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                    @Override
-//                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            Toast.makeText(RegisterActivity.this, "User has been registered successfully", Toast.LENGTH_LONG).show();
-                                            progressBar.setVisibility(View.GONE);
-                                        } else {
-                                            Toast.makeText(RegisterActivity.this, "Failed to register", Toast.LENGTH_LONG).show();
-                                            progressBar.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-                            }
-//                            else {
-//                                Toast.makeText(MainActivity2.this, "Failed to register", Toast.LENGTH_LONG).show();
-//                                progressBar.setVisibility(View.GONE);
-//                            }
-                        }
-//                    });
-//        }
-//
-//    }
+
+    }
+
 
 }
