@@ -21,7 +21,7 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
    public TextView event_description;
    public TextView status;
    public TextView location;
-   public ImageView locationImage;
+   public ImageView event_image;
 
    public Activity mActivity;
 
@@ -30,8 +30,9 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
    public EventViewHolder(@NonNull View itemView) {
       super(itemView);
       event_title = (TextView) itemView.findViewById(R.id.event_title);
-      event_description = (TextView) itemView.findViewById(R.id.event_desc);
-      location = (TextView) itemView.findViewById(R.id.event_location);
+      event_description = (TextView) itemView.findViewById(R.id.event_description);
+//    location = (TextView) itemView.findViewById(R.id.event_location);
+      event_image = (ImageView) itemView.findViewById(R.id.event_image);
    }
 
 

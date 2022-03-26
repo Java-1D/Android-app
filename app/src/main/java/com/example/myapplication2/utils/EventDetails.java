@@ -1,5 +1,6 @@
 package com.example.myapplication2.utils;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,15 +15,39 @@ public class EventDetails {
 
    private static final String TAG = "TEST";
 
-   public static void SetEventRowDetails(DocumentReference locationReference, EventViewHolder holder){
-      locationReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+   // Set the text for title, description and image for event_image
+//   public static void SetEventRowDetails(DocumentReference locationReference, EventViewHolder holder){
+//      locationReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//         @Override
+//         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//            if (task.isSuccessful()) {
+//               DocumentSnapshot document = task.getResult();
+//               if (document != null && document.exists()) {
+//                  Log.d("TAG", document.getString("title")); //Print the name
+//                  holder.location.setText(location.getTitle());
+//                  Bitmap imageBitmap = Utils.getImageBitmap(location.getImagePath());
+//                  holder.locationImage.setImageBitmap(imageBitmap);
+//               } else {
+//                  Log.d(TAG, "No such document");
+//               }
+//            } else {
+//               Log.d(TAG, "get failed with ", task.getException());
+//            }
+//         }
+//      });
+//
+//   }
+
+   public static void setEventImage(DocumentReference imageRef, EventViewHolder holder){
+      imageRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
          @Override
          public void onComplete(@NonNull Task<DocumentSnapshot> task) {
             if (task.isSuccessful()) {
                DocumentSnapshot document = task.getResult();
                if (document != null && document.exists()) {
-                  Log.d("TAG", document.getString("title")); //Print the name
-
+                  Bitmap imageBitmap = Utils.getImageBitmap(document.getString("image_ref"));
+                  holder.event_image.setImageBitmap(imageBitmap);
                } else {
                   Log.d(TAG, "No such document");
                }

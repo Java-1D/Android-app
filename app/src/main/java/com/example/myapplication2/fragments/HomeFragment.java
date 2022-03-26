@@ -69,7 +69,7 @@ public class HomeFragment extends Fragment {
             public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 // Creates a new instance of View Holder
                 // Uses layout called R.layout.event_item
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_row, parent, false);
                 return new EventViewHolder(view);
             }
 
@@ -79,11 +79,10 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, model.toString());
                 Log.d(TAG, String.valueOf(holder));
                 Log.d(TAG, model.getTitle());
+                Log.d(TAG, "DESC" + model.getDescription());
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
-                // Get location
-                EventDetails.SetEventRowDetails(model.getVenue(),holder);
-
+//                EventDetails.setEventImage(model.getImagePath(),holder);
             }
 
         };
