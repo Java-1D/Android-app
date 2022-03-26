@@ -26,25 +26,23 @@
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/dropdown_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/list_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/strings.xml" value="0.36666666666666664" />
-        <entry key="app/src/main/res/layout/activity_edit_profile_page.xml" value="0.2078125" />
-        <entry key="app/src/main/res/layout/activity_filter_page.xml" value="0.2078125" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.2078125" />
-        <entry key="app/src/main/res/layout/activity_main2.xml" value="0.2078125" />
-        <entry key="app/src/main/res/layout/activity_mainpage.xml" value="0.1925925925925926" />
-        <entry key="app/src/main/res/layout/activity_profile_page.xml" value="0.3098958333333333" />
-        <entry key="app/src/main/res/layout/activity_view_events.xml" value="0.28229166666666666" />
-        <entry key="app/src/main/res/layout/event_item.xml" value="0.3098958333333333" />
-        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.15" />
-        <entry key="app/src/main/res/layout/fragment_second.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_third.xml" value="0.28229166666666666" />
-        <entry key="app/src/main/res/layout/item_contact.xml" value="0.17664235432942704" />
-        <entry key="app/src/main/res/layout/list_item.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/main_listing.xml" value="0.28206787109375" />
-        <entry key="app/src/main/res/layout/my_row.xml" value="0.2845849802371542" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_create_events.xml" value="0.1" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_edit_profile_page.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_filter_page.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_main2.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_mainpage.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_profile_page.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_first.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_second.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_third.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/list_item.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/main_listing.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/xml/file_paths.xml" value="0.2015625" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
