@@ -6,9 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_bg"
     tools:context=".LoginActivity">
-<!---Icon-->
-    <!---Login word-->
-    <!---Username bar, relative layout-->
+
     <ImageView
         android:id="@+id/icon"
         android:layout_width="113dp"

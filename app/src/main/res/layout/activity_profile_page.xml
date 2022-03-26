@@ -4,8 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+<<<<<<< HEAD
     tools:context=".ProfilePage"
     android:background="@drawable/gradient_bg">
+=======
+    android:background="@drawable/gradient_bg"
+    tools:context=".profilePage">
+>>>>>>> b1a2cee (Added modules in profile page and camera and gallery for edit profile page)
 
     <ImageView
         android:id="@+id/profilePicture"
@@ -124,12 +129,108 @@
             android:background="#585858" />
 
         <TextView
+            android:id="@+id/modules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="Modules"
+            android:textAlignment="center"
+            android:textSize="15sp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="80dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/Module1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:text="50.001: Algorithms" />
+
+                <TextView
+                    android:id="@+id/Module2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="3.007: Difficult Module" />
+
+                <TextView
+                    android:id="@+id/Module3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="30.007: Even More Difficult Module" />
+
+                <TextView
+                    android:id="@+id/Module4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="50.002: Computer Structures" />
+
+                <TextView
+                    android:id="@+id/Module5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="50.003: Witchcraft" />
+
+                <TextView
+                    android:id="@+id/Module6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="50.004: Java" />
+
+                <TextView
+                    android:id="@+id/Module7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="1.001: Module of kings" />
+
+                <TextView
+                    android:id="@+id/Module8"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="1.002: Module for the most handsome" />
+            </LinearLayout>
+        </ScrollView>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/appCompatImageView"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:alpha="8.5"
+            android:background="#585858" />
+
+        <TextView
             android:id="@+id/bioHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_marginTop="5dp"
             android:text="@string/bio"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/bioText"
@@ -144,12 +245,12 @@
         android:id="@+id/editButton"
         android:layout_width="194dp"
         android:layout_height="48dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/sign_in_bar"
         android:text="@string/edit"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.475"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 

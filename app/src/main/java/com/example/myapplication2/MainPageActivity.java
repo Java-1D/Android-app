@@ -27,9 +27,9 @@ public class MainPageActivity extends AppCompatActivity implements NavigationBar
         bottomNavigationView.setSelectedItemId(R.id.home);
 
     }
-    SearchFragment searchFragment = new SearchFragment();
-    HomeFragment homeFragment = new HomeFragment();
-    SettingsFragment settingsFragment = new SettingsFragment();
+    com.example.myapplication2.SearchFragment searchFragment = new com.example.myapplication2.SearchFragment();
+    com.example.myapplication2.HomeFragment homeFragment = new com.example.myapplication2.HomeFragment();
+    com.example.myapplication2.SettingsFragment settingsFragment = new com.example.myapplication2.SettingsFragment();
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
