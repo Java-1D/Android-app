@@ -46,8 +46,8 @@ public class EventDetails {
             if (task.isSuccessful()) {
                DocumentSnapshot document = task.getResult();
                if (document != null && document.exists()) {
-                  Log.d("TAG", document.getString("image_ref")); //Print the name
-                  String url = document.getString("image_ref");
+                  Log.d("TAG", document.getString("imageRef")); //Print the name
+                  String url = document.getString("imageRef");
                   Utils.loadImage(url,holder.event_image);
                } else {
                   Log.d(TAG, "No such document");
