@@ -15,72 +15,115 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 
 public class EditProfilePage extends AppCompatActivity implements View.OnClickListener {
 
-    ImageView image;
+    ImageView profilePicture;
+    ImageView backButton;
+    EditText editName;
+    EditText editEmail;
+    EditText editPillar;
+    EditText editTerm;
+    EditText editModules;
+    EditText editBio;
+    Button confirmEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile_page);
 
-        image = findViewById(R.id.imageView);
-        image.setOnClickListener(new View.OnClickListener() {
+        profilePicture = findViewById(R.id.editProfilePicture);
+        backButton = findViewById(R.id.backButton);
+        editName = findViewById(R.id.editName);
+        editEmail = findViewById(R.id.editEmail);
+        editPillar = findViewById(R.id.editPillar);
+        editTerm = findViewById(R.id.editTerm);
+        editModules = findViewById(R.id.editModules);
+        editBio = findViewById(R.id.editBio);
+        confirmEdit = findViewById(R.id.confirmButton);
+
+        profilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 chooseProfilePic();
             }
         });
 
-        Button confirmEdit = (Button) findViewById(R.id.confirmButton);
         confirmEdit.setOnClickListener(this);
-
-        ImageView back = findViewById(R.id.backButton);
-        back.setOnClickListener(this);
+        backButton.setOnClickListener(this);
     }
 
-        private void chooseProfilePic() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            LayoutInflater inflater = getLayoutInflater();
-            View dialogview = inflater.inflate(R.layout.add_picture_alert, null);
-            builder.setCancelable(false);
-            builder.setView(dialogview);
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 
-            ImageView takePic = dialogview.findViewById(R.id.takePic);
-            ImageView chooseGallery = dialogview.findViewById(R.id.chooseGallery);
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
 
-            AlertDialog alertDialogProfilePicture = builder.create();
-            alertDialogProfilePicture.show();
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
-            takePic.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (checkAndRequestPermission()) {
-                        takePicFromCamera();
-                        alertDialogProfilePicture.cancel();
-                    }
-                }
-            });
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
-            chooseGallery.setOnClickListener((new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    takePicFromGallery();
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    private void chooseProfilePic() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogview = inflater.inflate(R.layout.add_picture_alert, null);
+        builder.setCancelable(false);
+        builder.setView(dialogview);
+
+        ImageView takePic = dialogview.findViewById(R.id.takePic);
+        ImageView chooseGallery = dialogview.findViewById(R.id.chooseGallery);
+
+        AlertDialog alertDialogProfilePicture = builder.create();
+        alertDialogProfilePicture.show();
+
+        takePic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkAndRequestPermission()) {
+                    takePicFromCamera();
                     alertDialogProfilePicture.cancel();
                 }
-            }));
+            }
+        });
 
+        chooseGallery.setOnClickListener((new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                takePicFromGallery();
+                alertDialogProfilePicture.cancel();
+            }
+        }));
 
+    }
 
-        }
     private void takePicFromGallery(){
         Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhoto, 1);
@@ -96,22 +139,22 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case 1:
                 if (resultCode == RESULT_OK) {
                     Uri selectedImageUri = data.getData();
-                    image.setImageURI(selectedImageUri);
+                    profilePicture.setImageURI(selectedImageUri);
                 }
                 break;
             case 2:
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
                     Bitmap bitmapImage = (Bitmap) bundle.get("data");
-                    image.setImageBitmap(bitmapImage);
+                    profilePicture.setImageBitmap(bitmapImage);
                 }
         }
     }
+
     private boolean checkAndRequestPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             int cameraPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
@@ -136,16 +179,13 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View view) {
-
-
         switch (view.getId()) {
             case R.id.confirmButton:
                 startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
                 break;
-    case R.id.backButton:
-                startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
+            case R.id.backButton:
+                startActivity(new Intent(EditProfilePage.this, MainPageActivity.class));
                 break;
-
 
         }
     }
