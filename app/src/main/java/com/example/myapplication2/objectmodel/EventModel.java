@@ -28,6 +28,7 @@ public class EventModel {
     private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
     public static final String TAG = "Event Model";
+
     private int capacity;
     private String description;
     private Date eventCreated;
