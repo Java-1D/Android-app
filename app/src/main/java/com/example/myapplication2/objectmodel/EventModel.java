@@ -6,7 +6,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Events Collection
+* @field capacity: number
+* @field description: string
+* @field eventCreated: timestamp
+* @field eventEnd: timestamp
+* @field eventStart: timestamp
+* @field imagePath: DocumentReference from Images Collection
+* @field lastUpdated: timestamp
+* @field module: DocumentReference from Modules Collection
+* @field status: string
+* @field title: string
+* @field userCreated: DocumentReference from Users Collection
+* @field userJoined: ArrayList of DocumentReference from Users Collection
+*        @index: DocumentReference from Users Collection
+* @field venue: DocumentReference from Venues Collection
+*/
 public class EventModel {
+
+    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
     public static final String TAG = "Event Model";
     private int capacity;
@@ -21,13 +40,9 @@ public class EventModel {
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private DocumentReference locationReference;
+    private DocumentReference venue;
 
-    private ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
-
-
-    public EventModel() {
-    } //no arg constructor for firebase
+    public EventModel() {} //no arg constructor for firebase
 
     public EventModel(int capacity, String description, Date eventCreated,
                       Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
@@ -46,7 +61,7 @@ public class EventModel {
         this.title = title;
         this.userCreated = userCreated;
         this.userJoined = userJoined;
-        this.locationReference = venue;
+        this.venue = venue;
     }
 
     public int getCapacity() {
@@ -97,10 +112,6 @@ public class EventModel {
         this.imagePath = imagePath;
     }
 
-    public DocumentReference getModule() {
-        return module;
-    }
-
     public Date getLastUpdated() {
         return lastUpdated;
     }
@@ -109,16 +120,33 @@ public class EventModel {
         this.lastUpdated = lastUpdated;
     }
 
+    public DocumentReference getModule() {
+        return module;
+    }
+
     public void setModule(DocumentReference module) {
         this.module = module;
+    }
+
+    public String getStatuses(int index) {
+        return statuses.get(index);
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus() {
+        Date currentDate = new Date();
+        if (currentDate.compareTo(this.eventStart) < 0) {
+            this.status = "upcoming";
+        }
+        else if (currentDate.compareTo(this.eventEnd) > 0) {
+            this.status = "completed";
+        }
+        else {
+            this.status = "ongoing";
+        }
     }
 
     public String getTitle() {
@@ -129,7 +157,9 @@ public class EventModel {
         this.title = title;
     }
 
-    public DocumentReference getUserCreated() {return userCreated;}
+    public DocumentReference getUserCreated() {
+        return userCreated;
+    }
 
     public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
@@ -143,12 +173,12 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getLocationReference() {
-        return locationReference;
+    public DocumentReference getVenue() {
+        return venue;
     }
 
-    public void setLocationReference(DocumentReference locationReference) {
-        this.locationReference = locationReference;
+    public void setVenue(DocumentReference venue) {
+        this.venue = venue;
     }
 
     @Override
@@ -160,13 +190,13 @@ public class EventModel {
                 ", eventEnd=" + eventEnd +
                 ", eventStart=" + eventStart +
                 ", imagePath=" + imagePath +
-                ", lastUpdated="+ lastUpdated +
+                ", lastUpdated=" + lastUpdated +
                 ", module=" + module +
                 ", status='" + status + '\'' +
                 ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue=" + locationReference +
+                ", venue=" + venue +
                 '}';
     }
 }

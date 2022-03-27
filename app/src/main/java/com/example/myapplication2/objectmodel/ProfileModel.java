@@ -5,6 +5,22 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.ArrayList;
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Profiles Collection
+* @field eventsCreated: ArrayList of DocumentReference from Events Collection
+*        @index: DocumentReference from Events Collection
+* @field eventsJoined: ArrayList of DocumentReference from Events Collection
+*        @index: DocumentReference from Events Collection
+* @field imagePath: DocumentReference of Images Collection
+* @field modules: ArrayList of DocumentReference from Modules Collection
+*        @index: DocumentReference from Modules Collection
+* @field name: string
+* @field pillar: string
+* @field profileCreated: timestamp
+* @field profileUpdated: timestamp
+* @field term: number
+* @field userId: DocumentReference from Users Collection
+*/
 public class ProfileModel {
 
     private static final String TAG = "Profile Model";
@@ -116,5 +132,21 @@ public class ProfileModel {
 
     public void setUserId(DocumentReference userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileModel{" +
+                "eventsCreated=" + eventsCreated +
+                ", eventsJoined=" + eventsJoined +
+                ", imagePath=" + imagePath +
+                ", modules=" + modules +
+                ", name='" + name + '\'' +
+                ", pillar='" + pillar + '\'' +
+                ", profileCreated=" + profileCreated +
+                ", profileUpdated=" + profileUpdated +
+                ", term=" + term +
+                ", userId=" + userId +
+                '}';
     }
 }
