@@ -37,7 +37,7 @@ public class LocationModel {
     @Override
     public String toString() {
         return "LocationModel{" +
-                "imagePath='" + imageRef + '\'' +
+                "imageRef='" + imageRef + '\'' +
                 ", title='" + title + '\'' +
                 '}';
     }
