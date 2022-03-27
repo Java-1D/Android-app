@@ -1,16 +1,23 @@
 package com.example.myapplication2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication2.utils.Utils;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -28,6 +35,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Button login = (Button) findViewById(R.id.loginbtn);
         login.setOnClickListener(this);
 
+
+
+//        Toast toast = Toast.makeText(getApplicationContext(),
+//                username,
+//                Toast.LENGTH_SHORT);
+//
+//        toast.show();
+
+
+
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -44,7 +61,45 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(LoginActivity.this, ProfilePage.class));
                 break;
             case R.id.loginbtn:
-                startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
+                TextView email = (TextView) findViewById(R.id.username);
+                String emailString = email.getText().toString();
+                TextView password = (TextView) findViewById(R.id.password);
+                String passwordString = password.getText().toString();
+
+                validAccount(emailString, passwordString);
         }
+    }
+
+
+    public void validAccount(String email, String password) {
+
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+        Task<QuerySnapshot> task = firebaseFirestore.collection("Users")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().isEmpty()) {
+                                Toast toast = Toast.makeText(getApplicationContext(),
+                                        "Invalid username",
+                                        Toast.LENGTH_SHORT);
+                                toast.show();
+                            }
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.getData().get("password").toString().equals(password)) {
+                                    startActivity(new Intent(LoginActivity.this, FilterPage.class));
+                                }
+                                else {
+                                    Toast toast = Toast.makeText(getApplicationContext(),
+                                            "Invalid password",
+                                            Toast.LENGTH_SHORT);
+                                    toast.show();
+                                }
+                            }
+                        }
+                    }
+                });
     }
 }
