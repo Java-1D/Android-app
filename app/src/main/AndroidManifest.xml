@@ -34,10 +34,10 @@
             android:exported="false" />
         <activity
             android:name=".EditProfilePage"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".ProfilePage"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />

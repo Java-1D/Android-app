@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-    tools:context=".ProfilePage"
-    android:background="@drawable/gradient_bg">
+    android:background="@drawable/gradient_bg"
+    tools:context=".ProfilePage" >
 
 
     <ImageView
@@ -49,14 +48,14 @@
 
     <ImageView
         android:id="@+id/profilePicture"
-        android:layout_width="135dp"
-        android:layout_height="135dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginTop="70dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/profie_image" />
+        app:srcCompat="@drawable/profile_image" />
 
     <TextView
         android:id="@+id/profileName"
@@ -78,6 +77,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="@string/user_email"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="@+id/profileName"
         app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="@+id/profileName"
@@ -169,9 +169,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="Modules"
+            android:text="@string/modules"
             android:textAlignment="center"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -213,7 +213,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:text="50.002: Computer Structures" />
+                    android:text="50.002: Computation Structures" />
 
                 <TextView
                     android:id="@+id/Module5"
@@ -222,30 +222,6 @@
                     android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:text="50.003: Witchcraft" />
-
-                <TextView
-                    android:id="@+id/Module6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="50.004: Java" />
-
-                <TextView
-                    android:id="@+id/Module7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="1.001: Module of kings" />
-
-                <TextView
-                    android:id="@+id/Module8"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="1.002: Module for the most handsome" />
             </LinearLayout>
         </ScrollView>
 
@@ -265,7 +241,7 @@
             android:layout_marginTop="5dp"
             android:text="@string/bio"
             android:textAlignment="center"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/bioText"
@@ -277,9 +253,9 @@
 
     <Button
         android:id="@+id/editButton"
-        android:layout_width="194dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="40dp"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/sign_in_bar"
         android:text="@string/edit"
         android:textSize="20sp"
