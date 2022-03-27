@@ -4,27 +4,44 @@ import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Users Collection
+* @field dateCreated: timestamp
+* @field email: string
+* @field name: string
+* @field password: string
+* @field profile: DocumentReference from Profiles Collection
+* @field username: string
+*/
 public class UserModel {
 
     public static final String TAG = "User Model";
 
+    private Date dateCreated;
     private String email;
     private String name;
     private String password;
     private DocumentReference profile;
-    private Date userCreated;
     private String username;
 
     public UserModel() {
     }
 
-    public UserModel(String email, String name, String password, DocumentReference profile, Date userCreated, String username) {
+    public UserModel(Date dateCreated, String email, String name, String password, DocumentReference profile, String username) {
+        this.dateCreated = dateCreated;
         this.email = email;
         this.name = name;
         this.password = password;
         this.profile = profile;
-        this.userCreated = userCreated;
         this.username = username;
+    }
+
+    public Date getdateCreated() {
+        return dateCreated;
+    }
+
+    public void setdateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     public String getEmail() {
@@ -59,14 +76,6 @@ public class UserModel {
         this.profile = profile;
     }
 
-    public Date getUserCreated() {
-        return userCreated;
-    }
-
-    public void setUserCreated(Date userCreated) {
-        this.userCreated = userCreated;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -75,14 +84,15 @@ public class UserModel {
         this.username = username;
     }
 
+
     @Override
     public String toString() {
         return "UserModel{" +
-                "email='" + email + '\'' +
+                "dateCreated=" + dateCreated +
+                ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
                 ", profile=" + profile +
-                ", userCreated=" + userCreated +
                 ", username='" + username + '\'' +
                 '}';
     }

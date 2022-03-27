@@ -90,7 +90,7 @@ public class ViewEventsActivity extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         LocationModel location = documentSnapshot.toObject(LocationModel.class);
                         holder.location.setText(location.getTitle());
-                        Bitmap imageBitmap = Utils.getImageBitmap(location.getImagePath());
+                        Bitmap imageBitmap = Utils.getImageBitmap(location.getImageRef());
                         holder.locationImage.setImageBitmap(imageBitmap);
                     }
                 });

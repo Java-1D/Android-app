@@ -6,6 +6,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Events Collection
+* @field capacity: number
+* @field description: string
+* @field eventCreated: timestamp
+* @field eventEnd: timestamp
+* @field eventStart: timestamp
+* @field imagePath: DocumentReference from Images Collection
+* @field lastUpdated: timestamp
+* @field module: DocumentReference from Modules Collection
+* @field status: string
+* @field title: string
+* @field userCreated: DocumentReference from Users Collection
+* @field userJoined: ArrayList of DocumentReference from Users Collection
+*        @index: DocumentReference from Users Collection
+* @field venue: DocumentReference from Venues Collection
+*/
 public class EventModel {
 
     private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
@@ -25,8 +42,7 @@ public class EventModel {
     private ArrayList<DocumentReference> userJoined;
     private DocumentReference venue;
 
-    public EventModel() {
-    } //no arg constructor for firebase
+    public EventModel() {} //no arg constructor for firebase
 
     public EventModel(int capacity, String description, Date eventCreated,
                       Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
@@ -96,10 +112,6 @@ public class EventModel {
         this.imagePath = imagePath;
     }
 
-    public DocumentReference getModule() {
-        return module;
-    }
-
     public Date getLastUpdated() {
         return lastUpdated;
     }
@@ -108,8 +120,16 @@ public class EventModel {
         this.lastUpdated = lastUpdated;
     }
 
+    public DocumentReference getModule() {
+        return module;
+    }
+
     public void setModule(DocumentReference module) {
         this.module = module;
+    }
+
+    public String getStatuses(int index) {
+        return statuses.get(index);
     }
 
     public String getStatus() {
@@ -137,7 +157,9 @@ public class EventModel {
         this.title = title;
     }
 
-    public DocumentReference getUserCreated() {return userCreated;}
+    public DocumentReference getUserCreated() {
+        return userCreated;
+    }
 
     public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
@@ -159,10 +181,6 @@ public class EventModel {
         this.venue = venue;
     }
 
-    public String getStatuses(int index) {
-        return statuses.get(index);
-    }
-
     @Override
     public String toString() {
         return "EventModel{" +
@@ -181,5 +199,4 @@ public class EventModel {
                 ", venue=" + venue +
                 '}';
     }
-
 }

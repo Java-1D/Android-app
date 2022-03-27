@@ -4,6 +4,12 @@ import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Images Collection
+* @field dateUploaded: timestamp
+* @field imageRef: string referencing the URI of image stored in Firebase Cloud Storage
+* @field userUploaded: DocumentReference from Users Collection
+*/
 public class ImageModel {
 
     public static final String TAG = "Image Model";
@@ -11,7 +17,7 @@ public class ImageModel {
     private String imageRef; //not sure about the type declaration to reference to firebase Storage
     private DocumentReference userUploaded;
 
-    ImageModel() {}
+    ImageModel() {} //no arg constructor for firebase
 
     ImageModel(Date dateUploaded, String imageRef, DocumentReference userUploaded) {
         this.dateUploaded = dateUploaded;
