@@ -1,26 +1,29 @@
 package com.example.myapplication2.objectmodel;
 
-
+/*
+* Firebase Firestore Document Object Model for the Locations Collection
+* @field imageRef: string referencing the URL of an online image
+* @field title: string
+*/
 public class LocationModel {
 
     public static final String TAG = "Location Model";
-    private String imagePath;
+    private String imageRef;
     private String title;
 
-    LocationModel() {
-    }
+    LocationModel() {} //no arg constructor for firebase
 
-    public LocationModel(String imagePath, String title) {
-        this.imagePath = imagePath;
+    public LocationModel(String imageRef, String title) {
+        this.imageRef = imageRef;
         this.title = title;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getImageRef() {
+        return imageRef;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setImageRef(String imageRef) {
+        this.imageRef = imageRef;
     }
 
     public String getTitle() {
@@ -31,11 +34,10 @@ public class LocationModel {
         this.title = title;
     }
 
-
     @Override
     public String toString() {
         return "LocationModel{" +
-                "imagePath='" + imagePath + '\'' +
+                "imagePath='" + imageRef + '\'' +
                 ", title='" + title + '\'' +
                 '}';
     }

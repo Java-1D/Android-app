@@ -1,5 +1,9 @@
 package com.example.myapplication2.objectmodel;
 
+/*
+ * Firebase Firestore Document Object Model for the Modules Collection
+ * @field name: string
+ */
 public class ModuleModel {
 
     private static final String TAG = "Module Model";
