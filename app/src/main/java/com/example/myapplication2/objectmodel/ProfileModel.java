@@ -7,6 +7,7 @@ import java.util.Date;
 
 /*
 * Firebase Firestore Document Object Model for the Profiles Collection
+* @field bio: string
 * @field eventsCreated: ArrayList of DocumentReference from Events Collection
 *        @index: DocumentReference from Events Collection
 * @field eventsJoined: ArrayList of DocumentReference from Events Collection
@@ -24,6 +25,8 @@ import java.util.Date;
 public class ProfileModel {
 
     private static final String TAG = "Profile Model";
+
+    private String bio;
     private ArrayList<DocumentReference> eventsCreated;
     private ArrayList<DocumentReference> eventsJoined;
     private DocumentReference imagePath;
@@ -38,9 +41,10 @@ public class ProfileModel {
     ProfileModel() {
     }
 
-    ProfileModel(ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
+    ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
                  DocumentReference imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
                  Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
+        this.bio = bio;
         this.eventsCreated = eventsCreated;
         this.eventsJoined = eventsJoined;
         this.imagePath = imagePath;
@@ -53,6 +57,13 @@ public class ProfileModel {
         this.userId = userId;
     }
 
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
 
     public ArrayList<DocumentReference> getEventsCreated() {
         return eventsCreated;
@@ -137,7 +148,8 @@ public class ProfileModel {
     @Override
     public String toString() {
         return "ProfileModel{" +
-                "eventsCreated=" + eventsCreated +
+                "bio='" + bio + '\'' +
+                ", eventsCreated=" + eventsCreated +
                 ", eventsJoined=" + eventsJoined +
                 ", imagePath=" + imagePath +
                 ", modules=" + modules +
