@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import com.example.myapplication2.R;
 import com.example.myapplication2.objectmodel.EventModel;
-import com.example.myapplication2.utils.EventDetails;
+import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.EventViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -47,7 +47,6 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
-
 
 
     @Override
@@ -82,14 +81,11 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, "DESC" + model.getDescription());
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
-                EventDetails.setEventImage(model.getImagePath(),holder);
+                Utils.loadImage(model.getImagePath(), holder.event_image);
             }
 
         };
     }
-
-
-
 
 
     @Override
