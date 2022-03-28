@@ -29,8 +29,6 @@ public class EventModel {
 
     public static final String TAG = "Event Model";
 
-
-
     private int capacity;
     private String description;
     private Date eventCreated;
@@ -177,5 +175,25 @@ public class EventModel {
 
     public void setVenue(String venue) {
         this.venue = venue;
+    }
+
+    @Override
+    public String toString() {
+        return "EventModel{" +
+                "statuses=" + statuses +
+                ", capacity=" + capacity +
+                ", description='" + description + '\'' +
+                ", eventCreated=" + eventCreated +
+                ", eventEnd=" + eventEnd +
+                ", eventStart=" + eventStart +
+                ", imagePath='" + imagePath + '\'' +
+                ", lastUpdated=" + lastUpdated +
+                ", module=" + module +
+                ", status='" + status + '\'' +
+                ", title='" + title + '\'' +
+                ", userCreated=" + userCreated +
+                ", userJoined=" + userJoined +
+                ", venue='" + venue + '\'' +
+                '}';
     }
 }
