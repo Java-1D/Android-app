@@ -13,7 +13,7 @@ import java.util.Date;
 * @field eventCreated: timestamp
 * @field eventEnd: timestamp
 * @field eventStart: timestamp
-* @field imagePath: DocumentReference from Images Collection
+* @field imagePath: string referencing URL from Firebase Cloud Storage
 * @field lastUpdated: timestamp
 * @field module: DocumentReference from Modules Collection
 * @field status: string
@@ -34,7 +34,7 @@ public class EventModel {
     private Date eventCreated;
     private Date eventEnd;
     private Date eventStart;
-    private DocumentReference imagePath;
+    private String imagePath;
     private Date lastUpdated;
     private DocumentReference module;
     private String status;
@@ -46,7 +46,7 @@ public class EventModel {
     public EventModel() {} //no arg constructor for firebase
 
     public EventModel(int capacity, String description, Date eventCreated,
-                      Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
+                      Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
                       DocumentReference module, String status, String title,
                       DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
                       DocumentReference venue) {
@@ -105,11 +105,11 @@ public class EventModel {
         this.eventStart = eventStart;
     }
 
-    public DocumentReference getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(DocumentReference imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 
