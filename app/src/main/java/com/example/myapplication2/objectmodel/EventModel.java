@@ -13,7 +13,7 @@ import java.util.Date;
 * @field eventCreated: timestamp
 * @field eventEnd: timestamp
 * @field eventStart: timestamp
-* @field imagePath: DocumentReference from Images Collection
+* @field imagePath: string referencing URL from Firebase Cloud Storage
 * @field lastUpdated: timestamp
 * @field module: DocumentReference from Modules Collection
 * @field status: string
@@ -47,7 +47,11 @@ public class EventModel {
 
     public EventModel() {} //no arg constructor for firebase
 
-    public EventModel(int capacity, String description, Date eventCreated, Date eventEnd, Date eventStart, String imagePath, Date lastUpdated, DocumentReference module, String status, String title, DocumentReference userCreated, ArrayList<DocumentReference> userJoined, String venue) {
+    public EventModel(int capacity, String description, Date eventCreated,
+                      Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
+                      DocumentReference module, String status, String title,
+                      DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
+                      String venue) {
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;

@@ -22,8 +22,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 
 public class EditProfilePage extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = "EditProfilePage";
+    FirebaseFirestore db;
 
     ImageView profilePicture;
     ImageView backButton;
