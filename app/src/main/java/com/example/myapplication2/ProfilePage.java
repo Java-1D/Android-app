@@ -12,14 +12,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication2.objectmodel.Container;
+import com.example.myapplication2.objectmodel.ProfileModel;
+import com.example.myapplication2.objectmodel.UserModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class ProfilePage extends AppCompatActivity implements View.OnClickListener {
+
+
+//TODO Need Logic to hide button when visiting other profile pages (Check DocumentReference and/or ID)
+public class ProfilePage extends AppCompatActivity {
     private static final String TAG = "ProfilePage";
     FirebaseFirestore db;
 
@@ -32,7 +38,7 @@ public class ProfilePage extends AppCompatActivity implements View.OnClickListen
         BIO
     }
 
-    ImageView backButton;
+    ImageView backArrow;
     Button logOutButton;
     ImageView profilePicture;
     TextView profileName;
@@ -47,6 +53,31 @@ public class ProfilePage extends AppCompatActivity implements View.OnClickListen
     TextView bioText;
     Button editButton;
 
+    //Test Variables for Firestore
+    String value;
+    final Container<UserModel> user = new Container(new UserModel());
+    final Container<ProfileModel> profile = new Container(new ProfileModel());
+
+    class ClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.backArrow:
+                    startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
+                    break;
+                case R.id.logOutButton:
+                    startActivity((new Intent(ProfilePage.this, LoginActivity.class)));
+                    break;
+                case R.id.editButton:
+                    startActivity(new Intent(ProfilePage.this, EditProfilePage.class));
+                    Log.i(TAG, "UserModel Container: " + user.get().toString());
+                    break;
+                default:
+                    Log.w(TAG, "Button not Found");
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +85,7 @@ public class ProfilePage extends AppCompatActivity implements View.OnClickListen
 
         db = FirebaseFirestore.getInstance();
 
-        backButton = findViewById(R.id.backArrow);
+        backArrow = findViewById(R.id.backArrow);
         logOutButton = findViewById(R.id.logOutButton);
         profilePicture = findViewById(R.id.profilePicture);
         profileName = findViewById(R.id.profileName);
@@ -69,21 +100,23 @@ public class ProfilePage extends AppCompatActivity implements View.OnClickListen
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
-        editButton.setOnClickListener(this);
-        backButton.setOnClickListener(this);
-        logOutButton.setOnClickListener(this);
-
+        backArrow.setOnClickListener(new ClickListener());
+        logOutButton.setOnClickListener(new ClickListener());
+        editButton.setOnClickListener(new ClickListener());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        getProfileData("Test", profileName, Data.NAME);
-        getUserData("Test", profileEmail, Data.EMAIL);
-        getProfileData("Test", pillarValue, Data.PILLAR);
-        getProfileData("Test", termValue, Data.TERM);
+        DocumentReference userId = getDocumentReference("Users", "Test");
+        DocumentReference profileId = getDocumentReference("Profiles", "Test");
+        getProfileData(profileId, profileName, Data.NAME);
+        getUserData(userId, profileEmail, Data.EMAIL);
+        //FIXME find a way to store data from Firestore in an Object for referencing
+        getProfileData(profileId, pillarValue, Data.PILLAR);
+        getProfileData(profileId, termValue, Data.TERM);
         //FIXME find a way to extract modules from Firestore DocumentReference
-        getProfileData("Test", bioText, Data.BIO);
+        getProfileData(profileId, bioText, Data.BIO);
     }
 
     @Override
@@ -111,23 +144,22 @@ public class ProfilePage extends AppCompatActivity implements View.OnClickListen
         super.onDestroy();
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.editButton:
-                startActivity(new Intent(ProfilePage.this, EditProfilePage.class));
-                break;
-            case R.id.backArrow:
-                startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
-                break;
-            case R.id.logOutButton:
-                startActivity((new Intent(ProfilePage.this, LoginActivity.class)));
-        }
+
+    public DocumentReference getDocumentReference(String collectionId, String documentId) {
+        return db.collection(collectionId).document(documentId);
     }
 
-    public void getProfileData(String profileId, TextView view, Data data) {
-        CollectionReference profiles = db.collection("Profiles");
-        DocumentReference profileRef = profiles.document(profileId);
+    public void getProfileData(DocumentReference profileRef, TextView view, Data data) {
+        //FIXME Using onSuccessListener
+        profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot document) {
+                ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                Log.i(TAG, "ProfileModel Class: " + document.toObject(ProfileModel.class).toString());
+            }
+        });
+
+        //FIXME USING onCompleteListener
         profileRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
            @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -165,9 +197,17 @@ public class ProfilePage extends AppCompatActivity implements View.OnClickListen
         });
     }
 
-    public void getUserData(String userId, TextView view, Data data) {
-        CollectionReference users = db.collection("Users");
-        DocumentReference userRef = users.document(userId);
+    public void getUserData(DocumentReference userRef, TextView view, Data data) {
+        //FIXME Using onSuccessListener
+        userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot document) {
+                ProfilePage.this.user.set(document.toObject(UserModel.class));
+                Log.i(TAG, "UserModel Class: " + document.toObject(UserModel.class).toString());
+            }
+        });
+
+        //FIXME USING onCompleteListener
         userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
