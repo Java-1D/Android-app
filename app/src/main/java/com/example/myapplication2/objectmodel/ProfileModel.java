@@ -38,10 +38,10 @@ public class ProfileModel {
     private int term;
     private DocumentReference userId;
 
-    ProfileModel() {
+    public ProfileModel() {
     }
 
-    ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
+    public ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
                  String imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
                  Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
         this.bio = bio;

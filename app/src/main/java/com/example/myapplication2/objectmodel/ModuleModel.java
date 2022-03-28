@@ -9,10 +9,10 @@ public class ModuleModel {
     private static final String TAG = "Module Model";
     private String name;
 
-    ModuleModel() {
+    public ModuleModel() {
     }
 
-    ModuleModel(String name) {
+    public ModuleModel(String name) {
         this.name = name;
     }
 
