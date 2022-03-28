@@ -12,7 +12,7 @@ import java.util.Date;
 *        @index: DocumentReference from Events Collection
 * @field eventsJoined: ArrayList of DocumentReference from Events Collection
 *        @index: DocumentReference from Events Collection
-* @field imagePath: string referencing URL to Firebase Cloud Storage
+* @field imagePath: DocumentReference of Images Collection
 * @field modules: ArrayList of DocumentReference from Modules Collection
 *        @index: DocumentReference from Modules Collection
 * @field name: string
@@ -29,7 +29,7 @@ public class ProfileModel {
     private String bio;
     private ArrayList<DocumentReference> eventsCreated;
     private ArrayList<DocumentReference> eventsJoined;
-    private String imagePath;
+    private DocumentReference imagePath;
     private ArrayList<DocumentReference> modules;
     private String name;
     private String pillar;
@@ -42,7 +42,7 @@ public class ProfileModel {
     }
 
     ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
-                 String imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
+                 DocumentReference imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
                  Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
         this.bio = bio;
         this.eventsCreated = eventsCreated;
@@ -81,11 +81,11 @@ public class ProfileModel {
         this.eventsJoined = eventsJoined;
     }
 
-    public String getImagePath() {
+    public DocumentReference getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(String imagePath) {
+    public void setImagePath(DocumentReference imagePath) {
         this.imagePath = imagePath;
     }
 

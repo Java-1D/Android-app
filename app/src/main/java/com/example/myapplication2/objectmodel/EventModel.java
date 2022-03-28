@@ -13,7 +13,7 @@ import java.util.Date;
 * @field eventCreated: timestamp
 * @field eventEnd: timestamp
 * @field eventStart: timestamp
-* @field imagePath: string referencing URL from Firebase Cloud Storage
+* @field imagePath: DocumentReference from Images Collection
 * @field lastUpdated: timestamp
 * @field module: DocumentReference from Modules Collection
 * @field status: string
@@ -21,7 +21,7 @@ import java.util.Date;
 * @field userCreated: DocumentReference from Users Collection
 * @field userJoined: ArrayList of DocumentReference from Users Collection
 *        @index: DocumentReference from Users Collection
-* @field venue: string
+* @field venue: DocumentReference from Venues Collection
 */
 public class EventModel {
 
@@ -34,22 +34,22 @@ public class EventModel {
     private Date eventCreated;
     private Date eventEnd;
     private Date eventStart;
-    private String imagePath;
+    private DocumentReference imagePath;
     private Date lastUpdated;
     private DocumentReference module;
     private String status;
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private String venue;
+    private DocumentReference venue;
 
     public EventModel() {} //no arg constructor for firebase
 
     public EventModel(int capacity, String description, Date eventCreated,
-                      Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
+                      Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
                       DocumentReference module, String status, String title,
                       DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-                      String venue) {
+                      DocumentReference venue) {
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
@@ -105,11 +105,11 @@ public class EventModel {
         this.eventStart = eventStart;
     }
 
-    public String getImagePath() {
+    public DocumentReference getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(String imagePath) {
+    public void setImagePath(DocumentReference imagePath) {
         this.imagePath = imagePath;
     }
 
@@ -174,11 +174,11 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public String getVenue() {
+    public DocumentReference getVenue() {
         return venue;
     }
 
-    public void setVenue(String venue) {
+    public void setVenue(DocumentReference venue) {
         this.venue = venue;
     }
 

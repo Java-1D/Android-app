@@ -1,4 +1,4 @@
-package com.example.myapplication2.archive;
+package com.example.myapplication2.objectmodel;
 
 /*
 * Firebase Firestore Document Object Model for the Locations Collection

@@ -1,4 +1,4 @@
-package com.example.myapplication2.archive;
+package com.example.myapplication2;
 
 import android.Manifest;
 import android.app.Activity;
