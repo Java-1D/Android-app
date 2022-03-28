@@ -29,6 +29,8 @@ public class EventModel {
 
     public static final String TAG = "Event Model";
 
+
+
     private int capacity;
     private String description;
     private Date eventCreated;
@@ -41,7 +43,7 @@ public class EventModel {
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private DocumentReference venue;
+    private String venue;
 
     public EventModel() {} //no arg constructor for firebase
 
@@ -49,7 +51,7 @@ public class EventModel {
                       Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
                       DocumentReference module, String status, String title,
                       DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-                      DocumentReference venue) {
+                      String venue) {
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
@@ -63,6 +65,14 @@ public class EventModel {
         this.userCreated = userCreated;
         this.userJoined = userJoined;
         this.venue = venue;
+    }
+
+    public ArrayList<String> getStatuses() {
+        return statuses;
+    }
+
+    public static String getTAG() {
+        return TAG;
     }
 
     public int getCapacity() {
@@ -129,25 +139,12 @@ public class EventModel {
         this.module = module;
     }
 
-    public String getStatuses(int index) {
-        return statuses.get(index);
-    }
-
     public String getStatus() {
         return status;
     }
 
-    public void setStatus() {
-        Date currentDate = new Date();
-        if (currentDate.compareTo(this.eventStart) < 0) {
-            this.status = "upcoming";
-        }
-        else if (currentDate.compareTo(this.eventEnd) > 0) {
-            this.status = "completed";
-        }
-        else {
-            this.status = "ongoing";
-        }
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getTitle() {
@@ -174,30 +171,11 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getVenue() {
+    public String getVenue() {
         return venue;
     }
 
-    public void setVenue(DocumentReference venue) {
+    public void setVenue(String venue) {
         this.venue = venue;
-    }
-
-    @Override
-    public String toString() {
-        return "EventModel{" +
-                "capacity=" + capacity +
-                ", description='" + description + '\'' +
-                ", eventCreated=" + eventCreated +
-                ", eventEnd=" + eventEnd +
-                ", eventStart=" + eventStart +
-                ", imagePath=" + imagePath +
-                ", lastUpdated=" + lastUpdated +
-                ", module=" + module +
-                ", status='" + status + '\'' +
-                ", title='" + title + '\'' +
-                ", userCreated=" + userCreated +
-                ", userJoined=" + userJoined +
-                ", venue=" + venue +
-                '}';
     }
 }
