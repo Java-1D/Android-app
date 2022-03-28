@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,8 +16,6 @@ import android.widget.TextView;
 
 import com.example.myapplication2.R;
 import com.example.myapplication2.objectmodel.EventModel;
-import com.example.myapplication2.objectmodel.LocationModel;
-import com.example.myapplication2.objectmodel.UserModel;
 import com.example.myapplication2.utils.Utils;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -27,12 +24,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 // View Events Activity is the activity responsible for getting data from firebase and populating the screen with it
 public class ViewEventsActivity extends AppCompatActivity {
@@ -81,6 +72,7 @@ public class ViewEventsActivity extends AppCompatActivity {
                 holder.event_description.setText(model.getDescription());
 
                 // Get location
+                //FIXME getVenue now return a String value. To be rectified
                 setLocationDetails(model.getVenue(),holder);
 
 
