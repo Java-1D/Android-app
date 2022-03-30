@@ -32,6 +32,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 
+
+
 dependencies {
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:29.2.0')
@@ -68,6 +70,7 @@ dependencies {
 
     // https://github.com/ArthurHub/Android-Image-Cropper
     implementation 'com.github.CanHub:Android-Image-Cropper:4.2.0'
+
 
 
 }
