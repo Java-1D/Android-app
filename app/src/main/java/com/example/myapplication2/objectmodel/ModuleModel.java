@@ -6,7 +6,9 @@ package com.example.myapplication2.objectmodel;
  */
 public class ModuleModel {
 
-    private static final String TAG = "Module Model";
+    public static final String TAG = "Module Model";
+    public static final String collectionId = "Modules";
+
     private String name;
 
     public ModuleModel() {

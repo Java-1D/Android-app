@@ -24,7 +24,8 @@ import java.util.Date;
 */
 public class ProfileModel {
 
-    private static final String TAG = "Profile Model";
+    public static final String TAG = "Profile Model";
+    public static final String collectionId = "Profiles";
 
     private String bio;
     private ArrayList<DocumentReference> eventsCreated;
