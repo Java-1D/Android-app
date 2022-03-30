@@ -13,6 +13,7 @@
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/drawable/login_bar.xml" value="0.2985" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/drawable/sign_in_bar.xml" value="0.2985" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/drawable/white_bg.xml" value="0.334" />
+        <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/activity_create_events.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/activity_edit_profile_page.xml" value="0.5" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/activity_filter_page.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/activity_main.xml" value="0.33" />
@@ -24,7 +25,12 @@
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/add_picture_alert.xml" value="0.33" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/btmbar.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/dropdown_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/fragment_first.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/fragment_second.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/fragment_third.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/list_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/main_listing.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/recyclerview_profile_page.xml" value="0.25" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/strings.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Yk/Documents/Code/android/Android-app/app/src/main/res/layout/event_item.xml" value="0.6" />
         <entry key="..\:/Users/Yk/Documents/Code/android/Android-app/app/src/main/res/layout/event_row.xml" value="0.11302083333333333" />

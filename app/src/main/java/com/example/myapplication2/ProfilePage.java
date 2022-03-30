@@ -2,6 +2,8 @@ package com.example.myapplication2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +13,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.myapplication2.objectmodel.RecyclerContactAdapter;
+import com.example.myapplication2.objectmodel.RecyclerViewModel;
 
 import com.example.myapplication2.objectmodel.Container;
 import com.example.myapplication2.objectmodel.ProfileModel;
@@ -22,11 +27,16 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 
 
-//TODO Need Logic to hide button when visiting other profile pages (Check DocumentReference and/or ID)
+public class ProfilePage extends AppCompatActivity implements View.OnClickListener {
+  ArrayList<RecyclerViewModel> arrModules  = new ArrayList<>();
+  
+  //TODO Need Logic to hide button when visiting other profile pages (Check DocumentReference and/or ID)
 public class ProfilePage extends AppCompatActivity {
     private static final String TAG = "ProfilePage";
+  
     FirebaseFirestore db;
 
     enum Data {
@@ -77,12 +87,12 @@ public class ProfilePage extends AppCompatActivity {
             }
         }
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_page);
-
+        Log.i(TAG, "onCreate is called");
+      
         db = FirebaseFirestore.getInstance();
 
         backArrow = findViewById(R.id.backArrow);
@@ -100,6 +110,16 @@ public class ProfilePage extends AppCompatActivity {
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
+        RecyclerView recyclerView = findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        arrModules.add(new RecyclerViewModel(R.drawable.iot, "CSD", "IoT and all other stuff"));
+        arrModules.add(new RecyclerViewModel(R.drawable.data_analytics, "CSD", "Data and all dat shit"));
+        arrModules.add(new RecyclerViewModel(R.drawable.fin, "CSD", "Financial tech and all shit"));
+
+        RecyclerContactAdapter adapter = new RecyclerContactAdapter(this, arrModules);
+        recyclerView.setAdapter(adapter);
+
         backArrow.setOnClickListener(new ClickListener());
         logOutButton.setOnClickListener(new ClickListener());
         editButton.setOnClickListener(new ClickListener());
@@ -108,8 +128,11 @@ public class ProfilePage extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(TAG, "onStart is called");
         DocumentReference userId = getDocumentReference("Users", "Test");
         DocumentReference profileId = getDocumentReference("Profiles", "Test");
+
+        //FIXME refactor code and use Executor and Handler classes to update changes
         getProfileData(profileId, profileName, Data.NAME);
         getUserData(userId, profileEmail, Data.EMAIL);
         //FIXME find a way to store data from Firestore in an Object for referencing

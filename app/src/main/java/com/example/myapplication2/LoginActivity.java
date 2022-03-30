@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.myapplication2.fragments.SearchFragment;
+
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
@@ -41,13 +43,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             //Commented out filterpage to test mainpage
             /*
             case R.id.loginbtn:
+                startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
+                break;
                 startActivity(new Intent(LoginActivity.this, FilterPage.class));
 
              */
-
-            case R.id.loginbtn:
-                startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
-
         }
     }
 }
