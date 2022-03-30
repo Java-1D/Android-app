@@ -1,4 +1,4 @@
-package com.example.myapplication2.objectmodel;
+package com.example.myapplication2.viewholder;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication2.R;
-import com.google.android.gms.cast.framework.media.MediaQueueRecyclerViewAdapter;
 
 import java.util.ArrayList;
 

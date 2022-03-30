@@ -1,4 +1,4 @@
-package com.example.myapplication2.objectmodel;
+package com.example.myapplication2.viewholder;
 
 
 public class RecyclerViewModel {
