@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<!--    Intentionally left empty for now, will adapt from activity_create_events once its up -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

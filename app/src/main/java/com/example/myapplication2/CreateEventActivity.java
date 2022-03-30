@@ -48,13 +48,17 @@ import java.util.List;
 import java.util.Map;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
-    Button createButton;
-    ImageView cropImageView;
+    ImageView createImage;
     Button setImageButton;
-    EditText eventTitleCreate;
-    EditText eventDescriptionCreate;
-    EditText venueCreate;
-    EditText topicCreate;
+
+    EditText createName;
+    EditText createDescription;
+    EditText createVenue;
+    EditText createTopic;
+    EditText createTime;
+    EditText createDate;
+
+    Button createButton;
 
     Intent intent;
 
@@ -73,16 +77,18 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_create_events);
 
         // Casting to ensure that the types are correct
-        createButton = (Button) findViewById(R.id.createButton);
-        cropImageView = findViewById(R.id.cropImageView);
+        createButton = (Button) findViewById(R.id.createEventButton);
+        createImage = findViewById(R.id.createEventImage);
         setImageButton = findViewById(R.id.setImageButton);
-        eventTitleCreate = (EditText) findViewById(R.id.eventTitleCreate);
-        eventDescriptionCreate = (EditText) findViewById(R.id.eventDescriptionCreate);
-        venueCreate = (EditText) findViewById(R.id.venueCreate);
-        topicCreate = (EditText) findViewById(R.id.topicCreate);
+        createName = (EditText) findViewById(R.id.createEventName);
+        createDescription = (EditText) findViewById(R.id.createEventDescription);
+        createVenue = (EditText) findViewById(R.id.createEventVenue);
+        createTopic = (EditText) findViewById(R.id.createEventModule);
+        createTime = (EditText) findViewById(R.id.createEventTime);
+        createDate = (EditText) findViewById(R.id.createEventDate);
 
         // Set default image for the location
-        cropImageView.setImageResource(R.drawable.sch_picture);
+        createImage.setImageResource(R.drawable.sch_picture);
 
         // TODO: Should we do a network check here?
         createButton.setOnClickListener(this);
@@ -92,8 +98,17 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.createButton:
+            case R.id.createEventButton:
                 // TODO: Push data onto firebase
+
+                // Find out how to get bitmap/uri, or can i just reuse previous data?
+
+                String eventName = createName.getText().toString();
+                String eventDescription = createDescription.getText().toString();
+                String eventVenue = createVenue.getText().toString();
+                String eventDate = createDate.getText().toString();
+                String eventTime = createTime.getText().toString();
+
 
                 // Create explicit event to go into MainPage
                 intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
@@ -138,7 +153,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     if (result!=null ) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             selectedImageUri = result.getUriContent();
-                            cropImageView.setImageURI(selectedImageUri);
+                            createImage.setImageURI(selectedImageUri);
                             Log.i(TAG, "onActivityResult: cropped image set");
                         } else {
                             Log.d(TAG, "onActivityResult: cropping returned null");
