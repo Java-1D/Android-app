@@ -1,6 +1,5 @@
 package com.example.myapplication2;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,17 +11,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.myapplication2.objectmodel.RecyclerContactAdapter;
-import com.example.myapplication2.objectmodel.RecyclerViewModel;
+import com.example.myapplication2.viewholder.RecyclerContactAdapter;
+import com.example.myapplication2.viewholder.RecyclerViewModel;
 
-import com.example.myapplication2.objectmodel.Container;
+import com.example.myapplication2.utils.Container;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,10 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 
 
-public class ProfilePage extends AppCompatActivity implements View.OnClickListener {
-  ArrayList<RecyclerViewModel> arrModules  = new ArrayList<>();
-  
-  //TODO Need Logic to hide button when visiting other profile pages (Check DocumentReference and/or ID)
+//TODO Need Logic to hide button when visiting other profile pages (Check DocumentReference and/or ID)
 public class ProfilePage extends AppCompatActivity {
     private static final String TAG = "ProfilePage";
   
@@ -67,6 +60,7 @@ public class ProfilePage extends AppCompatActivity {
     String value;
     final Container<UserModel> user = new Container(new UserModel());
     final Container<ProfileModel> profile = new Container(new ProfileModel());
+    ArrayList<RecyclerViewModel> arrModules  = new ArrayList<>();
 
     class ClickListener implements View.OnClickListener {
         @Override
@@ -101,16 +95,16 @@ public class ProfilePage extends AppCompatActivity {
         profileName = findViewById(R.id.profileName);
         profileEmail = findViewById(R.id.profileEmail);
         pillarValue = findViewById(R.id.pillarValue);
-        termValue = findViewById(R.id.termValue);
-        module1 = findViewById(R.id.Module1);
-        module2 = findViewById(R.id.Module2);
-        module3 = findViewById(R.id.Module3);
-        module4 = findViewById(R.id.Module4);
-        module5 = findViewById(R.id.Module5);
+//        termValue = findViewById(R.id.termValue);
+//        module1 = findViewById(R.id.Module1);
+//        module2 = findViewById(R.id.Module2);
+//        module3 = findViewById(R.id.Module3);
+//        module4 = findViewById(R.id.Module4);
+//        module5 = findViewById(R.id.Module5);
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler);
+        RecyclerView recyclerView = findViewById(R.id.recyclerProfile);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         arrModules.add(new RecyclerViewModel(R.drawable.iot, "CSD", "IoT and all other stuff"));
@@ -132,39 +126,44 @@ public class ProfilePage extends AppCompatActivity {
         DocumentReference userId = getDocumentReference("Users", "Test");
         DocumentReference profileId = getDocumentReference("Profiles", "Test");
 
-        //FIXME refactor code and use Executor and Handler classes to update changes
-        getProfileData(profileId, profileName, Data.NAME);
-        getUserData(userId, profileEmail, Data.EMAIL);
-        //FIXME find a way to store data from Firestore in an Object for referencing
-        getProfileData(profileId, pillarValue, Data.PILLAR);
-        getProfileData(profileId, termValue, Data.TERM);
-        //FIXME find a way to extract modules from Firestore DocumentReference
-        getProfileData(profileId, bioText, Data.BIO);
+//        //FIXME refactor code and use Executor and Handler classes to update changes
+//        getProfileData(profileId, profileName, Data.NAME);
+//        getUserData(userId, profileEmail, Data.EMAIL);
+//        //FIXME find a way to store data from Firestore in an Object for referencing
+//        getProfileData(profileId, pillarValue, Data.PILLAR);
+//        getProfileData(profileId, termValue, Data.TERM);
+//        //FIXME find a way to extract modules from Firestore DocumentReference
+//        getProfileData(profileId, bioText, Data.BIO);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.i(TAG, "onRestart is called");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(TAG, "onResume is called");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i(TAG, "onPause is called");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.i(TAG, "onStop is called");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "onDestroy is called");
     }
 
 
@@ -172,7 +171,7 @@ public class ProfilePage extends AppCompatActivity {
         return db.collection(collectionId).document(documentId);
     }
 
-    public void getProfileData(DocumentReference profileRef, TextView view, Data data) {
+    public void getProfileData(DocumentReference profileRef) {
         //FIXME Using onSuccessListener
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -181,80 +180,15 @@ public class ProfilePage extends AppCompatActivity {
                 Log.i(TAG, "ProfileModel Class: " + document.toObject(ProfileModel.class).toString());
             }
         });
-
-        //FIXME USING onCompleteListener
-        profileRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-           @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: "+ document.getData());
-                        switch (data) {
-                            case NAME:
-                                view.setText(document.getString("name"));
-                                break;
-                            case TERM:
-                                view.setText(String.valueOf(document.getLong("term")));
-                                break;
-                            case PILLAR:
-                                view.setText(document.getString("pillar"));
-                                break;
-                            case BIO:
-                                view.setText(document.getString("bio"));
-                                break;
-                            default:
-                                Toast.makeText(ProfilePage.this, "Item Does Not Exist in Document", Toast.LENGTH_LONG).show();
-                                Log.d(TAG, "Error in Enum detected" + data);
-                                break;
-                        }
-                    }
-                    else {
-                        Log.d(TAG, "No such document");
-                    }
-                }
-                else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-           }
-        });
     }
 
-    public void getUserData(DocumentReference userRef, TextView view, Data data) {
+    public void getUserData(DocumentReference userRef) {
         //FIXME Using onSuccessListener
         userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
                 ProfilePage.this.user.set(document.toObject(UserModel.class));
                 Log.i(TAG, "UserModel Class: " + document.toObject(UserModel.class).toString());
-            }
-        });
-
-        //FIXME USING onCompleteListener
-        userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: "+ document.getData());
-                        switch (data) {
-                            case EMAIL:
-                                view.setText(document.getString("email"));
-                                break;
-                            default:
-                                Toast.makeText(ProfilePage.this, "Item Does Not Exist in Document", Toast.LENGTH_LONG).show();
-                                Log.d(TAG, "Error in Enum detected"+ data);
-                                break;
-                        }
-                    }
-                    else {
-                        Log.d(TAG, "No such document");
-                    }
-                }
-                else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
             }
         });
     }
