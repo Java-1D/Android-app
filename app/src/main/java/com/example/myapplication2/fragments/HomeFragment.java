@@ -33,7 +33,7 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore firebaseFirestore;
     private RecyclerView eventsList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
-    private Button viewEventButton;
+    //private Button viewEventButton;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -49,15 +49,6 @@ public class HomeFragment extends Fragment {
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
         eventsList.setAdapter(adapter);
 
-        // Bring users to View Event when clicking on viewEventButton
-        viewEventButton = view.findViewById(R.id.view_event);
-        viewEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view1) {
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                ((MainPageActivity)getActivity()).startActivity(intent);
-            }
-        });
 
         return view;
     }
@@ -89,16 +80,24 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull EventModel model) {
-                // binds query object  (EventModel) to recycler view EventViewHolder
 
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
                 Utils.loadImage(model.getImagePath(), holder.event_image);
-
-                //
                 holder.status.setText(model.getStatus());
                 holder.location.setText(model.getVenue());
                 holder.capacity.setText(model.getCapacity());
+                holder.event_start.setText(model.getEventStartString());
+                holder.event_end.setText(model.getEventEndString());
+
+                // Bring users to View Event when clicking on viewEventButton
+                holder.viewEventButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view1) {
+                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                        ((MainPageActivity) getActivity()).startActivity(intent);
+                    }
+                });
 
             }
 
