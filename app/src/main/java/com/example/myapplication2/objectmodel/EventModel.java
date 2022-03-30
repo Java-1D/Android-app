@@ -6,34 +6,52 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Events Collection
+* @field capacity: number
+* @field description: string
+* @field eventCreated: timestamp
+* @field eventEnd: timestamp
+* @field eventStart: timestamp
+* @field imagePath: string referencing URL from Firebase Cloud Storage
+* @field lastUpdated: timestamp
+* @field module: DocumentReference from Modules Collection
+* @field status: string
+* @field title: string
+* @field userCreated: DocumentReference from Users Collection
+* @field userJoined: ArrayList of DocumentReference from Users Collection
+*        @index: DocumentReference from Users Collection
+* @field venue: DocumentReference from Venues Collection
+*/
 public class EventModel {
 
+    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
     public static final String TAG = "Event Model";
+
+
+
     private int capacity;
     private String description;
     private Date eventCreated;
     private Date eventEnd;
     private Date eventStart;
-    private DocumentReference imagePath;
+    private String imagePath;
     private Date lastUpdated;
     private DocumentReference module;
     private String status;
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private DocumentReference locationReference;
+    private String venue;
 
-    private ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
-
-
-    public EventModel() {
-    } //no arg constructor for firebase
+    public EventModel() {} //no arg constructor for firebase
 
     public EventModel(int capacity, String description, Date eventCreated,
-                      Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
+                      Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
                       DocumentReference module, String status, String title,
                       DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-                      DocumentReference venue) {
+                      String venue) {
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
@@ -46,7 +64,15 @@ public class EventModel {
         this.title = title;
         this.userCreated = userCreated;
         this.userJoined = userJoined;
-        this.locationReference = venue;
+        this.venue = venue;
+    }
+
+    public ArrayList<String> getStatuses() {
+        return statuses;
+    }
+
+    public static String getTAG() {
+        return TAG;
     }
 
     public int getCapacity() {
@@ -89,16 +115,12 @@ public class EventModel {
         this.eventStart = eventStart;
     }
 
-    public DocumentReference getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(DocumentReference imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
-    }
-
-    public DocumentReference getModule() {
-        return module;
     }
 
     public Date getLastUpdated() {
@@ -107,6 +129,10 @@ public class EventModel {
 
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public DocumentReference getModule() {
+        return module;
     }
 
     public void setModule(DocumentReference module) {
@@ -129,7 +155,9 @@ public class EventModel {
         this.title = title;
     }
 
-    public DocumentReference getUserCreated() {return userCreated;}
+    public DocumentReference getUserCreated() {
+        return userCreated;
+    }
 
     public void setUserCreated(DocumentReference userCreated) {
         this.userCreated = userCreated;
@@ -143,30 +171,11 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getLocationReference() {
-        return locationReference;
+    public String getVenue() {
+        return venue;
     }
 
-    public void setLocationReference(DocumentReference locationReference) {
-        this.locationReference = locationReference;
-    }
-
-    @Override
-    public String toString() {
-        return "EventModel{" +
-                "capacity=" + capacity +
-                ", description='" + description + '\'' +
-                ", eventCreated=" + eventCreated +
-                ", eventEnd=" + eventEnd +
-                ", eventStart=" + eventStart +
-                ", imagePath=" + imagePath +
-                ", lastUpdated="+ lastUpdated +
-                ", module=" + module +
-                ", status='" + status + '\'' +
-                ", title='" + title + '\'' +
-                ", userCreated=" + userCreated +
-                ", userJoined=" + userJoined +
-                ", venue=" + locationReference +
-                '}';
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 }

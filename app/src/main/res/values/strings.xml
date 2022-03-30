@@ -5,6 +5,7 @@
     <string name="sign_in">Sign in</string>
     <string name="username">Username</string>
     <string name="login">Login</string>
+    <string name="logout">Log Out</string>
     <string name="register">Register</string>
     <string name="i_already_have_an_account">I already have an account</string>
     <string name="confirm_password">Confirm Password</string>
@@ -12,20 +13,27 @@
     <string name="sign_up_here">Sign up here</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
-    <string name="lorem_ipsum_is_simply_dummy_text_of_the_printing_and_typesetting_industry_lorem_ipsum_has_been_the_industry_s_standard_dummy_text_ever_since_the_1500s_when_an_unknown_printer_took_a_galley_of_type_and_scrambled_it_to_make_a_type_specimen_book_it_has_survived_not_only_five_centuries_but_also_the_leap_into_electronic_typesetting_remaining_essentially_unchanged">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</string>
+    <string name="lorem_ipsum">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</string>
     <string name="edit">Edit</string>
-    <string name="bio">Bio</string>
-    <string name="_4">4</string>
-    <string name="term">Term</string>
-    <string name="csd">CSD</string>
-    <string name="pillar">Pillar</string>
-    <string name="chadmaximus_googly_com_us">ChadMaximus@googly.com.us</string>
     <string name="select">Select Item</string>
 
-
-<!--    Used for accessing to camera/gallery for images -->
+    <!--    Used for accessing to camera/gallery for images -->
     <string name="camera_access">Camera access is required</string>
     <string name="storage_access">Storage access is required.</string>
     <string name="set_image_button">Select image</string>
+
+    <!-- Profile Page & Edit Profile Page -->
+    <string name="profile_page">Profile Page</string>
+    <string name="user_name">Giga Chad</string>
+    <string name="user_email">ChadMaximus@googly.com.us</string>
+    <string name="pillar">Pillar</string>
+    <string name="user_pillar">CSD</string>
+    <string name="term">Term</string>
+    <string name="user_term">4</string>
+    <string name="modules">Modules</string>
+    <string name="bio">Bio</string>
+    <string name="user_bio">Hello everyone this is lorem ipsum. I am a handsome GIGA CHAD</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="confirm">Confirm</string>
 
 </resources>

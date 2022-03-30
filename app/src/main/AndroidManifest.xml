@@ -3,6 +3,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.myapplication2">
+    <uses-permission android:name="android.permission.INTERNET"/>
     <queries>
         <intent>
         <!-- Gallery -->
@@ -32,14 +33,22 @@
         <activity android:name=".MainPageActivity"
             android:exported="false"/>
         <activity
+            android:name=".MainPageActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".FilterPage"
             android:exported="false" />
         <activity
             android:name=".EditProfilePage"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".ProfilePage"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />

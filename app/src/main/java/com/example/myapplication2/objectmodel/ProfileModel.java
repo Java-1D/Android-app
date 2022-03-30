@@ -5,12 +5,31 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.ArrayList;
 import java.util.Date;
 
+/*
+* Firebase Firestore Document Object Model for the Profiles Collection
+* @field bio: string
+* @field eventsCreated: ArrayList of DocumentReference from Events Collection
+*        @index: DocumentReference from Events Collection
+* @field eventsJoined: ArrayList of DocumentReference from Events Collection
+*        @index: DocumentReference from Events Collection
+* @field imagePath: string referencing URL from Firebase Cloud Storage
+* @field modules: ArrayList of DocumentReference from Modules Collection
+*        @index: DocumentReference from Modules Collection
+* @field name: string
+* @field pillar: string
+* @field profileCreated: timestamp
+* @field profileUpdated: timestamp
+* @field term: number
+* @field userId: DocumentReference from Users Collection
+*/
 public class ProfileModel {
 
     private static final String TAG = "Profile Model";
+
+    private String bio;
     private ArrayList<DocumentReference> eventsCreated;
     private ArrayList<DocumentReference> eventsJoined;
-    private DocumentReference imagePath;
+    private String imagePath;
     private ArrayList<DocumentReference> modules;
     private String name;
     private String pillar;
@@ -19,12 +38,13 @@ public class ProfileModel {
     private int term;
     private DocumentReference userId;
 
-    ProfileModel() {
+    public ProfileModel() {
     }
 
-    ProfileModel(ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
-                 DocumentReference imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
+    public ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
+                 String imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
                  Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
+        this.bio = bio;
         this.eventsCreated = eventsCreated;
         this.eventsJoined = eventsJoined;
         this.imagePath = imagePath;
@@ -37,6 +57,13 @@ public class ProfileModel {
         this.userId = userId;
     }
 
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
 
     public ArrayList<DocumentReference> getEventsCreated() {
         return eventsCreated;
@@ -54,11 +81,11 @@ public class ProfileModel {
         this.eventsJoined = eventsJoined;
     }
 
-    public DocumentReference getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(DocumentReference imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 
@@ -116,5 +143,22 @@ public class ProfileModel {
 
     public void setUserId(DocumentReference userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileModel{" +
+                "bio='" + bio + '\'' +
+                ", eventsCreated=" + eventsCreated +
+                ", eventsJoined=" + eventsJoined +
+                ", imagePath=" + imagePath +
+                ", modules=" + modules +
+                ", name='" + name + '\'' +
+                ", pillar='" + pillar + '\'' +
+                ", profileCreated=" + profileCreated +
+                ", profileUpdated=" + profileUpdated +
+                ", term=" + term +
+                ", userId=" + userId +
+                '}';
     }
 }
