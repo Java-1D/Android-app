@@ -74,11 +74,8 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull EventModel model) {
-                // binds query object  (TestModel) to recycler view TestViewHolder
-                Log.d(TAG, model.toString());
-                Log.d(TAG, String.valueOf(holder));
-                Log.d(TAG, model.getTitle());
-                Log.d(TAG, "DESC" + model.getDescription());
+                // binds query object  (EventModel) to recycler view EventViewHolder
+
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
                 Utils.loadImage(model.getImagePath(), holder.event_image);

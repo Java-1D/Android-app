@@ -12,9 +12,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 public class EventDetails {
+   /**
+    * This class contains Utils to get and set details from Android DB
+    */
 
    private static final String TAG = "TEST";
-
 
    public static void setEventImageRef(DocumentReference imageRef, EventViewHolder holder){
       imageRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

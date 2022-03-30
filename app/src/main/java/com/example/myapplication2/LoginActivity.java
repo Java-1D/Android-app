@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.myapplication2.utils.Utils;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -30,6 +33,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
+        if (!Utils.isNetworkAvailable(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "Network not Avaliable", Toast.LENGTH_LONG).show()
+        }
         switch (view.getId()) {
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));

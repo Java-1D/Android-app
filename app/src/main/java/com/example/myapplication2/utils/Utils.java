@@ -1,8 +1,11 @@
 package com.example.myapplication2.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -17,6 +20,16 @@ import java.net.URLConnection;
 public class Utils {
 
     private static final String TAG = "UTILS";
+
+    public static boolean isNetworkAvailable(Context context) {
+
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        boolean haveNetwork = activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        Log.i(TAG, "Active Network: " + haveNetwork);
+        return haveNetwork;
+    }
 
     public static Bitmap getImageBitmap(String url) {
         Bitmap bm = null;
