@@ -33,7 +33,7 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore firebaseFirestore;
     private RecyclerView eventsList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
-    //private Button viewEventButton;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -48,6 +48,15 @@ public class HomeFragment extends Fragment {
         eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
         eventsList.setAdapter(adapter);
+
+        //Button to create new event
+        view.findViewById(R.id.create_event).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view1) {
+                Intent intent = new Intent(getActivity(), CreateEventActivity.class);
+                ((MainPageActivity)getActivity()).startActivity(intent);
+            }
+        });
 
 
         return view;
