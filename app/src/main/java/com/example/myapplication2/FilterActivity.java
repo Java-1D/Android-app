@@ -3,7 +3,6 @@ package com.example.myapplication2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -23,7 +21,6 @@ import com.example.myapplication2.utils.FirebaseContainer;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -44,7 +41,7 @@ public class FilterActivity extends AppCompatActivity {
      * Filter Activity returns a page that allows user to filter the type of events
      * they want to join
      */
-    ArrayList<String> moduleItems = new ArrayList<String>();
+    ArrayList<String> moduleItems;
     AutoCompleteTextView autoCompleteTxt;
     ArrayAdapter<String> adapterItems;
     FirebaseFirestore firebaseFirestore;
@@ -56,37 +53,25 @@ public class FilterActivity extends AppCompatActivity {
 
         firebaseFirestore = FirebaseFirestore.getInstance();
 
+
         autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
-        getModules(firebaseFirestore, moduleItems); // populate array list with modules
         adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
         autoCompleteTxt.setAdapter(adapterItems);
 
-        // Filter Button to go to View All Events after filtering
-        Button filterButton = findViewById(R.id.filter_button);
 
         autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String module = adapterView.getItemAtPosition(i).toString();
-            }
-        });
-
-        // Bring users to View Event when clicking on viewEventButton
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view1) {
-                Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
-//                ((MainPageActivity) getApplicationContext()).startActivity(intent);
-                startActivity(intent);
+                String item = adapterView.getItemAtPosition(i).toString();
             }
         });
 
 
     }
+    final FirebaseContainer<ArrayList<String>> container = new FirebaseContainer<>();
 
 
-    void getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {
-        final FirebaseContainer<ArrayList<String>> container = new FirebaseContainer<>();
+    void getModules(FirebaseFirestore firebaseFirestore) {
 
         firebaseFirestore.collection("Modules")
                 .get()
@@ -94,19 +79,22 @@ public class FilterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            ArrayList<String> modules = new ArrayList<String>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getData().toString());
-                                modules.add(document.getData().get("name").toString());
+                                modules.add(document.getData().toString());
                             }
-                        } else {
-                        }
-                        container.set(modules);
-                        Log.d(TAG, "Container Object" + container.get().toString());
-                    }
+                            container.set(modules);
+                            Log.d(TAG, "Container Object" + container.get().toString());
 
+                        } else {
+                            container.set(new ArrayList<String>());
+                        }
+                    }
                 });
+//        Log.d(TAG, "Container Object" + container.get().toString());
 
     }
+
+
 }
-
-
