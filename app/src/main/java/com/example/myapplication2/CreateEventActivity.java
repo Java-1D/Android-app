@@ -1,50 +1,45 @@
 package com.example.myapplication2;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.media.metrics.Event;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
-import com.canhub.cropper.CropImage;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.objectmodel.EventModel;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
@@ -54,15 +49,16 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     EditText createName;
     EditText createDescription;
     EditText createVenue;
-    EditText createTopic;
-    EditText createTime;
-    EditText createDate;
-
+    EditText createModule;
+    EditText createCapacity;
+    EditText createStart;
+    EditText createEnd;
     Button createButton;
 
-    Intent intent;
-
-    Uri selectedImageUri;
+    // Global variable to take note of Calendar object for createDate
+    // Used because it cannot be stored in EditText or any other type of texts
+    Calendar startDateTime;
+    Calendar endDateTime;
 
     static final String TAG = "CreateEvents";
 
@@ -83,9 +79,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         createName = (EditText) findViewById(R.id.createEventName);
         createDescription = (EditText) findViewById(R.id.createEventDescription);
         createVenue = (EditText) findViewById(R.id.createEventVenue);
-        createTopic = (EditText) findViewById(R.id.createEventModule);
-        createTime = (EditText) findViewById(R.id.createEventTime);
-        createDate = (EditText) findViewById(R.id.createEventDate);
+        createModule = (EditText) findViewById(R.id.createEventModule);
+        createCapacity = (EditText) findViewById(R.id.createEventCapacity);
+
+        createStart = (EditText) findViewById(R.id.createEventStartDateTime);
+        createEnd = (EditText) findViewById(R.id.createEventEndDateTime);
 
         // Set default image for the location
         createImage.setImageResource(R.drawable.sch_picture);
@@ -93,51 +91,216 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         // TODO: Should we do a network check here?
         createButton.setOnClickListener(this);
         setImageButton.setOnClickListener(this);
+        createStart.setOnClickListener(this);
+        createEnd.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.createEventButton:
-                // TODO: Push data onto firebase
+                if (invalidData(createName) |
+                        invalidData(createDescription) |
+                        invalidData(createVenue) |
+                        invalidData(createModule) |
+                        invalidData(createCapacity) |
+                        invalidData(createStart) |
+                        invalidData(createEnd)) {
+                    return;
+                }
 
-                // Find out how to get bitmap/uri, or can i just reuse previous data?
+                // TODO: Check that event name does not repeat?
 
                 String eventName = createName.getText().toString();
                 String eventDescription = createDescription.getText().toString();
                 String eventVenue = createVenue.getText().toString();
-                String eventDate = createDate.getText().toString();
-                String eventTime = createTime.getText().toString();
+
+                // Module should be a DocumentReference but idk how to get
+                // String eventModule = createVenue.getText().toString();
+                DocumentReference eventModule = null;
+
+                Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
+
+                // This should upload online and then get a DocumentReference
+                // Bitmap eventImage = createImage.getDrawingCache();
+                DocumentReference eventImage = null;
+
+                // Get DocumentReference for current user
+                DocumentReference userCreated = null;
+
+                EventModel eventModel = new EventModel(
+                        eventName,
+                        eventDescription,
+                        eventVenue,
+                        eventModule,
+                        eventCapacity,
+                        startDateTime.getTime(),
+                        endDateTime.getTime(),
+                        eventImage,
+                        userCreated
+                        );
+
+                // https://firebase.google.com/docs/firestore/quickstart#java
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                db.collection("Events").document(eventName).set(eventModel);
 
 
-                // Create explicit event to go into MainPage
-                intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-                startActivity(intent);
+//                // Create explicit event to go into MainPage
+//                intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+//                startActivity(intent);
                 break;
 
             case R.id.setImageButton:
-                // Creating AlertDialog for user action
-                // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
-                // Edited the part where user can still click and request individually
-                final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
-                // create a dialog for showing the optionsMenu
-                AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
-                // set the items in builder
-                builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
+                chooseImage();
+                break;
+
+            case R.id.createEventStartDateTime:
+                dateTimePicker(createStart);
+                break;
+
+            case R.id.createEventEndDateTime:
+                dateTimePicker(createEnd);
+
+        }
+    }
+
+    /**
+     * Entry validation
+     */
+    // https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
+    boolean invalidData(EditText editText) {
+        if (editText.getText().toString().length() == 0) {
+            editText.requestFocus();
+            editText.setError("Field cannot be empty");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * DateTimePicker
+     */
+    // Adapted to take in inputs and set date/time for different texts
+    // https://stackoverflow.com/questions/2055509/how-to-create-a-date-and-time-picker-in-android
+    public void dateTimePicker(EditText editText) {
+        final Calendar currentDate = Calendar.getInstance();
+        Calendar dateTime;
+
+        // Assign for different widgets
+        if (editText == createStart) {
+            if (startDateTime == null) {
+                startDateTime = Calendar.getInstance();
+            }
+            dateTime = startDateTime;
+        } else {
+            if (endDateTime == null) {
+                endDateTime = Calendar.getInstance();
+            }
+            dateTime = endDateTime;
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(CreateEventActivity.this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                dateTime.set(year, monthOfYear, dayOfMonth);
+                new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(optionsMenu[i].equals("Take Photo")){
-                            cameraLaunch();
-                        }
-                        else if(optionsMenu[i].equals("Choose from Gallery")){
-                            galleryLaunch();
-                        }
-                        else if (optionsMenu[i].equals("Exit")) {
-                            dialogInterface.dismiss();
-                        }
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        dateTime.set(Calendar.MINUTE, minute);
+
+                        // Adapted and allowed setting of text
+                        DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
+                        String stringDateTime = dateFormat.format(dateTime.getTime());
+
+                        editText.setText(stringDateTime);
                     }
-                });
-                builder.show();
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE));
+
+        // Limiting input to valid time frame
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+        if (editText == createStart) {
+            if (endDateTime != null) {
+                datePickerDialog.getDatePicker().setMaxDate(endDateTime.getTimeInMillis());
+            }
+        } else {
+            if (startDateTime != null) {
+                datePickerDialog.getDatePicker().setMinDate(startDateTime.getTimeInMillis());
+            }
+        }
+        datePickerDialog.show();
+    }
+
+    /**
+     * CropImage helper functions
+     * Call function: chooseImage()
+     */
+    //<editor-fold desc="CropImage helper functions">
+    // Creating AlertDialog for user action
+    // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
+    // Edited the part where user can still click and request individually
+    void chooseImage() {
+        // Creating AlertDialog for user action
+        // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
+        // Edited the part where user can still click and request individually
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
+        // create a dialog for showing the optionsMenu
+        AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
+        // set the items in builder
+        builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(optionsMenu[i].equals("Take Photo")){
+                    cameraLaunch();
+                }
+                else if(optionsMenu[i].equals("Choose from Gallery")){
+                    galleryLaunch();
+                }
+                else if (optionsMenu[i].equals("Exit")) {
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    void cameraLaunch() {
+        // https://developer.android.com/training/permissions/requesting
+        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            // Start new CropActivity provided by library
+            // https://github.com/CanHub/Android-Image-Cropper
+            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
+            options.setAspectRatio(1,1);
+            options.setImageSource(false, true);
+            cropImage.launch(options);
+            Log.i(TAG, "Permission allowed, camera launched");
+        } else {
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            Log.i(TAG, "Permission for camera requested");
+        }
+    }
+
+    void galleryLaunch() {
+        // https://developer.android.com/training/permissions/requesting
+        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            // Start new CropActivity provided by library
+            // https://github.com/CanHub/Android-Image-Cropper
+            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
+            options.setAspectRatio(1,1);
+            options.setImageSource(true, false);
+            cropImage.launch(options);
+            Log.i(TAG, "Permission allowed, camera launched");
+        } else {
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            requestGalleryPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            Log.i(TAG, "Permission for camera requested");
         }
     }
 
@@ -152,7 +315,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 public void onActivityResult(CropImageView.CropResult result) {
                     if (result!=null ) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
-                            selectedImageUri = result.getUriContent();
+                            Uri selectedImageUri = result.getUriContent();
                             createImage.setImageURI(selectedImageUri);
                             Log.i(TAG, "onActivityResult: cropped image set");
                         } else {
@@ -194,44 +357,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 }
             });
-
-    void cameraLaunch() {
-        // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            // Start new CropActivity provided by library
-            // https://github.com/CanHub/Android-Image-Cropper
-            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
-            options.setImageSource(false, true);
-            cropImage.launch(options);
-            Log.i(TAG, "Permission allowed, camera launched");
-        } else {
-            // You can directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-            Log.i(TAG, "Permission for camera requested");
-        }
-    }
-
-    void galleryLaunch() {
-        // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            // Start new CropActivity provided by library
-            // https://github.com/CanHub/Android-Image-Cropper
-            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
-            options.setImageSource(true, false);
-            cropImage.launch(options);
-            Log.i(TAG, "Permission allowed, camera launched");
-        } else {
-            // You can directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestGalleryPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            Log.i(TAG, "Permission for camera requested");
-        }
-    }
-
-
-
+    //</editor-fold>
 
 }

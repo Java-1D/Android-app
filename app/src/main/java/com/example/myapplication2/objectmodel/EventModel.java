@@ -31,46 +31,60 @@ public class EventModel {
 
     private int capacity;
     private String description;
-    private Date eventCreated;
     private Date eventEnd;
     private Date eventStart;
     private DocumentReference imagePath;
-    private Date lastUpdated;
     private DocumentReference module;
     private String status;
     private String title;
     private DocumentReference userCreated;
     private ArrayList<DocumentReference> userJoined;
-    private DocumentReference venue;
+    private String venue;
 
     public EventModel() {} //no arg constructor for firebase
 
-    public EventModel(int capacity, String description, Date eventCreated,
-                      Date eventEnd, Date eventStart, DocumentReference imagePath, Date lastUpdated,
-                      DocumentReference module, String status, String title,
-                      DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-                      DocumentReference venue) {
-        this.capacity = capacity;
-        this.description = description;
-        this.eventCreated = eventCreated;
-        this.eventEnd = eventEnd;
-        this.eventStart = eventStart;
-        this.imagePath = imagePath;
-        this.lastUpdated = lastUpdated;
-        this.module = module;
-        this.status = status;
+    public EventModel(String title, String description, String venue, DocumentReference module,
+                      int capacity, Date eventStart, Date eventEnd, DocumentReference imagePath,
+                      DocumentReference userCreated) {
         this.title = title;
-        this.userCreated = userCreated;
-        this.userJoined = userJoined;
+        this.description = description;
         this.venue = venue;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
+        this.module = module;
         this.capacity = capacity;
+        this.eventStart = eventStart;
+        this.eventEnd = eventEnd;
+        this.imagePath = imagePath;
+        this.userCreated = userCreated;
+
+        // Initialized as empty
+        this.status = "upcoming";
+        this.userJoined = null;
+    }
+
+//    public EventModel(int capacity, String description,
+//                      Date eventEnd, Date eventStart, DocumentReference imagePath,
+//                      DocumentReference module, String status, String title,
+//                      DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
+//                      String venue) {
+//        this.capacity = capacity;
+//        this.description = description;
+//        this.eventEnd = eventEnd;
+//        this.eventStart = eventStart;
+//        this.imagePath = imagePath;
+//        this.module = module;
+//        this.status = status;
+//        this.title = title;
+//        this.userCreated = userCreated;
+//        this.userJoined = userJoined;
+//        this.venue = venue;
+//    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -81,20 +95,28 @@ public class EventModel {
         this.description = description;
     }
 
-    public Date getEventCreated() {
-        return eventCreated;
+    public String getVenue() {
+        return venue;
     }
 
-    public void setEventCreated(Date eventCreated) {
-        this.eventCreated = eventCreated;
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 
-    public Date getEventEnd() {
-        return eventEnd;
+    public DocumentReference getModule() {
+        return module;
     }
 
-    public void setEventEnd(Date eventEnd) {
-        this.eventEnd = eventEnd;
+    public void setModule(DocumentReference module) {
+        this.module = module;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public Date getEventStart() {
@@ -105,28 +127,20 @@ public class EventModel {
         this.eventStart = eventStart;
     }
 
+    public Date getEventEnd() {
+        return eventEnd;
+    }
+
+    public void setEventEnd(Date eventEnd) {
+        this.eventEnd = eventEnd;
+    }
+
     public DocumentReference getImagePath() {
         return imagePath;
     }
 
     public void setImagePath(DocumentReference imagePath) {
         this.imagePath = imagePath;
-    }
-
-    public Date getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
-
-    public DocumentReference getModule() {
-        return module;
-    }
-
-    public void setModule(DocumentReference module) {
-        this.module = module;
     }
 
     public String getStatuses(int index) {
@@ -150,14 +164,6 @@ public class EventModel {
         }
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public DocumentReference getUserCreated() {
         return userCreated;
     }
@@ -174,30 +180,20 @@ public class EventModel {
         this.userJoined = userJoined;
     }
 
-    public DocumentReference getVenue() {
-        return venue;
-    }
-
-    public void setVenue(DocumentReference venue) {
-        this.venue = venue;
-    }
-
     @Override
     public String toString() {
         return "EventModel{" +
-                "capacity=" + capacity +
+                "title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", eventCreated=" + eventCreated +
-                ", eventEnd=" + eventEnd +
-                ", eventStart=" + eventStart +
-                ", imagePath=" + imagePath +
-                ", lastUpdated=" + lastUpdated +
                 ", module=" + module +
+                ", venue=" + venue +
+                ", capacity=" + capacity +
+                ", eventStart=" + eventStart +
+                ", eventEnd=" + eventEnd +
+                ", imagePath=" + imagePath +
                 ", status='" + status + '\'' +
-                ", title='" + title + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue=" + venue +
                 '}';
     }
 }

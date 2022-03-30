@@ -111,8 +111,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createEventDescription" />
 
-
-<!--    Should this be a dropdown of modules?? -->
     <EditText
         android:id="@+id/createEventModule"
         android:layout_width="match_parent"
@@ -129,10 +127,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/createEventVenue" />
 
-<!--    The restricted input type is kinda shitty and has no structure to it-->
-
     <EditText
-        android:id="@+id/createEventDate"
+        android:id="@+id/createEventCapacity"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginStart="30dp"
@@ -140,40 +136,60 @@
         android:layout_marginEnd="30dp"
         android:background="@drawable/login_bar"
         android:ems="10"
-        android:hint="@string/event_date"
-        android:inputType="date"
+        android:hint="@string/event_capacity"
+        android:inputType="numberSigned"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createEventVenue" />
+        app:layout_constraintTop_toBottomOf="@+id/createEventModule" />
 
-    <EditText
-        android:id="@+id/createEventTime"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginStart="30dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="30dp"
-        android:background="@drawable/login_bar"
-        android:ems="10"
-        android:hint="@string/event_time"
-        android:inputType="time"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:orientation="horizontal"
+        android:weightSum="2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createEventDate" />
+        app:layout_constraintTop_toBottomOf="@+id/createEventCapacity"
+        android:id="@+id/createEventDateTimeMain">
 
-    <!-- TODO: how do we want to implement the date/time?
-               will this be a dropdown or text?-->
-<!--    TODO: think about how to use timepicker and datepicker-->
-<!--    <DatePicker-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content" />-->
-<!--    <TimePicker-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content" />-->
+        <EditText
+            android:id="@+id/createEventStartDateTime"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:ems="10"
+            android:background="@drawable/login_bar"
+            android:clickable="false"
+            android:focusable="false"
+            android:cursorVisible="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/event_start_date_time" />
+
+        <EditText
+            android:id="@+id/createEventEndDateTime"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@drawable/login_bar"
+            android:layout_marginStart="5dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:ems="10"
+            android:clickable="false"
+            android:focusable="false"
+            android:cursorVisible="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/event_end_date_time" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/createEventButton"
@@ -186,7 +202,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createEventTime" />
+        app:layout_constraintTop_toBottomOf="@+id/createEventDateTimeMain" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
