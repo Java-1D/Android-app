@@ -31,8 +31,12 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
       super(itemView);
       event_title = (TextView) itemView.findViewById(R.id.event_title);
       event_description = (TextView) itemView.findViewById(R.id.event_description);
-//    location = (TextView) itemView.findViewById(R.id.event_location);
       event_image = (ImageView) itemView.findViewById(R.id.event_image);
+      location = (TextView) itemView.findViewById(R.id.location);
+      capacity = (TextView) itemView.findViewById(R.id.capacity);
+      status = (TextView) itemView.findViewById(R.id.status);
+
+
    }
 
 
