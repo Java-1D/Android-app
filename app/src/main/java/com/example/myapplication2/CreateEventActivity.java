@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.metrics.Event;
@@ -53,6 +54,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     EditText createCapacity;
     EditText createStart;
     EditText createEnd;
+
     Button createButton;
 
     // Global variable to take note of Calendar object for createDate
@@ -62,31 +64,24 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     static final String TAG = "CreateEvents";
 
-    // TODO: Check out glide and picasso for handling photos (?)
-    //       Might need for profile page if wanting a round photo
-    // http://bumptech.github.io/glide/doc/download-setup.html
-    // https://square.github.io/picasso/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_events);
 
         // Casting to ensure that the types are correct
-        createButton = (Button) findViewById(R.id.createEventButton);
         createImage = findViewById(R.id.createEventImage);
         setImageButton = findViewById(R.id.setImageButton);
+
         createName = (EditText) findViewById(R.id.createEventName);
         createDescription = (EditText) findViewById(R.id.createEventDescription);
         createVenue = (EditText) findViewById(R.id.createEventVenue);
         createModule = (EditText) findViewById(R.id.createEventModule);
         createCapacity = (EditText) findViewById(R.id.createEventCapacity);
-
         createStart = (EditText) findViewById(R.id.createEventStartDateTime);
         createEnd = (EditText) findViewById(R.id.createEventEndDateTime);
 
-        // Set default image for the location
-        createImage.setImageResource(R.drawable.sch_picture);
+        createButton = (Button) findViewById(R.id.createEventButton);
 
         // TODO: Should we do a network check here?
         createButton.setOnClickListener(this);
@@ -99,6 +94,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.createEventButton:
+
+                // Check if data are all filled and valid
                 if (invalidData(createName) |
                         invalidData(createDescription) |
                         invalidData(createVenue) |
@@ -115,17 +112,17 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 String eventDescription = createDescription.getText().toString();
                 String eventVenue = createVenue.getText().toString();
 
-                // Module should be a DocumentReference but idk how to get
+                // TODO: Module should be a DocumentReference but idk how to get
                 // String eventModule = createVenue.getText().toString();
                 DocumentReference eventModule = null;
 
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
-                // This should upload online and then get a DocumentReference
+                // TODO: This should upload online and then get a DocumentReference
                 // Bitmap eventImage = createImage.getDrawingCache();
                 DocumentReference eventImage = null;
 
-                // Get DocumentReference for current user
+                // TODO: Get DocumentReference for current user
                 DocumentReference userCreated = null;
 
                 EventModel eventModel = new EventModel(
@@ -144,10 +141,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 db.collection("Events").document(eventName).set(eventModel);
+                Log.i(TAG, "createEvent: Success");
 
 
 //                // Create explicit event to go into MainPage
-//                intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+//                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
 //                startActivity(intent);
                 break;
 
@@ -161,7 +159,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.createEventEndDateTime:
                 dateTimePicker(createEnd);
-
         }
     }
 
@@ -216,6 +213,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         String stringDateTime = dateFormat.format(dateTime.getTime());
 
                         editText.setText(stringDateTime);
+                        Log.i(TAG, "dateTimePicker: Success for " + getResources().getResourceEntryName(editText.getId()));
                     }
                 }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
             }
@@ -233,6 +231,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             }
         }
         datePickerDialog.show();
+        Log.i(TAG, "dateTimePicker: Dialog launched");
     }
 
     /**
@@ -248,6 +247,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
         // Edited the part where user can still click and request individually
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
+        Log.i(TAG, "chooseImage: Dialog launched");
         // create a dialog for showing the optionsMenu
         AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
         // set the items in builder
@@ -256,12 +256,15 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(optionsMenu[i].equals("Take Photo")){
                     cameraLaunch();
+                    Log.i(TAG, "chooseImage: Camera chosen");
                 }
                 else if(optionsMenu[i].equals("Choose from Gallery")){
                     galleryLaunch();
+                    Log.i(TAG, "chooseImage: Gallery chosen");
                 }
                 else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
+                    Log.i(TAG, "chooseImage: Dialog dismissed");
                 }
             }
         });
@@ -277,12 +280,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             options.setAspectRatio(1,1);
             options.setImageSource(false, true);
             cropImage.launch(options);
-            Log.i(TAG, "Permission allowed, camera launched");
+            Log.i(TAG, "cameraLaunch: Permission allowed, camera launched");
         } else {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-            Log.i(TAG, "Permission for camera requested");
+            Log.i(TAG, "cameraLaunch: Permission for camera requested");
         }
     }
 
@@ -295,12 +298,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             options.setAspectRatio(1,1);
             options.setImageSource(true, false);
             cropImage.launch(options);
-            Log.i(TAG, "Permission allowed, camera launched");
+            Log.i(TAG, "galleryLaunch: Permission allowed, camera launched");
         } else {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
             requestGalleryPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            Log.i(TAG, "Permission for camera requested");
+            Log.i(TAG, "galleryLaunch: Permission for camera requested");
         }
     }
 
@@ -317,9 +320,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
                             createImage.setImageURI(selectedImageUri);
-                            Log.i(TAG, "onActivityResult: cropped image set");
+                            Log.i(TAG, "onActivityResult: Cropped image set");
                         } else {
-                            Log.d(TAG, "onActivityResult: cropping returned null");
+                            Log.d(TAG, "onActivityResult: Cropping returned null");
                         }
                     }
                 }
@@ -337,7 +340,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         cameraLaunch();
                     } else {
                         Toast.makeText(CreateEventActivity.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "Camera access denied");
+                        Log.i(TAG, "PermissionRequest: Camera access denied");
                     }
                 }
             });
@@ -352,7 +355,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         galleryLaunch();
                     } else {
                         Toast.makeText(CreateEventActivity.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "Gallery access denied");
+                        Log.i(TAG, "PermissionRequest: Gallery access denied");
                     }
 
                 }
