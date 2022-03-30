@@ -3,11 +3,13 @@ package com.example.myapplication2;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.metrics.Event;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,12 +38,17 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView createImage;
@@ -120,7 +127,39 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 // TODO: This should upload online and then get a DocumentReference
                 // Bitmap eventImage = createImage.getDrawingCache();
-                DocumentReference eventImage = null;
+                final String[] eventImage = new String[1];
+
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+
+                // Randomizing id for file name
+                StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
+
+                // TODO FIX THIS
+                // Get the data from an ImageView as bytes
+                createImage.setDrawingCacheEnabled(true);
+                createImage.buildDrawingCache();
+                Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = eventImageRef.putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                        return;
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // TODO this is null??
+                        eventImage[0] = taskSnapshot.getStorage().getPath();
+                    }
+                });
+
+                Log.d(TAG, "onClick: " + eventImage[0]);
+
 
                 // TODO: Get DocumentReference for current user
                 DocumentReference userCreated = null;
@@ -133,7 +172,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         eventCapacity,
                         startDateTime.getTime(),
                         endDateTime.getTime(),
-                        eventImage,
+                        eventImage[0],
                         userCreated
                         );
 

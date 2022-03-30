@@ -33,7 +33,7 @@ public class EventModel {
     private String description;
     private Date eventEnd;
     private Date eventStart;
-    private DocumentReference imagePath;
+    private String imagePath;
     private DocumentReference module;
     private String status;
     private String title;
@@ -44,7 +44,7 @@ public class EventModel {
     public EventModel() {} //no arg constructor for firebase
 
     public EventModel(String title, String description, String venue, DocumentReference module,
-                      int capacity, Date eventStart, Date eventEnd, DocumentReference imagePath,
+                      int capacity, Date eventStart, Date eventEnd, String imagePath,
                       DocumentReference userCreated) {
         this.title = title;
         this.description = description;
@@ -135,11 +135,11 @@ public class EventModel {
         this.eventEnd = eventEnd;
     }
 
-    public DocumentReference getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(DocumentReference imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 
