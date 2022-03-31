@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CheckstyleConfigurable">
-    <option name="suppFilterFilename" value="" />
-    <option name="suppCommentFilter" value="false" />
-    <option name="offComment" value="CHECKSTYLE\:OFF" />
-    <option name="onComment" value="CHECKSTYLE\:ON" />
-    <option name="checkFormat" value=".*" />
-    <option name="messageFormat" value="" />
-    <option name="checkCPP" value="true" />
-    <option name="checkC" value="true" />
-    <option name="suppNearbyCommentFilter" value="false" />
-    <option name="snCommentFormat" value="SUPPRESS CHECKSTYLE (\w+)" />
-    <option name="snCheckFormat" value="$1" />
-    <option name="snMessageFormat" value="" />
-    <option name="snInfluenceFormat" value="0" />
-    <option name="snCheckCPP" value="true" />
-    <option name="snCheckC" value="true" />
-    <option name="pathToUserRulesConfiguration" value="" />
-    <option name="pathToJarWithRules" value="" />
-  </component>
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
@@ -40,8 +21,10 @@
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/dropdown_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/list_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/strings.xml" value="0.36666666666666664" />
-        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_create_events.xml" value="0.2" />
-        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_edit_events.xml" value="0.346875" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/drawable/bg_color_gradient.xml" value="0.1735" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/drawable/gradient_bg.xml" value="0.1735" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_create_events.xml" value="0.1" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_edit_events.xml" value="0.33378016085790885" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_edit_profile_page.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_filter_page.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
@@ -55,17 +38,13 @@
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/list_item.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/main_listing.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/xml/file_paths.xml" value="0.2015625" />
-        <entry key="app/src/main/res/layout/event_row.xml" value="0.48976694742838534" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_13" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
-  </component>
-  <component name="SuppressionsComponent">
-    <option name="suppComments" value="[]" />
   </component>
 </project>
