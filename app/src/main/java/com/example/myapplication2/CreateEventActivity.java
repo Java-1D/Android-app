@@ -115,6 +115,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     return;
                 }
 
+                // Explicit intent added in advance so that button is not clickable twice
+                // Create explicit intent to go into MainPage
+                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                startActivity(intent);
+
                 // TODO: Check that event name does not repeat?
 
                 String eventName = createName.getText().toString();
@@ -125,8 +130,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 // String eventModule = createVenue.getText().toString();
                 DocumentReference eventModule = null;
 
+                // TODO: Get DocumentReference for current user
+                DocumentReference userCreated = null;
+
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
+
+                // Uploading image into Firebase Storage
                 FirebaseStorage storage = FirebaseStorage.getInstance();
 
                 // Randomizing id for file name
@@ -141,8 +151,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 byte[] data = baos.toByteArray();
 
                 UploadTask uploadTask = eventImageRef.putBytes(data);
-
-                // TODO: This is an async process that needs to change
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
@@ -152,13 +160,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.d(TAG, "onSuccess: tester");
-                        
+                        Log.d(TAG, "uploadTask: Image successfully uploaded");
                         
                         String eventImage = taskSnapshot.getMetadata().getReference().toString();
-
-                        // TODO: Get DocumentReference for current user
-                        DocumentReference userCreated = null;
 
                         EventModel eventModel = new EventModel(
                                 eventName,
@@ -176,15 +180,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                         db.collection("Events").document(eventName).set(eventModel);
-                        Log.i(TAG, "createEvent: Success");
-
-
-//                        // Create explicit event to go into MainPage
-//                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-//                        startActivity(intent);
+                        Log.i(TAG, "createEvent: Successful. Event added to Firebase");
                     }
                 });
 
+                uploadTask.on
                 break;
 
             case R.id.setImageButton:

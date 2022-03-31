@@ -58,7 +58,7 @@ public class EventModel {
 
         // Initialized as empty
         this.status = "upcoming";
-        this.userJoined = null;
+        this.userJoined = new ArrayList<>(Arrays.asList(userCreated));
     }
 
 //    public EventModel(int capacity, String description,
