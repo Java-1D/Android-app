@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.example.myapplication2.utils.Utils;
 
+import com.example.myapplication2.fragments.SearchFragment;
+
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
@@ -43,10 +45,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.textView:
                 startActivity(new Intent(LoginActivity.this, ProfilePage.class));
                 break;
-
             case R.id.loginbtn:
                 startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
-
         }
     }
 }

@@ -27,9 +27,9 @@ import java.util.Date;
 */
 public class EventModel {
 
-    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
-
     public static final String TAG = "Event Model";
+    public static final String collectionId = "Events";
+    public static final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
     private int capacity;
     private String description;
@@ -67,13 +67,6 @@ public class EventModel {
         this.venue = venue;
     }
 
-    public ArrayList<String> getStatuses() {
-        return statuses;
-    }
-
-    public static String getTAG() {
-        return TAG;
-    }
 
     public String getCapacity() {
         return String.valueOf(capacity);
@@ -190,8 +183,7 @@ public class EventModel {
     @Override
     public String toString() {
         return "EventModel{" +
-                "statuses=" + statuses +
-                ", capacity=" + capacity +
+                "capacity=" + capacity +
                 ", description='" + description + '\'' +
                 ", eventCreated=" + eventCreated +
                 ", eventEnd=" + eventEnd +

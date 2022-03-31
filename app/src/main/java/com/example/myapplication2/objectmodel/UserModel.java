@@ -15,6 +15,7 @@ import java.util.Date;
 public class UserModel {
 
     public static final String TAG = "User Model";
+    public static final String collectionId = "Users";
 
     private Date dateCreated;
     private String email;

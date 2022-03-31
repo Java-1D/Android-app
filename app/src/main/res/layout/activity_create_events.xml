@@ -20,19 +20,22 @@
 
 
     <EditText
+        android:id="@+id/eventTitleCreate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/eventTitleCreate" />
+        android:hint="Title" />
 
     <EditText
+        android:id="@+id/eventDescriptionCreate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/eventDescriptionCreate" />
-    
+        android:hint="Description" />
+
     <EditText
+        android:id="@+id/venueCreate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/venueCreate" />
+        android:hint="Venue" />
 
     <!-- TODO: how do we want to implement the date/time?
                will this be a dropdown or text?-->
@@ -43,11 +46,12 @@
 <!--    <TimePicker-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content" />-->
-    
+
     <EditText
+        android:id="@+id/topicCreate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/topicCreate" />
+        android:hint="Topics" />
 
 
     <Button
