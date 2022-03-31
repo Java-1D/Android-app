@@ -1,4 +1,7 @@
 package com.example.myapplication2;
 
-public class ViewEventActivity {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class ViewEventActivity extends AppCompatActivity {
+    
 }
