@@ -117,8 +117,7 @@
                 android:layout_weight="1"
                 android:text="@string/user_pillar"
                 android:textAlignment="viewEnd"
-                android:textSize="18sp"
-                tools:layout_weight="1" />
+                android:textSize="18sp" />
 
         </LinearLayout>
 
@@ -141,9 +140,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:text="@string/term"
-                android:textSize="18sp"
-                tools:layout_weight="1" />
+                android:text="Term"
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/termValue"
@@ -173,57 +171,15 @@
             android:textAlignment="center"
             android:textSize="18sp" />
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp">
+            android:layout_height="100dp">
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/Module1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_weight="1"
-                    android:text="50.001: Algorithms" />
-
-                <TextView
-                    android:id="@+id/Module2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="3.007: Difficult Module" />
-
-                <TextView
-                    android:id="@+id/Module3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="30.007: Even More Difficult Module" />
-
-                <TextView
-                    android:id="@+id/Module4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="50.002: Computation Structures" />
-
-                <TextView
-                    android:id="@+id/Module5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="50.003: Witchcraft" />
-            </LinearLayout>
-        </ScrollView>
+                android:layout_height="wrap_content"
+                android:id="@+id/recyclerProfile"/>
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/appCompatImageView"
@@ -255,7 +211,7 @@
         android:id="@+id/editButton"
         android:layout_width="200dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/sign_in_bar"
         android:text="@string/edit"
         android:textSize="20sp"

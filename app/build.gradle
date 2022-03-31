@@ -32,6 +32,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 
+
+
 dependencies {
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:29.2.0')
@@ -69,5 +71,13 @@ dependencies {
     // https://github.com/ArthurHub/Android-Image-Cropper
     implementation 'com.github.CanHub:Android-Image-Cropper:4.2.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //Jackson JSON to POJO Conversion
+    //https://github.com/FasterXML/jackson-core
+//    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.1'
+//    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.1'
+//    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
+//      implementation 'com.google.code.gson:gson:2.8.8'
+
 
 }

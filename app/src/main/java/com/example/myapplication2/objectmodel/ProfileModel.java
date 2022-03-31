@@ -12,7 +12,7 @@ import java.util.Date;
 *        @index: DocumentReference from Events Collection
 * @field eventsJoined: ArrayList of DocumentReference from Events Collection
 *        @index: DocumentReference from Events Collection
-* @field imagePath: DocumentReference of Images Collection
+* @field imagePath: string referencing URL from Firebase Cloud Storage
 * @field modules: ArrayList of DocumentReference from Modules Collection
 *        @index: DocumentReference from Modules Collection
 * @field name: string
@@ -24,12 +24,13 @@ import java.util.Date;
 */
 public class ProfileModel {
 
-    private static final String TAG = "Profile Model";
+    public static final String TAG = "Profile Model";
+    public static final String collectionId = "Profiles";
 
     private String bio;
     private ArrayList<DocumentReference> eventsCreated;
     private ArrayList<DocumentReference> eventsJoined;
-    private DocumentReference imagePath;
+    private String imagePath;
     private ArrayList<DocumentReference> modules;
     private String name;
     private String pillar;
@@ -38,11 +39,11 @@ public class ProfileModel {
     private int term;
     private DocumentReference userId;
 
-    ProfileModel() {
+    public ProfileModel() {
     }
 
-    ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
-                 DocumentReference imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
+    public ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
+                 String imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
                  Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
         this.bio = bio;
         this.eventsCreated = eventsCreated;
@@ -81,11 +82,11 @@ public class ProfileModel {
         this.eventsJoined = eventsJoined;
     }
 
-    public DocumentReference getImagePath() {
+    public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(DocumentReference imagePath) {
+    public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 

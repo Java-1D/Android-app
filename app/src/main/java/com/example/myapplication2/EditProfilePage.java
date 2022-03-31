@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -22,8 +23,25 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Date;
+
+//TODO Data Persistence for EditProfilePage
 public class EditProfilePage extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = "EditProfilePage";
+    FirebaseFirestore db;
+
+    enum Data {
+        NAME,
+        EMAIL,
+        PILLAR,
+        TERM,
+        MODULE,
+        BIO
+    }
 
     ImageView profilePicture;
     ImageView backButton;
@@ -143,6 +161,7 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
             case 1:
                 if (resultCode == RESULT_OK) {
                     Uri selectedImageUri = data.getData();
+                    //TODO Store Image in Firestore
                     profilePicture.setImageURI(selectedImageUri);
                 }
                 break;
@@ -150,6 +169,7 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
                     Bitmap bitmapImage = (Bitmap) bundle.get("data");
+                    //TODO Store Image in Firestore
                     profilePicture.setImageBitmap(bitmapImage);
                 }
         }
@@ -181,6 +201,21 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.confirmButton:
+                if (!editName.getText().toString().matches("")) {
+                    updateProfileDataString("Test", Data.NAME, editName.getText().toString());
+                }
+                if (!editEmail.getText().toString().matches("")) {
+                    updateUserDataString("Test", Data.EMAIL, editEmail.getText().toString());
+                }
+                if (!editPillar.getText().toString().matches("")) {
+                    updateProfileDataString("Test", Data.PILLAR, editPillar.getText().toString());
+                }
+                if (!editTerm.getText().toString().matches("")) {
+                    updateProfileDataNumber("Test", Data.TERM, Long.parseLong(editTerm.getText().toString()));
+                }
+                if (!editBio.getText().toString().matches("")) {
+                    updateProfileDataString("Test", Data.BIO, editBio.getText().toString());
+                }
                 startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
                 break;
             case R.id.backButton:
@@ -189,4 +224,59 @@ public class EditProfilePage extends AppCompatActivity implements View.OnClickLi
 
         }
     }
+
+    public void updateProfileDataString(String Id, Data data, String value) {
+        Date date = new Date();
+        Timestamp current = new Timestamp(date);
+        DocumentReference docRef = db.collection("Profiles").document(Id);
+        switch (data) {
+            case NAME:
+                docRef.update("name", value);
+                Log.i(TAG, "Update Profile Name");
+                break;
+            case PILLAR:
+                docRef.update("pillar", value);
+                Log.i(TAG, "Update Pillar");
+                break;
+            case BIO:
+                docRef.update("bio", value);
+                Log.i(TAG, "Update Bio");
+                break;
+            default:
+
+        }
+        docRef.update("profileUpdated", current);
+    }
+
+    public void updateProfileDataNumber(String Id, Data data, Long value) {
+        Date date = new Date();
+        Timestamp current = new Timestamp(date);
+        DocumentReference docRef = db.collection("Profiles").document(Id);
+        switch (data) {
+            case TERM:
+                docRef.update("term", value);
+                Log.i(TAG, "Update Term");
+                break;
+            default:
+
+        }
+        docRef.update("profileUpdated", current);
+    }
+
+    public void updateUserDataString(String Id, Data data, String value) {
+        Date date = new Date();
+        Timestamp current = new Timestamp(date);
+        DocumentReference docRef = db.collection("Users").document(Id);
+        switch (data) {
+            case EMAIL:
+                docRef.update("email", value);
+                Log.i(TAG, "Update Email");
+                break;
+            default:
+
+
+        }
+        docRef.update("profileUpdated", current);
+    }
+
 }

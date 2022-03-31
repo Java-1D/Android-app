@@ -4,6 +4,7 @@ package com.example.myapplication2.viewholder;
 
 import android.app.Activity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,14 +17,15 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
 
    // Declare Text view and set data
    public TextView capacity;
-
    public TextView event_title;
    public TextView event_description;
    public TextView status;
    public TextView location;
    public ImageView event_image;
-
+   public TextView event_start;
+   public TextView event_end;
    public Activity mActivity;
+   public Button viewEventButton;
 
 
    // passed in the item from oncreate
@@ -31,8 +33,14 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
       super(itemView);
       event_title = (TextView) itemView.findViewById(R.id.event_title);
       event_description = (TextView) itemView.findViewById(R.id.event_description);
-//    location = (TextView) itemView.findViewById(R.id.event_location);
       event_image = (ImageView) itemView.findViewById(R.id.event_image);
+      location = (TextView) itemView.findViewById(R.id.location);
+      capacity = (TextView) itemView.findViewById(R.id.capacity);
+      status = (TextView) itemView.findViewById(R.id.status);
+      event_start = (TextView) itemView.findViewById(R.id.event_start);
+      event_end = (TextView) itemView.findViewById(R.id.event_end);
+      viewEventButton = (Button) itemView.findViewById(R.id.view_event);
+
    }
 
 

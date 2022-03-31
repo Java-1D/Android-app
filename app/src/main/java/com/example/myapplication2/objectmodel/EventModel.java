@@ -1,9 +1,11 @@
 package com.example.myapplication2.objectmodel;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.protobuf.StringValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 
 /*
@@ -13,7 +15,7 @@ import java.util.Date;
 * @field eventCreated: timestamp
 * @field eventEnd: timestamp
 * @field eventStart: timestamp
-* @field imagePath: DocumentReference from Images Collection
+* @field imagePath: string referencing URL from Firebase Cloud Storage
 * @field lastUpdated: timestamp
 * @field module: DocumentReference from Modules Collection
 * @field status: string
@@ -25,9 +27,9 @@ import java.util.Date;
 */
 public class EventModel {
 
-    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
-
     public static final String TAG = "Event Model";
+    public static final String collectionId = "Events";
+    public static final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
     private int capacity;
     private String description;
@@ -143,25 +145,12 @@ public class EventModel {
         this.imagePath = imagePath;
     }
 
-    public String getStatuses(int index) {
-        return statuses.get(index);
-    }
-
     public String getStatus() {
         return status;
     }
 
-    public void setStatus() {
-        Date currentDate = new Date();
-        if (currentDate.compareTo(this.eventStart) < 0) {
-            this.status = "upcoming";
-        }
-        else if (currentDate.compareTo(this.eventEnd) > 0) {
-            this.status = "completed";
-        }
-        else {
-            this.status = "ongoing";
-        }
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public DocumentReference getUserCreated() {

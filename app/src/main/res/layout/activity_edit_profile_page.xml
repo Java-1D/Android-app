@@ -102,7 +102,7 @@
         android:background="@drawable/login_bar"
         android:ems="10"
         android:hint="@string/term"
-        android:inputType="textPersonName"
+        android:inputType="number"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
