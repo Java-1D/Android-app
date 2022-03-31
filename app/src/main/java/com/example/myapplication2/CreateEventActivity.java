@@ -36,6 +36,8 @@ import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -125,16 +127,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
-                // TODO: This should upload online and then get a DocumentReference
-                // Bitmap eventImage = createImage.getDrawingCache();
-                final String[] eventImage = new String[1];
-
                 FirebaseStorage storage = FirebaseStorage.getInstance();
 
                 // Randomizing id for file name
                 StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
 
-                // TODO FIX THIS
                 // Get the data from an ImageView as bytes
                 createImage.setDrawingCacheEnabled(true);
                 createImage.buildDrawingCache();
@@ -144,6 +141,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 byte[] data = baos.toByteArray();
 
                 UploadTask uploadTask = eventImageRef.putBytes(data);
+
+                // TODO: This is an async process that needs to change
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
@@ -153,39 +152,39 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // TODO this is null??
-                        eventImage[0] = taskSnapshot.getStorage().getPath();
+                        Log.d(TAG, "onSuccess: tester");
+                        
+                        
+                        String eventImage = taskSnapshot.getMetadata().getReference().toString();
+
+                        // TODO: Get DocumentReference for current user
+                        DocumentReference userCreated = null;
+
+                        EventModel eventModel = new EventModel(
+                                eventName,
+                                eventDescription,
+                                eventVenue,
+                                eventModule,
+                                eventCapacity,
+                                startDateTime.getTime(),
+                                endDateTime.getTime(),
+                                eventImage,
+                                userCreated
+                        );
+
+                        // https://firebase.google.com/docs/firestore/quickstart#java
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                        db.collection("Events").document(eventName).set(eventModel);
+                        Log.i(TAG, "createEvent: Success");
+
+
+//                        // Create explicit event to go into MainPage
+//                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+//                        startActivity(intent);
                     }
                 });
 
-                Log.d(TAG, "onClick: " + eventImage[0]);
-
-
-                // TODO: Get DocumentReference for current user
-                DocumentReference userCreated = null;
-
-                EventModel eventModel = new EventModel(
-                        eventName,
-                        eventDescription,
-                        eventVenue,
-                        eventModule,
-                        eventCapacity,
-                        startDateTime.getTime(),
-                        endDateTime.getTime(),
-                        eventImage[0],
-                        userCreated
-                        );
-
-                // https://firebase.google.com/docs/firestore/quickstart#java
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                db.collection("Events").document(eventName).set(eventModel);
-                Log.i(TAG, "createEvent: Success");
-
-
-//                // Create explicit event to go into MainPage
-//                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-//                startActivity(intent);
                 break;
 
             case R.id.setImageButton:
