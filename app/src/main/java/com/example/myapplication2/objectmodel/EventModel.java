@@ -27,8 +27,7 @@ public class EventModel {
 
     public static final String TAG = "Event Model";
     public static final String collectionId = "Events";
-
-    private final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+    public static final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
     private int capacity;
     private String description;
@@ -66,13 +65,6 @@ public class EventModel {
         this.venue = venue;
     }
 
-    public ArrayList<String> getStatuses() {
-        return statuses;
-    }
-
-    public static String getTAG() {
-        return TAG;
-    }
 
     public int getCapacity() {
         return capacity;
@@ -176,5 +168,24 @@ public class EventModel {
 
     public void setVenue(String venue) {
         this.venue = venue;
+    }
+
+    @Override
+    public String toString() {
+        return "EventModel{" +
+                ", capacity=" + capacity +
+                ", description='" + description + '\'' +
+                ", eventCreated=" + eventCreated +
+                ", eventEnd=" + eventEnd +
+                ", eventStart=" + eventStart +
+                ", imagePath='" + imagePath + '\'' +
+                ", lastUpdated=" + lastUpdated +
+                ", module=" + module +
+                ", status='" + status + '\'' +
+                ", title='" + title + '\'' +
+                ", userCreated=" + userCreated +
+                ", userJoined=" + userJoined +
+                ", venue='" + venue + '\'' +
+                '}';
     }
 }
