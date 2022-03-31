@@ -37,7 +37,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
 
-
 //        Toast toast = Toast.makeText(getApplicationContext(),
 //                username,
 //                Toast.LENGTH_SHORT);
