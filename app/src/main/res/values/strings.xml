@@ -36,4 +36,20 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="confirm">Confirm</string>
 
+
+    <!-- Create Event & Edit Event -->
+    <string name="create_event_title">Create an event</string>
+    <string name="select_image">Select Image</string>
+    <string name="event_name">Name</string>
+    <string name="event_description">Description</string>
+    <string name="event_venue">Venue</string>
+    <string name="event_module">Module</string>
+    <string name="event_capacity">Capacity</string>
+    <string name="event_start_date_time">Start</string>
+    <string name="event_end_date_time">End</string>
+    <string name="create_event">Create Event</string>
+
+    <string name="edit_event_title">Edit your event</string>
+    <string name="edit_event">Edit Event</string>
+
 </resources>

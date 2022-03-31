@@ -61,12 +61,7 @@
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
+            android:exported="false">
         </activity>
         <activity
             android:name=".CreateEventActivity"
@@ -83,7 +78,8 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <activity android:name="com.canhub.cropper.CropImageActivity" />
+        <activity android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
 
         <meta-data
             android:name="preloaded_fonts"
