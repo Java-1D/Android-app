@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
-public class FilterPage extends AppCompatActivity {
+public class FilterActivity extends AppCompatActivity {
 
     String[] items = {"Material", "Design", "Components", "Android", "5.0 Lollipop"};
     AutoCompleteTextView autoCompleteTxt;
