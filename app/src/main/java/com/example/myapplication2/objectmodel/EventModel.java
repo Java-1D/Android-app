@@ -1,9 +1,11 @@
 package com.example.myapplication2.objectmodel;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.protobuf.StringValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 
 /*
@@ -66,8 +68,8 @@ public class EventModel {
     }
 
 
-    public int getCapacity() {
-        return capacity;
+    public String getCapacity() {
+        return String.valueOf(capacity);
     }
 
     public void setCapacity(int capacity) {
@@ -92,6 +94,14 @@ public class EventModel {
 
     public Date getEventEnd() {
         return eventEnd;
+    }
+
+    public String getEventEndString(){
+        return String.valueOf(eventEnd);
+    }
+
+    public String getEventStartString(){
+        return String.valueOf(eventStart);
     }
 
     public void setEventEnd(Date eventEnd) {
@@ -173,7 +183,7 @@ public class EventModel {
     @Override
     public String toString() {
         return "EventModel{" +
-                ", capacity=" + capacity +
+                "capacity=" + capacity +
                 ", description='" + description + '\'' +
                 ", eventCreated=" + eventCreated +
                 ", eventEnd=" + eventEnd +

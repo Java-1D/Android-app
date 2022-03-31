@@ -10,22 +10,32 @@
     >
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/event_card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="10dp"
+        app:cardMaxElevation="12dp"
+        app:cardCornerRadius="20dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true"
+        >
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_gravity="center">
+
 
             <ImageView
                 android:id="@+id/event_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="100dp"
+                android:layout_height="0dp"
+                android:layout_margin="5dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
+                android:foregroundGravity="center_vertical"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:srcCompat="@tools:sample/avatars" />
@@ -46,10 +56,78 @@
                 android:id="@+id/event_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:text="event_description"
                 app:layout_constraintStart_toStartOf="@+id/event_title"
-                app:layout_constraintTop_toBottomOf="@+id/event_title" />
+                app:layout_constraintTop_toBottomOf="@+id/location" />
+
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="event_venue"
+                app:layout_constraintTop_toBottomOf="@id/event_title"
+                app:layout_constraintStart_toStartOf="@id/event_title"
+                tools:layout_editor_absoluteX="326dp"
+                tools:layout_editor_absoluteY="16dp" />
+
+            <TextView
+                android:id="@+id/event_start"
+                android:textSize="11sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/view_event"
+                app:layout_constraintStart_toStartOf="@id/view_event"
+                android:text="event_start"
+                tools:layout_editor_absoluteX="180dp"
+                tools:layout_editor_absoluteY="125dp" />
+
+            <TextView
+                android:id="@+id/event_end"
+                android:textSize="11sp"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/event_start"
+                app:layout_constraintEnd_toEndOf="@id/view_event"
+                android:text="event_end"
+                tools:layout_editor_absoluteX="180dp"
+                tools:layout_editor_absoluteY="125dp" />
+
+            <TextView
+                android:id="@+id/capacity"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/view_event"
+                app:layout_constraintStart_toStartOf="@id/event_title"
+                android:text="pax"
+                tools:layout_editor_absoluteX="180dp"
+                tools:layout_editor_absoluteY="125dp" />
+
+            <TextView
+                android:id="@+id/status"
+                android:textSize="12sp"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/capacity"
+                app:layout_constraintTop_toTopOf="@id/capacity"
+                android:text="event_status"
+                tools:layout_editor_absoluteX="180dp"
+                tools:layout_editor_absoluteY="125dp" />
+
+            <Button
+                android:id="@+id/view_event"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="View Event"
+                android:textSize="12sp"
+                tools:layout_editor_absoluteX="301dp"
+                tools:layout_editor_absoluteY="96dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.myapplication2.utils.Utils;
 
 import com.example.myapplication2.fragments.SearchFragment;
 
@@ -32,6 +35,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
+        if (!Utils.isNetworkAvailable(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "Network not Avaliable", Toast.LENGTH_LONG).show();
+        }
         switch (view.getId()) {
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
@@ -39,15 +45,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.textView:
                 startActivity(new Intent(LoginActivity.this, ProfilePage.class));
                 break;
-
-            //Commented out filterpage to test mainpage
-            /*
             case R.id.loginbtn:
                 startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
-                break;
-                startActivity(new Intent(LoginActivity.this, FilterPage.class));
-
-             */
         }
     }
 }
