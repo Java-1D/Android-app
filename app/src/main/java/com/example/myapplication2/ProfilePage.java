@@ -1,5 +1,6 @@
 package com.example.myapplication2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,56 +13,62 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.RecyclerContactAdapter;
 import com.example.myapplication2.viewholder.RecyclerViewModel;
 
 import com.example.myapplication2.utils.Container;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 
-//TODO Need Logic to hide button when visiting other profile pages (Check DocumentReference and/or ID)
 public class ProfilePage extends AppCompatActivity {
     private static final String TAG = "ProfilePage";
-  
+
+    //Objects to handle data from Firebase
     FirebaseFirestore db;
+    String userDocumentId;
+    String profileDocumentId;
+    final Container<UserModel> user = new Container<>(new UserModel());
+    final Container<ProfileModel> profile = new Container<>(new ProfileModel());
 
-    enum Data {
-        NAME,
-        EMAIL,
-        PILLAR,
-        TERM,
-        MODULE,
-        BIO
-    }
+//    //Data fields present in UI elements
+//    enum Data {
+//        NAME,
+//        EMAIL,
+//        PILLAR,
+//        TERM,
+//        MODULE,
+//        BIO
+//    }
 
-    ImageView backArrow;
-    Button logOutButton;
+    //View UI elements
     ImageView profilePicture;
     TextView profileName;
     TextView profileEmail;
     TextView pillarValue;
     TextView termValue;
-    TextView module1;
-    TextView module2;
-    TextView module3;
-    TextView module4;
-    TextView module5;
     TextView bioText;
-    Button editButton;
 
-    //Test Variables for Firestore
-    String value;
-    final Container<UserModel> user = new Container(new UserModel());
-    final Container<ProfileModel> profile = new Container(new ProfileModel());
+    //Interactive UI elements
+    ImageView backArrow;
+    Button logOutButton;
+    Button editButton;
+    RecyclerView recyclerView;
+
+    //RecyclerView components
+    RecyclerContactAdapter adapter;
     ArrayList<RecyclerViewModel> arrModules  = new ArrayList<>();
 
+    //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
@@ -86,34 +93,28 @@ public class ProfilePage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_page);
         Log.i(TAG, "onCreate is called");
-      
+
+        //initialise Firestore db
         db = FirebaseFirestore.getInstance();
 
+        //initialise UI elements
         backArrow = findViewById(R.id.backArrow);
         logOutButton = findViewById(R.id.logOutButton);
         profilePicture = findViewById(R.id.profilePicture);
         profileName = findViewById(R.id.profileName);
         profileEmail = findViewById(R.id.profileEmail);
         pillarValue = findViewById(R.id.pillarValue);
-//        termValue = findViewById(R.id.termValue);
-//        module1 = findViewById(R.id.Module1);
-//        module2 = findViewById(R.id.Module2);
-//        module3 = findViewById(R.id.Module3);
-//        module4 = findViewById(R.id.Module4);
-//        module5 = findViewById(R.id.Module5);
+        termValue = findViewById(R.id.termValue);
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerProfile);
+        //initialise RecyclerView elements for Modules Section
+        recyclerView = findViewById(R.id.recyclerProfile);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        arrModules.add(new RecyclerViewModel(R.drawable.iot, "CSD", "IoT and all other stuff"));
-        arrModules.add(new RecyclerViewModel(R.drawable.data_analytics, "CSD", "Data and all dat shit"));
-        arrModules.add(new RecyclerViewModel(R.drawable.fin, "CSD", "Financial tech and all shit"));
-
-        RecyclerContactAdapter adapter = new RecyclerContactAdapter(this, arrModules);
+        adapter = new RecyclerContactAdapter(this, arrModules);
         recyclerView.setAdapter(adapter);
 
+        //initialise buttons
         backArrow.setOnClickListener(new ClickListener());
         logOutButton.setOnClickListener(new ClickListener());
         editButton.setOnClickListener(new ClickListener());
@@ -123,23 +124,30 @@ public class ProfilePage extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.i(TAG, "onStart is called");
-        DocumentReference userId = getDocumentReference("Users", "Test");
-        DocumentReference profileId = getDocumentReference("Profiles", "Test");
 
-//        //FIXME refactor code and use Executor and Handler classes to update changes
-//        getProfileData(profileId, profileName, Data.NAME);
-//        getUserData(userId, profileEmail, Data.EMAIL);
-//        //FIXME find a way to store data from Firestore in an Object for referencing
-//        getProfileData(profileId, pillarValue, Data.PILLAR);
-//        getProfileData(profileId, termValue, Data.TERM);
-//        //FIXME find a way to extract modules from Firestore DocumentReference
-//        getProfileData(profileId, bioText, Data.BIO);
+        userDocumentId = "Test";
+        profileDocumentId = "Test";
+
+        setProfileDataOnUI(profileDocumentId);
+        setUserDataOnUI(userDocumentId);
+        //FIXME find a way to extract modules from Firestore DocumentReference
+        arrModules.add(new RecyclerViewModel(R.drawable.iot, "CSD", "IoT and all other stuff"));
+        arrModules.add(new RecyclerViewModel(R.drawable.data_analytics, "CSD", "Data and all dat shit"));
+        arrModules.add(new RecyclerViewModel(R.drawable.fin, "CSD", "Financial tech and all shit"));
+
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         Log.i(TAG, "onRestart is called");
+
+        //TODO Store UserDocumentId and ProfileDocumentId and carry across activities
+        userDocumentId = "Test";
+        profileDocumentId = "Test";
+
+        setProfileDataOnUI(profileDocumentId);
+        setUserDataOnUI(userDocumentId);
     }
 
     @Override
@@ -166,29 +174,75 @@ public class ProfilePage extends AppCompatActivity {
         Log.i(TAG, "onDestroy is called");
     }
 
+    //Set Profile Picture
+    public void setProfilePicture(String imageURL) {
+        int resolution = 4;
+        Picasso.get().load(imageURL).resize(120*resolution, 120*resolution)
+                .transform(new Utils.CircleTransform()).into(profilePicture);
+    }
 
+    //Set UI Elements using data from Firebase
+    public void setUIElements(ProfileModel profile) {
+        //Set Text
+        profileName.setText(profile.getName());
+        pillarValue.setText(profile.getPillar());
+        termValue.setText(String.valueOf(profile.getTerm()));
+        bioText.setText(profile.getBio());
+
+        //Set Image
+        setProfilePicture(profile.getImagePath());
+    }
+
+    public void setUIElements(UserModel user) {
+        profileEmail.setText(user.getEmail());
+    }
+
+    //Firebase-Specific Methods
     public DocumentReference getDocumentReference(String collectionId, String documentId) {
         return db.collection(collectionId).document(documentId);
     }
 
-    public void getProfileData(DocumentReference profileRef) {
-        //FIXME Using onSuccessListener
+    public void setProfileDataOnUI(String profileDocumentId) {
+        DocumentReference profileRef = getDocumentReference(ProfileModel.collectionId, profileDocumentId);
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
-                ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                Log.i(TAG, "ProfileModel Class: " + document.toObject(ProfileModel.class).toString());
+                if (document.exists()) {
+                    ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                    Log.i(ProfileModel.TAG, document.toObject(ProfileModel.class).toString());
+                    ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
+                    Log.i(TAG, profile.toString());
+                }
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error retrieving document", e);
             }
         });
     }
 
-    public void getUserData(DocumentReference userRef) {
-        //FIXME Using onSuccessListener
+    public void setUserDataOnUI(String userDocumentId) {
+        DocumentReference userRef = getDocumentReference(UserModel.collectionId, userDocumentId);
         userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
-                ProfilePage.this.user.set(document.toObject(UserModel.class));
-                Log.i(TAG, "UserModel Class: " + document.toObject(UserModel.class).toString());
+                if (document.exists()) {
+                    ProfilePage.this.user.set(document.toObject(UserModel.class));
+                    Log.i(UserModel.TAG, document.toObject(UserModel.class).toString());
+                    ProfilePage.this.setUIElements(ProfilePage.this.user.get());
+                }
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error retrieving document", e);
             }
         });
     }
