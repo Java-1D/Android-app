@@ -43,7 +43,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_events, container, false);
-        eventsList = view.findViewById(R.id.recyclerView);
+        eventsList = view.findViewById(R.id.recyclerViewEvents);
         eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
         eventsList.setAdapter(adapter);
@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment {
             public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 // Creates a new instance of View Holder
                 // Uses layout called R.layout.event_row
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_row, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
                 return new EventViewHolder(view);
             }
 
