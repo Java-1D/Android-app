@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.example.myapplication2.CreateEventActivity;
 import com.example.myapplication2.LoginActivity;
@@ -31,7 +30,7 @@ import com.google.firebase.firestore.Query;
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOMEFRAGMENT";
     private FirebaseFirestore firebaseFirestore;
-        private RecyclerView eventsList; // providing views that represent items in a data set.
+    private RecyclerView eventsList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
 
 
@@ -43,7 +42,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_second, container, false);
+        View view = inflater.inflate(R.layout.fragment_view_events, container, false);
         eventsList = view.findViewById(R.id.recyclerView);
         eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));

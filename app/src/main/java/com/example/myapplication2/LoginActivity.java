@@ -12,14 +12,12 @@ import android.widget.Toast;
 
 import com.example.myapplication2.utils.Utils;
 
-import com.example.myapplication2.fragments.SearchFragment;
-
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         TextView register = (TextView) findViewById(R.id.register);
         register.setOnClickListener(this);
