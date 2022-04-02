@@ -39,11 +39,9 @@ public class EventModel implements ObjectModel {
 
     private int capacity;
     private String description;
-    private Date eventCreated;
     private Date eventEnd;
     private Date eventStart;
     private String imagePath;
-    private Date lastUpdated;
     private DocumentReference module;
     private String status;
     private String title;
@@ -52,27 +50,46 @@ public class EventModel implements ObjectModel {
     private String venue;
 
     public EventModel() {} //no arg constructor for firebase
-
-    public EventModel(String documentId, int capacity, String description, Date eventCreated,
-                      Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
-                      DocumentReference module, String status, String title,
-                      DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-                      String venue) {
-        this.documentId = documentId;
-        this.capacity = capacity;
-        this.description = description;
-        this.eventCreated = eventCreated;
-        this.eventEnd = eventEnd;
-        this.eventStart = eventStart;
-        this.imagePath = imagePath;
-        this.lastUpdated = lastUpdated;
-        this.module = module;
-        this.status = status;
+    
+    //FIXME To add String documentId into the constructor
+    public EventModel(String title, String description, String venue, DocumentReference module,
+                      int capacity, Date eventStart, Date eventEnd, String imagePath,
+                      DocumentReference userCreated) {
         this.title = title;
-        this.userCreated = userCreated;
-        this.userJoined = userJoined;
+        this.description = description;
         this.venue = venue;
+        this.module = module;
+        this.capacity = capacity;
+        this.eventStart = eventStart;
+        this.eventEnd = eventEnd;
+        this.imagePath = imagePath;
+        this.userCreated = userCreated;
+
+        // Initialized as empty
+        this.status = "upcoming";
+        this.userJoined = new ArrayList<>(Arrays.asList(userCreated));
     }
+
+//     public EventModel(String documentId, int capacity, String description, Date eventCreated,
+//                         Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
+//                         DocumentReference module, String status, String title,
+//                         DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
+//                         String venue) {
+//         this.documentId = documentId;
+//         this.capacity = capacity;
+//         this.description = description;
+//         this.eventCreated = eventCreated;
+//         this.eventEnd = eventEnd;
+//         this.eventStart = eventStart;
+//         this.imagePath = imagePath;
+//         this.lastUpdated = lastUpdated;
+//         this.module = module;
+//         this.status = status;
+//         this.title = title;
+//         this.userCreated = userCreated;
+//         this.userJoined = userJoined;
+//         this.venue = venue;
+//     }
 
     public static String getTAG() {
         return TAG;
@@ -96,12 +113,12 @@ public class EventModel implements ObjectModel {
         this.documentId = documentId;
     }
 
-    public String getCapacity() {
-        return String.valueOf(capacity);
+    public String getTitle() {
+        return title;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -112,52 +129,12 @@ public class EventModel implements ObjectModel {
         this.description = description;
     }
 
-    public Date getEventCreated() {
-        return eventCreated;
+    public String getVenue() {
+        return venue;
     }
 
-    public void setEventCreated(Date eventCreated) {
-        this.eventCreated = eventCreated;
-    }
-
-    public Date getEventEnd() {
-        return eventEnd;
-    }
-
-    public String getEventEndString(){
-        return String.valueOf(eventEnd);
-    }
-
-    public String getEventStartString(){
-        return String.valueOf(eventStart);
-    }
-
-    public void setEventEnd(Date eventEnd) {
-        this.eventEnd = eventEnd;
-    }
-
-    public Date getEventStart() {
-        return eventStart;
-    }
-
-    public void setEventStart(Date eventStart) {
-        this.eventStart = eventStart;
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    public Date getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 
     public DocumentReference getModule() {
@@ -168,20 +145,44 @@ public class EventModel implements ObjectModel {
         this.module = module;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public Date getEventStart() {
+        return eventStart;
+    }
+
+    public void setEventStart(Date eventStart) {
+        this.eventStart = eventStart;
+    }
+
+    public Date getEventEnd() {
+        return eventEnd;
+    }
+
+    public void setEventEnd(Date eventEnd) {
+        this.eventEnd = eventEnd;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public DocumentReference getUserCreated() {
@@ -200,31 +201,21 @@ public class EventModel implements ObjectModel {
         this.userJoined = userJoined;
     }
 
-    public String getVenue() {
-        return venue;
-    }
-
-    public void setVenue(String venue) {
-        this.venue = venue;
-    }
-
     @Override
     public String toString() {
         return "EventModel{" +
                 "documentId='" + documentId + '\'' +
-                ", capacity=" + capacity +
-                ", description='" + description + '\'' +
-                ", eventCreated=" + eventCreated +
-                ", eventEnd=" + eventEnd +
-                ", eventStart=" + eventStart +
-                ", imagePath='" + imagePath + '\'' +
-                ", lastUpdated=" + lastUpdated +
-                ", module=" + module +
-                ", status='" + status + '\'' +
                 ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", module=" + module +
+                ", venue=" + venue +
+                ", capacity=" + capacity +
+                ", eventStart=" + eventStart +
+                ", eventEnd=" + eventEnd +
+                ", imagePath=" + imagePath +
+                ", status='" + status + '\'' +
                 ", userCreated=" + userCreated +
                 ", userJoined=" + userJoined +
-                ", venue='" + venue + '\'' +
                 '}';
     }
 }

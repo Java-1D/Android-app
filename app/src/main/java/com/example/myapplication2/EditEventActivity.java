@@ -46,7 +46,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -62,8 +61,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+public class EditEventActivity extends AppCompatActivity implements View.OnClickListener{
 
-public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView createImage;
     Button setImageButton;
 
@@ -129,6 +128,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.createEventButton:
+
                 // Check if data are all filled and valid
                 if (invalidData(createName) |
                         invalidData(createDescription) |
@@ -140,6 +140,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     return;
                 }
 
+                // TODO: Check that event name does not repeat?
 
                 String eventName = createName.getText().toString();
                 String eventDescription = createDescription.getText().toString();
@@ -153,29 +154,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 DocumentReference userCreated = null;
 
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
-
-                // https://firebase.google.com/docs/firestore/quickstart#java
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                // Checking that the data does not exist in Firebase
-                DocumentReference docRef = db.collection("Events").document(eventName);
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                createName.requestFocus();
-                                createName.setError("Please use a different event name.");
-                                // TODO: Add a return to stop the process
-                            } else {
-                                Log.d(TAG, "No such document");
-                            }
-                        } else {
-                            Log.d(TAG, "get failed with ", task.getException());
-                        }
-                    }
-                });
 
                 // https://firebase.google.com/docs/storage/android/upload-files
                 // Uploading image into Firebase Storage
@@ -197,6 +175,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                        return;
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -215,26 +194,33 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 userCreated
                         );
 
+                        // https://firebase.google.com/docs/firestore/quickstart#java
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
                         db.collection("Events").document(eventName).set(eventModel);
                         Log.i(TAG, "createEvent: Successful. Event added to Firebase");
 
                         // Explicit intent added in advance so that button is not clickable twice
                         // Create explicit intent to go into MainPage
-                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                        Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
                         startActivity(intent);
                     }
                 });
 
-                // This is like onSuccess really, theres not much diff
 //                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
 //                    @Override
 //                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 //                        // Explicit intent added in advance so that button is not clickable twice
 //                        // Create explicit intent to go into MainPage
-//                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+//                        Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
 //                        startActivity(intent);
 //                    }
 //                });
+
+
+
+
+
 
                 break;
 
@@ -287,11 +273,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             dateTime = endDateTime;
         }
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(CreateEventActivity.this, new DatePickerDialog.OnDateSetListener() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(EditEventActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 dateTime.set(year, monthOfYear, dayOfMonth);
-                new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                new TimePickerDialog(EditEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -338,7 +324,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
         Log.i(TAG, "chooseImage: Dialog launched");
         // create a dialog for showing the optionsMenu
-        AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditEventActivity.this);
         // set the items in builder
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
@@ -362,7 +348,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     void cameraLaunch() {
         // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(EditEventActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
@@ -380,7 +366,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     void galleryLaunch() {
         // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(EditEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
@@ -428,7 +414,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         // Permission is granted. Continue the action or workflow in your app.
                         cameraLaunch();
                     } else {
-                        Toast.makeText(CreateEventActivity.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditEventActivity.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "PermissionRequest: Camera access denied");
                     }
                 }
@@ -443,7 +429,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         // Permission is granted. Continue the action or workflow in your app.
                         galleryLaunch();
                     } else {
-                        Toast.makeText(CreateEventActivity.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditEventActivity.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "PermissionRequest: Gallery access denied");
                     }
 
