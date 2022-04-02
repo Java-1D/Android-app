@@ -1,5 +1,6 @@
 package com.example.myapplication2.objectmodel;
 
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.protobuf.StringValue;
 
@@ -10,6 +11,8 @@ import java.util.Date;
 
 /*
 * Firebase Firestore Document Object Model for the Events Collection
+* @ID documentId: string
+*
 * @field capacity: number
 * @field description: string
 * @field eventCreated: timestamp
@@ -25,11 +28,14 @@ import java.util.Date;
 *        @index: DocumentReference from Users Collection
 * @field venue: DocumentReference from Venues Collection
 */
-public class EventModel {
+public class EventModel implements ObjectModel {
 
     public static final String TAG = "Event Model";
-    public static final String collectionId = "Events";
-    public static final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+    public static final String COLLECTION_ID  = "Events";
+    public static final ArrayList<String> STATUSES = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
+    @DocumentId
+    private String documentId;
 
     private int capacity;
     private String description;
@@ -47,11 +53,12 @@ public class EventModel {
 
     public EventModel() {} //no arg constructor for firebase
 
-    public EventModel(int capacity, String description, Date eventCreated,
+    public EventModel(String documentId, int capacity, String description, Date eventCreated,
                       Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
                       DocumentReference module, String status, String title,
                       DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
                       String venue) {
+        this.documentId = documentId;
         this.capacity = capacity;
         this.description = description;
         this.eventCreated = eventCreated;
@@ -67,6 +74,27 @@ public class EventModel {
         this.venue = venue;
     }
 
+    public static String getTAG() {
+        return TAG;
+    }
+
+    public static String getCollectionId() {
+        return COLLECTION_ID;
+    }
+
+    public static ArrayList<String> getStatuses() {
+        return STATUSES;
+    }
+
+    @Override
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    @Override
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
 
     public String getCapacity() {
         return String.valueOf(capacity);
@@ -183,7 +211,8 @@ public class EventModel {
     @Override
     public String toString() {
         return "EventModel{" +
-                "capacity=" + capacity +
+                "documentId='" + documentId + '\'' +
+                ", capacity=" + capacity +
                 ", description='" + description + '\'' +
                 ", eventCreated=" + eventCreated +
                 ", eventEnd=" + eventEnd +
