@@ -1,9 +1,9 @@
 package com.example.myapplication2.utils;
 
-public class Container<ObjectModel> {
-    private ObjectModel model;
+public class Container<Object> {
+    private Object model;
 
-    public Container(ObjectModel model) {
+    public Container(Object model) {
         this.model = model;
     }
 
@@ -11,11 +11,11 @@ public class Container<ObjectModel> {
 
     }
 
-    public void set(ObjectModel model) {
+    public void set(Object model) {
         this.model = model;
     }
 
-    public ObjectModel get() {
+    public Object get() {
         return this.model;
     }
 }

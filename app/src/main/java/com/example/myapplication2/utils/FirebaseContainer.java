@@ -1,10 +1,14 @@
 package com.example.myapplication2.utils;
 
 public class FirebaseContainer<T> {
-   T value;
+   private T value;
 
    public FirebaseContainer() {
       this.value = null;
+   }
+
+   public FirebaseContainer(T x) {
+      this.value = x;
    }
 
    public void set(T x) {
