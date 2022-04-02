@@ -31,7 +31,7 @@ import com.google.firebase.firestore.Query;
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOMEFRAGMENT";
     private FirebaseFirestore firebaseFirestore;
-    private RecyclerView eventsList; // providing views that represent items in a data set.
+        private RecyclerView eventsList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
 
 
@@ -95,7 +95,7 @@ public class HomeFragment extends Fragment {
                 Utils.loadImage(model.getImagePath(), holder.event_image);
                 holder.status.setText(model.getStatus());
                 holder.location.setText(model.getVenue());
-                holder.capacity.setText(model.getCapacity());
+                holder.capacity.setText(model.getCapacityString());
 //                holder.event_start.setText(model.getEventStartString());
 //                holder.event_end.setText(model.getEventEndString());
 

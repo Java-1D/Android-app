@@ -145,6 +145,10 @@ public class EventModel implements ObjectModel {
         this.module = module;
     }
 
+    public String getCapacityString() {
+        return String.valueOf(capacity);
+    }
+
     public int getCapacity() {
         return capacity;
     }
