@@ -97,9 +97,9 @@ public class HomeFragment extends Fragment {
                 Utils.loadImage(model.getImagePath(), holder.event_image);
                 holder.status.setText(model.getStatus());
                 holder.location.setText(model.getVenue());
-                holder.capacity.setText(model.getCapacityString());
-//                holder.event_start.setText(model.getEventStartString());
-//                holder.event_end.setText(model.getEventEndString());
+                holder.capacity.setText(model.getCapacity());
+                holder.event_start.setText((CharSequence) model.getEventStart());
+                holder.event_end.setText((CharSequence) model.getEventEnd());
 
                 // Bring users to View Event when clicking on viewEventButton
                 holder.viewEventButton.setOnClickListener(new View.OnClickListener() {
