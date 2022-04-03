@@ -3,6 +3,7 @@ package com.example.myapplication2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -54,11 +56,13 @@ public class FilterActivity extends AppCompatActivity {
 
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-
         autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
         getModules(firebaseFirestore, moduleItems); // populate array list with modules
         adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
         autoCompleteTxt.setAdapter(adapterItems);
+
+        // Filter Button to go to View All Events after filtering
+        Button filterButton = findViewById(R.id.filter_button);
 
         autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -67,9 +71,18 @@ public class FilterActivity extends AppCompatActivity {
             }
         });
 
+        // Bring users to View Event when clicking on viewEventButton
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view1) {
+                Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
+//                ((MainPageActivity) getApplicationContext()).startActivity(intent);
+                startActivity(intent);
+            }
+        });
+
 
     }
-
 
 
     void getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {

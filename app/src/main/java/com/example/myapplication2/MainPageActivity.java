@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.myapplication2.fragments.HomeFragment;
-import com.example.myapplication2.fragments.SearchFragment;
+import com.example.myapplication2.fragments.FilterFragment;
 import com.example.myapplication2.fragments.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,7 +32,7 @@ public class MainPageActivity extends AppCompatActivity implements NavigationBar
 
     }
 
-    SearchFragment searchFragment = new SearchFragment();
+    FilterFragment filterFragment = new FilterFragment();
     HomeFragment homeFragment = new HomeFragment();
     SettingsFragment settingsFragment = new SettingsFragment();
 
@@ -41,7 +41,7 @@ public class MainPageActivity extends AppCompatActivity implements NavigationBar
 
         switch (item.getItemId()) {
             case R.id.search:
-                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, searchFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, filterFragment).commit();
                 return true;
 
             case R.id.home:
