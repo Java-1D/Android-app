@@ -35,13 +35,16 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/*
+    Filter Activity is not in used anymore. Refer to filterFragment - yk
+ */
 public class FilterActivity extends AppCompatActivity {
     private static final String TAG = "FILTERACTIVITY";
     /**
      * Filter Activity returns a page that allows user to filter the type of events
      * they want to join
      */
-    ArrayList<String> moduleItems;
+    ArrayList<String> moduleItems = new ArrayList<String>();
     AutoCompleteTextView autoCompleteTxt;
     ArrayAdapter<String> adapterItems;
     FirebaseFirestore firebaseFirestore;
@@ -52,6 +55,7 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter_page);
 
         firebaseFirestore = FirebaseFirestore.getInstance();
+        getModules(firebaseFirestore, moduleItems); // populate array list with modules
 
 
         autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
@@ -68,10 +72,10 @@ public class FilterActivity extends AppCompatActivity {
 
 
     }
-    final FirebaseContainer<ArrayList<String>> container = new FirebaseContainer<>();
 
 
-    void getModules(FirebaseFirestore firebaseFirestore) {
+    void getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {
+        final FirebaseContainer<ArrayList<String>> container = new FirebaseContainer<>();
 
         firebaseFirestore.collection("Modules")
                 .get()
@@ -79,22 +83,19 @@ public class FilterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            ArrayList<String> modules = new ArrayList<String>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getData().toString());
-                                modules.add(document.getData().toString());
+                                modules.add(document.getData().get("name").toString());
                             }
-                            container.set(modules);
-                            Log.d(TAG, "Container Object" + container.get().toString());
-
                         } else {
-                            container.set(new ArrayList<String>());
                         }
+                        container.set(modules);
+                        Log.d(TAG, "Container Object" + container.get().toString());
                     }
+
                 });
-//        Log.d(TAG, "Container Object" + container.get().toString());
 
     }
 
-
 }
+

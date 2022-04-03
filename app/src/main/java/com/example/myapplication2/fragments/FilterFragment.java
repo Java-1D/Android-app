@@ -20,6 +20,7 @@ import android.widget.Button;
 
 import com.example.myapplication2.MainPageActivity;
 import com.example.myapplication2.R;
+import com.example.myapplication2.utils.Container;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,8 +37,8 @@ public class FilterFragment extends Fragment {
 
 
     private static final String TAG = "FilterFragment";
-    ArrayList<String> moduleItems;
-//    AutoCompleteTextView autoCompleteTxt;
+    ArrayList<String> moduleItems  = new ArrayList<String>();
+    AutoCompleteTextView autoCompleteTxt;
     ArrayAdapter<String> adapterItems;
     FirebaseFirestore firebaseFirestore;
     Button filterButton;
@@ -49,8 +50,8 @@ public class FilterFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_events, container, false);
-        final AutoCompleteTextView autoCompleteTxt = view.findViewById(R.id.autoCompleteTxt);
+        View view = inflater.inflate(R.layout.activity_filter_page, container, false);
+        autoCompleteTxt = view.findViewById(R.id.autoCompleteTxt);
 
         // Filter Button to go to View All Events after filtering
         filterButton = view.findViewById(R.id.filter_button);
@@ -68,30 +69,34 @@ public class FilterFragment extends Fragment {
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view1) {
-                Intent intent = new Intent(getActivity(), MainPageActivity.class);
-                ((MainPageActivity) getActivity()).startActivity(intent);
+                Intent intent = new Intent(getActivity(), HomeFragment.class);
+                startActivity(intent);
             }
         });
 
 
-        return inflater.inflate(R.layout.fragment_first, container, false);
+        return inflater.inflate(R.layout.activity_filter_page, container, false);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            moduleItems = savedInstanceState.getStringArrayList("adapter");
+//        if (savedInstanceState != null) {
+//            moduleItems = savedInstanceState.getStringArrayList("adapter");
+//
+//        } else {
+//            moduleItems = new ArrayList<String>();
+//            firebaseFirestore = FirebaseFirestore.getInstance();
+//            getModules(firebaseFirestore, moduleItems); // populate array list with modules
+//
+//        }
 
-        } else {
-            moduleItems = new ArrayList<String>();
-            firebaseFirestore = FirebaseFirestore.getInstance();
-            getModules(firebaseFirestore, moduleItems); // populate array list with modules
-
-        }
+//        moduleItems = new ArrayList<String>();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        FirebaseContainer container = getModules(firebaseFirestore, moduleItems); // populate array list with modules
+        Log.d(TAG, "" + container.get());
         adapterItems = new ArrayAdapter<String>(getActivity(), R.layout.list_item, moduleItems); //TODO : Adapter Item becomes null after revisiting it for the second time
-
 
         Log.d(TAG, moduleItems + "");
 
@@ -102,20 +107,19 @@ public class FilterFragment extends Fragment {
 //        return this.adapterItems;
 //    }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putStringArrayList("adapter", moduleItems);
-    }
+//    @Override
+//    public void onSaveInstanceState(@NonNull Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putStringArrayList("adapter", moduleItems);
+//    }
 
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        // Restore UI state from the savedInstanceState.
-        // This bundle has also been passed to onCreate.
-        moduleItems = savedInstanceState.getStringArrayList("adapter");
-
-    }
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//        // Restore UI state from the savedInstanceState.
+//        // This bundle has also been passed to onCreate.
+//        moduleItems = savedInstanceState.getStringArrayList("adapter");
+//    }
 
 //    @Override
 //    public void onResume() {
@@ -132,7 +136,7 @@ public class FilterFragment extends Fragment {
 //    }
 
 
-    void getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {
+    FirebaseContainer getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {
         final FirebaseContainer<ArrayList<String>> container = new FirebaseContainer<>();
 
         firebaseFirestore.collection("Modules")
@@ -152,6 +156,6 @@ public class FilterFragment extends Fragment {
                     }
 
                 });
-
+        return container;
     }
 }
