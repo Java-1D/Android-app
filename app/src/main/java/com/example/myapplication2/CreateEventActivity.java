@@ -167,74 +167,61 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                             if (document.exists()) {
                                 createName.requestFocus();
                                 createName.setError("Please use a different event name.");
-                                // TODO: Add a return to stop the process
                             } else {
-                                Log.d(TAG, "No such document");
+                                // Happens when eventName is not taken
+                                // https://firebase.google.com/docs/storage/android/upload-files
+                                // Uploading image into Firebase Storage
+                                FirebaseStorage storage = FirebaseStorage.getInstance();
+
+                                // Randomizing id for file name
+                                StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
+
+                                // Get the data from an ImageView as bytes
+                                createImage.setDrawingCacheEnabled(true);
+                                createImage.buildDrawingCache();
+                                Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                byte[] data = baos.toByteArray();
+
+                                UploadTask uploadTask = eventImageRef.putBytes(data);
+                                uploadTask.addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                                    }
+                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        Log.i(TAG, "uploadTask: Image successfully uploaded");
+                                        String eventImage = taskSnapshot.getMetadata().getReference().toString();
+                                        EventModel eventModel = new EventModel(
+                                                eventName,
+                                                eventDescription,
+                                                eventVenue,
+                                                eventModule,
+                                                eventCapacity,
+                                                startDateTime.getTime(),
+                                                endDateTime.getTime(),
+                                                eventImage,
+                                                userCreated
+                                        );
+
+                                        db.collection("Events").document(eventName).set(eventModel);
+                                        Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+
+                                        // Explicit intent added in advance so that button is not clickable twice
+                                        // Create explicit intent to go into MainPage
+                                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                         }
                     }
                 });
-
-                // https://firebase.google.com/docs/storage/android/upload-files
-                // Uploading image into Firebase Storage
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-
-                // Randomizing id for file name
-                StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
-
-                // Get the data from an ImageView as bytes
-                createImage.setDrawingCacheEnabled(true);
-                createImage.buildDrawingCache();
-                Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] data = baos.toByteArray();
-
-                UploadTask uploadTask = eventImageRef.putBytes(data);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.i(TAG, "uploadTask: Image successfully uploaded");
-                        String eventImage = taskSnapshot.getMetadata().getReference().toString();
-                        EventModel eventModel = new EventModel(
-                                eventName,
-                                eventDescription,
-                                eventVenue,
-                                eventModule,
-                                eventCapacity,
-                                startDateTime.getTime(),
-                                endDateTime.getTime(),
-                                eventImage,
-                                userCreated
-                        );
-
-                        db.collection("Events").document(eventName).set(eventModel);
-                        Log.i(TAG, "createEvent: Successful. Event added to Firebase");
-
-                        // Explicit intent added in advance so that button is not clickable twice
-                        // Create explicit intent to go into MainPage
-                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-                        startActivity(intent);
-                    }
-                });
-
-                // This is like onSuccess really, theres not much diff
-//                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-//                        // Explicit intent added in advance so that button is not clickable twice
-//                        // Create explicit intent to go into MainPage
-//                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-//                        startActivity(intent);
-//                    }
-//                });
 
                 break;
 
