@@ -51,9 +51,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
-        if (!Utils.isNetworkAvailable(getApplicationContext())) {
-            Toast.makeText(getApplicationContext(), "Network not Avaliable", Toast.LENGTH_LONG).show();
-        }
+//        if (!Utils.isNetworkAvailable(getApplicationContext())) {
+//            Toast.makeText(getApplicationContext(), "Network not Avaliable", Toast.LENGTH_LONG).show();
+//        }
         switch (view.getId()) {
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             }
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.getData().get("password").toString().equals(password)) {
-                                    startActivity(new Intent(LoginActivity.this, FilterPage.class));
+                                    startActivity(new Intent(LoginActivity.this, FilterActivity.class));
                                 }
                                 else {
                                     Toast toast = Toast.makeText(getApplicationContext(),
