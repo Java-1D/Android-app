@@ -7,11 +7,12 @@
     tools:context=".FilterActivity">
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:hint="@string/select"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        android:hint="@string/select_modules">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteTxt"
@@ -20,8 +21,13 @@
             android:inputType="none"
             tools:ignore="LabelFor" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <Button
+            android:id="@+id/filter_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter" />
 
+    </com.google.android.material.textfield.TextInputLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

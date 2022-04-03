@@ -26,6 +26,9 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+/*
+Home Fragment contains the Fragment for the Homepage. I.e View All Events
+ */
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOMEFRAGMENT";
