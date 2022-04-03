@@ -34,17 +34,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         Button login = (Button) findViewById(R.id.loginbtn);
         login.setOnClickListener(this);
-
-
-
-//        Toast toast = Toast.makeText(getApplicationContext(),
-//                username,
-//                Toast.LENGTH_SHORT);
-//
-//        toast.show();
-
-
-
     }
 
     @SuppressLint("NonConstantResourceId")
