@@ -173,9 +173,7 @@ public class EventModel implements ObjectModel {
         this.eventEnd = eventEnd;
     }
 
-    public String getImagePath() {
-        return imagePath;
-    }
+    public String getImagePath() { return imagePath; }
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;

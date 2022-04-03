@@ -5,11 +5,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication2.objectmodel.EventModel;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -24,6 +27,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     TextView event_name;
     TextView event_desc;
+    TextView event_creator;
     ShapeableImageView person;
     ShapeableImageView location_pic;
     ImageView calendar_icon;
@@ -54,8 +58,11 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_events);
 
+        db = FirebaseFirestore.getInstance();
+
         event_name  = findViewById(R.id.event_name); // Need to retrieve
         event_desc = findViewById(R.id.event_desc); // Need to retrieve
+        event_creator = findViewById(R.id.event_creator); // Need to retrieve
         person = findViewById(R.id.person); // Need to retrieve
         location_pic = findViewById(R.id.location_pic); // Need to retrieve
         calendar_icon = findViewById(R.id.calendar_icon);
@@ -86,21 +93,19 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         search2.setOnClickListener(this);
         search3.setOnClickListener(this);
 
+        // TODO how to reflect document path based on the event that users click on the app -> documentPath -> SharedPreferences from HomePage
         DocumentReference docRef = db.collection("Events").document("Test Event");
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        document.get()
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                event_name.setText(eventModel.getTitle());
+                event_desc.setText(eventModel.getDescription());
+                location.setText(eventModel.getVenue());
+                // TODO Retrieve person who created the event -> decipher document reference
+                // event_creator.setText(eventModel.getUserCreated()); -> Need to retrieve the person who created
+                // TODO Retrieve (Document References) from firebase, using bitmap (Images: person, person1,2,3 & location_pic; Text: Information)
+                // TODO Retrieve (Date) start and end time from firebase, display in textview (start_time, end time)
             }
         });
 
@@ -112,16 +117,40 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         switch (view.getId()) {
             case R.id.join_button:
             // TODO Check if event is full, if full reject join request.
-            // TODO Update database +1 member to the event
+                DocumentReference docRef = db.collection("Events").document("Test Event");
+                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                        int current = eventModel.getUserJoined().size();
+                        if (current == eventModel.getCapacity());
+                            Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
+                        // TODO in else statement, add the user who clicked the join button into the UserJoined ArrayList
 
+
+            // TODO Check with Yongkang how to use recycler view to show the profiles of the users
             case R.id.search1:
-            // TODO Retrieve profile page of person1
-
+                DocumentReference docRef = db.collection("Events").document("Test Event");
+                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                        // TODO Retrieve profile page of person1
             case R.id.search2:
-            // TODO Retrieve profile page of person2
+                DocumentReference docRef = db.collection("Events").document("Test Event");
+                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                        // TODO Retrieve profile page of person2
 
             case R.id.search3:
-            // TODO Retrieve profile page of person3
+                DocumentReference docRef = db.collection("Events").document("Test Event");
+                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                        // TODO Retrieve profile page of person3
 
         }
     }
