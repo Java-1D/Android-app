@@ -57,7 +57,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -76,6 +78,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     EditText createEnd;
 
     Button createButton;
+
+    EditText module;
+    boolean[] selectedModule;
+    ArrayList<Integer> moduleList = new ArrayList<>();
+    String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
 
     // Global variable to take note of Calendar object for createDate
     // Used because it cannot be stored in EditText or any other type of texts
@@ -117,6 +124,60 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         createEnd = (EditText) findViewById(R.id.createEventEndDateTime);
 
         createButton = (Button) findViewById(R.id.createEventButton);
+
+        module = (EditText) findViewById(R.id.createEventModule);
+        selectedModule = new boolean[moduleArray.length];
+        module.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        CreateEventActivity.this
+                );
+                builder.setTitle("Select Modules");
+                builder.setCancelable(false);
+                builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                        if (b) {
+                            moduleList.add(i);
+                            Collections.sort(moduleList);
+                        }else {
+                            moduleList.remove(i);
+                        }
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (int j = 0; j < moduleList.size(); j ++) {
+                            stringBuilder.append(moduleArray[moduleList.get(j)]);
+                            if (j != moduleList.size() - 1) {
+                                stringBuilder.append(", ");
+                            }
+                        }
+                        module.setText(stringBuilder.toString());
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        for (int j = 0; j < selectedModule.length; j ++){
+                            selectedModule[j] = false;
+                            moduleList.clear();
+                            module.setText("");
+                        }
+                    }
+                });
+                builder.show();
+            }
+        });
 
         // TODO: Should we do a network check here?
         createButton.setOnClickListener(this);
