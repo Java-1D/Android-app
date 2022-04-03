@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             }
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.getData().get("password").toString().equals(password)) {
-                                    startActivity(new Intent(LoginActivity.this, FilterActivity.class));
+                                    startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
                                 }
                                 else {
                                     Toast toast = Toast.makeText(getApplicationContext(),
