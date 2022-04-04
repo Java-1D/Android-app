@@ -27,11 +27,8 @@ import android.widget.Toast;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -56,16 +53,6 @@ public class EditProfilePage extends AppCompatActivity {
     FirebaseStorage storage;
     String profileDocumentId;
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
-
-    //Data fields present in UI elements
-    enum Data {
-        PROFILE_PIC,
-        NAME,
-        PILLAR,
-        TERM,
-        MODULE,
-        BIO
-    }
 
     //UI elements
     ImageView profilePicture;
@@ -235,6 +222,7 @@ public class EditProfilePage extends AppCompatActivity {
 //        savedInstanceState.putInt(WORKOUT_STATE, currentState);
 
         super.onSaveInstanceState(savedInstanceState);
+        Log.i(TAG, "SaveInstanceState Saved");
     }
 
     @Override
@@ -243,13 +231,13 @@ public class EditProfilePage extends AppCompatActivity {
 
 //        Restore state
 //        currentScore = savedInstanceState.getInt(WORKOUT_STATE);
+        Log.i(TAG, "SaveInstanceState Restored");
     }
 
 
     public void updateProfileDocument(String Id, Intent intent) {
         Date date = new Date();
         Timestamp current = new Timestamp(date);
-        DocumentReference docRef = db.collection("Profiles").document(Id);
         if (!editName.getText().toString().matches("")) {
             profile.get().setName(editName.getText().toString());
         }
@@ -262,6 +250,7 @@ public class EditProfilePage extends AppCompatActivity {
         if (!editBio.getText().toString().matches("")) {
             profile.get().setBio(editBio.getText().toString());
         }
+        profile.get().setProfileUpdated(date);
         updateFirestore(Id, profile.get(), intent);
     }
 
