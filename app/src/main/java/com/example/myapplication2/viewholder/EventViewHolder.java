@@ -1,6 +1,6 @@
 package com.example.myapplication2.viewholder;
 
-// View Holder Class
+// View Holder Class for Events in MainPageActivity
 
 import android.app.Activity;
 import android.view.View;

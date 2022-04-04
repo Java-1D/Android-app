@@ -1,5 +1,6 @@
 package com.example.myapplication2.objectmodel;
 
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.protobuf.StringValue;
 
@@ -10,6 +11,8 @@ import java.util.Date;
 
 /*
 * Firebase Firestore Document Object Model for the Events Collection
+* @ID documentId: string
+*
 * @field capacity: number
 * @field description: string
 * @field eventCreated: timestamp
@@ -25,11 +28,14 @@ import java.util.Date;
 *        @index: DocumentReference from Users Collection
 * @field venue: DocumentReference from Venues Collection
 */
-public class EventModel {
+public class EventModel implements ObjectModel {
 
     public static final String TAG = "Event Model";
-    public static final String collectionId = "Events";
-    public static final ArrayList<String> statuses = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+    public static final String COLLECTION_ID  = "Events";
+    public static final ArrayList<String> STATUSES = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
+
+    @DocumentId
+    private String documentId;
 
     private int capacity;
     private String description;
@@ -44,7 +50,8 @@ public class EventModel {
     private String venue;
 
     public EventModel() {} //no arg constructor for firebase
-
+    
+    //FIXME To add String documentId into the constructor
     public EventModel(String title, String description, String venue, DocumentReference module,
                       int capacity, Date eventStart, Date eventEnd, String imagePath,
                       DocumentReference userCreated) {
@@ -63,23 +70,48 @@ public class EventModel {
         this.userJoined = new ArrayList<>(Arrays.asList(userCreated));
     }
 
-//    public EventModel(int capacity, String description,
-//                      Date eventEnd, Date eventStart, DocumentReference imagePath,
-//                      DocumentReference module, String status, String title,
-//                      DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-//                      String venue) {
-//        this.capacity = capacity;
-//        this.description = description;
-//        this.eventEnd = eventEnd;
-//        this.eventStart = eventStart;
-//        this.imagePath = imagePath;
-//        this.module = module;
-//        this.status = status;
-//        this.title = title;
-//        this.userCreated = userCreated;
-//        this.userJoined = userJoined;
-//        this.venue = venue;
-//    }
+//     public EventModel(String documentId, int capacity, String description, Date eventCreated,
+//                         Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
+//                         DocumentReference module, String status, String title,
+//                         DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
+//                         String venue) {
+//         this.documentId = documentId;
+//         this.capacity = capacity;
+//         this.description = description;
+//         this.eventCreated = eventCreated;
+//         this.eventEnd = eventEnd;
+//         this.eventStart = eventStart;
+//         this.imagePath = imagePath;
+//         this.lastUpdated = lastUpdated;
+//         this.module = module;
+//         this.status = status;
+//         this.title = title;
+//         this.userCreated = userCreated;
+//         this.userJoined = userJoined;
+//         this.venue = venue;
+//     }
+
+    public static String getTAG() {
+        return TAG;
+    }
+
+    public static String getCollectionId() {
+        return COLLECTION_ID;
+    }
+
+    public static ArrayList<String> getStatuses() {
+        return STATUSES;
+    }
+
+    @Override
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    @Override
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
 
     public String getTitle() {
         return title;
@@ -111,6 +143,10 @@ public class EventModel {
 
     public void setModule(DocumentReference module) {
         this.module = module;
+    }
+
+    public String getCapacityString() {
+        return String.valueOf(capacity);
     }
 
     public int getCapacity() {
@@ -172,7 +208,8 @@ public class EventModel {
     @Override
     public String toString() {
         return "EventModel{" +
-                "title='" + title + '\'' +
+                "documentId='" + documentId + '\'' +
+                ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", module=" + module +
                 ", venue=" + venue +

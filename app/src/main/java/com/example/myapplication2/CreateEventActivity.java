@@ -34,17 +34,27 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.api.LogDescriptor;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +63,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView createImage;
@@ -84,6 +95,21 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_events);
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        // Issues with user always being null, login having issues
+        mAuth.signInAnonymously().addOnSuccessListener(this, new  OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                // do your stuff
+            }
+        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.e(TAG, "signInAnonymously:FAILURE", exception);
+                    }
+                });
 
         // Casting to ensure that the types are correct
         createImage = findViewById(R.id.createEventImage);
@@ -163,7 +189,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.createEventButton:
-
                 // Check if data are all filled and valid
                 if (invalidData(createName) |
                         invalidData(createDescription) |
@@ -175,27 +200,44 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     return;
                 }
 
-                // Explicit intent added in advance so that button is not clickable twice
-                // Create explicit intent to go into MainPage
-                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-                startActivity(intent);
-
-                // TODO: Check that event name does not repeat?
 
                 String eventName = createName.getText().toString();
                 String eventDescription = createDescription.getText().toString();
                 String eventVenue = createVenue.getText().toString();
 
-                // TODO: Module should be a DocumentReference but idk how to get
+                // TODO: Module should be a DocumentReference but idk how to get, need to work with dropdown
                 // String eventModule = createVenue.getText().toString();
                 DocumentReference eventModule = null;
 
-                // TODO: Get DocumentReference for current user
+                // TODO: Get DocumentReference for current user, passed by previous intent??
                 DocumentReference userCreated = null;
 
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
+                // https://firebase.google.com/docs/firestore/quickstart#java
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+                // Checking that the data does not exist in Firebase
+                DocumentReference docRef = db.collection("Events").document(eventName);
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                createName.requestFocus();
+                                createName.setError("Please use a different event name.");
+                                // TODO: Add a return to stop the process
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+
+                // https://firebase.google.com/docs/storage/android/upload-files
                 // Uploading image into Firebase Storage
                 FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -215,15 +257,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                        return;
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.d(TAG, "uploadTask: Image successfully uploaded");
-                        
+                        Log.i(TAG, "uploadTask: Image successfully uploaded");
                         String eventImage = taskSnapshot.getMetadata().getReference().toString();
-
                         EventModel eventModel = new EventModel(
                                 eventName,
                                 eventDescription,
@@ -236,16 +275,28 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 userCreated
                         );
 
-                        // https://firebase.google.com/docs/firestore/quickstart#java
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
                         db.collection("Events").document(eventName).set(eventModel);
                         Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+
+                        // Explicit intent added in advance so that button is not clickable twice
+                        // Create explicit intent to go into MainPage
+                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                        startActivity(intent);
                     }
                 });
 
-//                uploadTask.on
-//                break;
+                // This is like onSuccess really, theres not much diff
+//                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+//                        // Explicit intent added in advance so that button is not clickable twice
+//                        // Create explicit intent to go into MainPage
+//                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+//                        startActivity(intent);
+//                    }
+//                });
+
+                break;
 
             case R.id.setImageButton:
                 chooseImage();

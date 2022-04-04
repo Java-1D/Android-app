@@ -59,23 +59,6 @@
         app:layout_constraintTop_toBottomOf="@+id/editProfilePicture" />
 
     <EditText
-        android:id="@+id/editEmail"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="30dp"
-        android:background="@drawable/login_bar"
-        android:ems="10"
-        android:hint="@string/email"
-        android:inputType="textEmailAddress"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editName" />
-
-    <EditText
         android:id="@+id/editPillar"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -90,7 +73,7 @@
         android:paddingEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/editName" />
 
     <EditText
         android:id="@+id/editTerm"

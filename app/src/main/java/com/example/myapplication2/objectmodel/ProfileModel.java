@@ -1,5 +1,6 @@
 package com.example.myapplication2.objectmodel;
 
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
@@ -7,6 +8,8 @@ import java.util.Date;
 
 /*
 * Firebase Firestore Document Object Model for the Profiles Collection
+* @ID documentId: string
+*
 * @field bio: string
 * @field eventsCreated: ArrayList of DocumentReference from Events Collection
 *        @index: DocumentReference from Events Collection
@@ -22,10 +25,13 @@ import java.util.Date;
 * @field term: number
 * @field userId: DocumentReference from Users Collection
 */
-public class ProfileModel {
+public class ProfileModel implements ObjectModel {
 
     public static final String TAG = "Profile Model";
-    public static final String collectionId = "Profiles";
+    public static final String COLLECTION_ID = "Profiles";
+
+    @DocumentId
+    private String documentId;
 
     private String bio;
     private ArrayList<DocumentReference> eventsCreated;
@@ -42,9 +48,11 @@ public class ProfileModel {
     public ProfileModel() {
     }
 
-    public ProfileModel(String bio, ArrayList<DocumentReference> eventsCreated, ArrayList<DocumentReference> eventsJoined,
-                 String imagePath, ArrayList<DocumentReference> modules, String name, String pillar,
-                 Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
+    public ProfileModel(String documentId, String bio, ArrayList<DocumentReference> eventsCreated,
+                        ArrayList<DocumentReference> eventsJoined, String imagePath,
+                        ArrayList<DocumentReference> modules, String name, String pillar,
+                        Date profileCreated, Date profileUpdated, int term, DocumentReference userId) {
+        this.documentId = documentId;
         this.bio = bio;
         this.eventsCreated = eventsCreated;
         this.eventsJoined = eventsJoined;
@@ -56,6 +64,24 @@ public class ProfileModel {
         this.profileUpdated = profileUpdated;
         this.term = term;
         this.userId = userId;
+    }
+
+    public static String getTAG() {
+        return TAG;
+    }
+
+    public static String getCollectionId() {
+        return COLLECTION_ID;
+    }
+
+    @Override
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    @Override
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getBio() {
@@ -149,10 +175,11 @@ public class ProfileModel {
     @Override
     public String toString() {
         return "ProfileModel{" +
-                "bio='" + bio + '\'' +
+                "documentId='" + documentId + '\'' +
+                ", bio='" + bio + '\'' +
                 ", eventsCreated=" + eventsCreated +
                 ", eventsJoined=" + eventsJoined +
-                ", imagePath=" + imagePath +
+                ", imagePath='" + imagePath + '\'' +
                 ", modules=" + modules +
                 ", name='" + name + '\'' +
                 ", pillar='" + pillar + '\'' +

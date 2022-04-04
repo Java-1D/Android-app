@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="CheckstyleConfigurable">
-    <option name="suppFilterFilename" value="" />
-    <option name="suppCommentFilter" value="false" />
-    <option name="offComment" value="CHECKSTYLE\:OFF" />
-    <option name="onComment" value="CHECKSTYLE\:ON" />
-    <option name="checkFormat" value=".*" />
-    <option name="messageFormat" value="" />
-    <option name="checkCPP" value="true" />
-    <option name="checkC" value="true" />
-    <option name="suppNearbyCommentFilter" value="false" />
-    <option name="snCommentFormat" value="SUPPRESS CHECKSTYLE (\w+)" />
-    <option name="snCheckFormat" value="$1" />
-    <option name="snMessageFormat" value="" />
-    <option name="snInfluenceFormat" value="0" />
-    <option name="snCheckCPP" value="true" />
-    <option name="snCheckC" value="true" />
-    <option name="pathToUserRulesConfiguration" value="" />
-    <option name="pathToJarWithRules" value="" />
-  </component>
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
@@ -50,6 +31,18 @@
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/list_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/main_listing.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/65818/AndroidStudioProjects/MyApplication2/app/src/main/res/layout/strings.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/activity_filter_page.xml" value="0.1421875" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/activity_main.xml" value="0.11302083333333333" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/activity_mainpage.xml" value="0.11302083333333333" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/activity_profile_page.xml" value="0.2838541666666667" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/activity_view_events.xml" value="0.11302083333333333" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/event_item.xml" value="0.11302083333333333" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/event_row.xml" value="0.11302083333333333" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/fragment_first.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/fragment_second.xml" value="0.11302083333333333" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/list_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/module_item.xml" value="0.1" />
+        <entry key="..\:/Users/Yk/Documents/Code/Java-1D/Android-app/app/src/main/res/layout/recyclerview_profile_page.xml" value="0.1" />
         <entry key="..\:/Users/Yk/Documents/Code/android/Android-app/app/src/main/res/layout/event_item.xml" value="0.6" />
         <entry key="..\:/Users/Yk/Documents/Code/android/Android-app/app/src/main/res/layout/event_row.xml" value="0.11302083333333333" />
         <entry key="..\:/Users/Yk/Documents/Code/android/Android-app/app/src/main/res/layout/fragment_second.xml" value="0.1" />

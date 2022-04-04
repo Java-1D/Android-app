@@ -1,15 +1,22 @@
 package com.example.myapplication2.objectmodel;
 
+import com.google.firebase.firestore.DocumentId;
+
 /*
  * Firebase Firestore Document Object Model for the Modules Collection
+ * @ID documentId: string
+ *
  * @field imagePath: string
  * @field name: string
  * @field pillar: string
  */
-public class ModuleModel {
+public class ModuleModel implements ObjectModel {
 
     public static final String TAG = "Module Model";
-    public static final String collectionId = "Modules";
+    public static final String COLLECTION_ID = "Modules";
+
+    @DocumentId
+    private String documentId;
 
     private String imagePath;
     private String name;
@@ -18,10 +25,29 @@ public class ModuleModel {
     public ModuleModel() {
     }
 
-    public ModuleModel(String imagePath, String name, String pillar) {
+    public ModuleModel(String documentId, String imagePath, String name, String pillar) {
+        this.documentId = documentId;
         this.imagePath = imagePath;
         this.name = name;
         this.pillar = pillar;
+    }
+
+    public static String getTAG() {
+        return TAG;
+    }
+
+    public static String getCollectionId() {
+        return COLLECTION_ID;
+    }
+
+    @Override
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    @Override
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getImagePath() {
@@ -32,11 +58,11 @@ public class ModuleModel {
         this.imagePath = imagePath;
     }
 
-    public String getModule() {
+    public String getName() {
         return name;
     }
 
-    public void setModule(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -51,7 +77,8 @@ public class ModuleModel {
     @Override
     public String toString() {
         return "ModuleModel{" +
-                "imagePath='" + imagePath + '\'' +
+                "documentId='" + documentId + '\'' +
+                ", imagePath='" + imagePath + '\'' +
                 ", name='" + name + '\'' +
                 ", pillar='" + pillar + '\'' +
                 '}';

@@ -15,7 +15,7 @@
     <string name="email">Email</string>
     <string name="lorem_ipsum">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</string>
     <string name="edit">Edit</string>
-    <string name="select">Select Item</string>
+    <string name="select_modules">Select Modules</string>
 
     <!--    Used for accessing to camera/gallery for images -->
     <string name="camera_access">Camera access is required</string>
@@ -25,7 +25,6 @@
     <!-- Profile Page & Edit Profile Page -->
     <string name="profile_page">Profile Page</string>
     <string name="user_name">Giga Chad</string>
-    <string name="user_email">ChadMaximus@googly.com.us</string>
     <string name="pillar">Pillar</string>
     <string name="user_pillar">CSD</string>
     <string name="term">Term</string>

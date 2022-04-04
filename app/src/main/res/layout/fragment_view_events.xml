@@ -14,7 +14,7 @@ tools:context=".MainPageActivity">
         android:layout_height="150dp"
         app:cardCornerRadius="30dp"
         app:cardUseCompatPadding="true"
-        app:layout_constraintBottom_toTopOf="@id/recyclerView"
+        app:layout_constraintBottom_toTopOf="@id/recyclerViewEvents"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -27,7 +27,7 @@ tools:context=".MainPageActivity">
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerViewEvents"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/create_event"
