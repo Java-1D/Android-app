@@ -50,5 +50,6 @@
 
     <string name="edit_event_title">Edit your event</string>
     <string name="edit_event">Edit Event</string>
+    <string name="module">Module</string>
 
 </resources>

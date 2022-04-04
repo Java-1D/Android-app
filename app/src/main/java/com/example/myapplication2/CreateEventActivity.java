@@ -82,7 +82,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     EditText module;
     boolean[] selectedModule;
     ArrayList<Integer> moduleList = new ArrayList<>();
-    String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
+    String[] moduleArray = {"50.001: Shit","50.002: Lao Sai","50.003: Pang Sai","50.004: Jiak Sai","50.005: Bak Sai"};
 
     // Global variable to take note of Calendar object for createDate
     // Used because it cannot be stored in EditText or any other type of texts
@@ -125,9 +125,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         createButton = (Button) findViewById(R.id.createEventButton);
 
-        module = (EditText) findViewById(R.id.createEventModule);
         selectedModule = new boolean[moduleArray.length];
-        module.setOnClickListener(new View.OnClickListener() {
+        createModule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(
@@ -140,9 +139,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     public void onClick(DialogInterface dialogInterface, int i, boolean b) {
                         if (b) {
                             moduleList.add(i);
-                            Collections.sort(moduleList);
-                        }else {
-                            moduleList.remove(i);
+                            Collections.sort(moduleList);}
+                        else {
+                            moduleList.remove(Integer.valueOf(i));
                         }
                     }
                 });
@@ -156,7 +155,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 stringBuilder.append(", ");
                             }
                         }
-                        module.setText(stringBuilder.toString());
+                        createModule.setText(stringBuilder.toString());
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -171,7 +170,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         for (int j = 0; j < selectedModule.length; j ++){
                             selectedModule[j] = false;
                             moduleList.clear();
-                            module.setText("");
+                            createModule.setText("");
                         }
                     }
                 });
