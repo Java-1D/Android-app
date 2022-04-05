@@ -106,6 +106,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 // event_creator.setText(eventModel.getUserCreated()); -> Need to retrieve the person who created
                 // TODO Retrieve (Document References) from firebase, using bitmap (Images: person, person1,2,3 & location_pic; Text: Information)
                 // TODO Retrieve (Date) start and end time from firebase, display in textview (start_time, end time)
+
             }
         });
 
