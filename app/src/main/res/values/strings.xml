@@ -44,12 +44,9 @@
     <!-- Profile Page & Edit Profile Page -->
     <string name="profile_page">Profile Page</string>
     <string name="user_name">Giga Chad</string>
-    <string name="pillar">Pillar</string>
     <string name="user_pillar">CSD</string>
-    <string name="term">Term</string>
     <string name="user_term">4</string>
     <string name="modules">Modules</string>
-    <string name="bio">Bio</string>
     <string name="user_bio">Hello everyone this is lorem ipsum. I am a handsome GIGA CHAD</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="confirm">Confirm</string>
