@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication2.utils.LoggedInUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -72,12 +74,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         if (task.isSuccessful()) {
                             if (task.getResult().isEmpty()) {
                                 Toast toast = Toast.makeText(getApplicationContext(),
-                                        "Invalid username",
+                                        "Invalid email",
                                         Toast.LENGTH_SHORT);
                                 toast.show();
                             }
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.getData().get("password").toString().equals(password)) {
+                                    String username = document.getData().get("username").toString();
+                                    DocumentReference profileRef = firebaseFirestore.collection("Users").document(document.getData().get("username").toString());
+                                    LoggedInUser currentUser = LoggedInUser.getInstance();
+                                    currentUser.setUser(profileRef, username);
                                     startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
                                 }
                                 else {
