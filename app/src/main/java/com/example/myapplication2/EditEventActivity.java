@@ -87,6 +87,8 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
     Button editButton;
 
+    ImageView backButton;
+
     // Global variable to take note of Calendar object for editDate
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
@@ -119,6 +121,8 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editEnd = (EditText) findViewById(R.id.editEventEndDateTime);
 
         editButton = (Button) findViewById(R.id.editEventButton);
+
+        backButton = (ImageView) findViewById(R.id.backButton);
 
         // https://firebase.google.com/docs/firestore/quickstart#java
         db = FirebaseFirestore.getInstance();
@@ -191,6 +195,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editStart.setOnClickListener(this);
         editEnd.setOnClickListener(this);
         editName.setOnClickListener(this);
+        backButton.setOnClickListener(this);
     }
 
     @Override
@@ -294,6 +299,11 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 });
 
                 break;
+
+            case R.id.backButton:
+                // Create explicit intent to go into MainPage
+                Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                startActivity(intent);
 
             case R.id.editEventName:
                 editName.setError("Event name cannot be edited.");

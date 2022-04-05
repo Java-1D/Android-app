@@ -90,6 +90,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     Button createButton;
 
+    ImageView backButton;
+
     FirebaseFirestore db;
     FirebaseStorage firebaseStorage;
 
@@ -123,7 +125,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         createButton = (Button) findViewById(R.id.createEventButton);
 
-        createModule = (EditText) findViewById(R.id.createEventModule);
+        backButton = (ImageView) findViewById(R.id.backButton);
 
         // https://firebase.google.com/docs/firestore/quickstart#java
         db = FirebaseFirestore.getInstance();
@@ -157,6 +159,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         setImageButton.setOnClickListener(this);
         createStart.setOnClickListener(this);
         createEnd.setOnClickListener(this);
+        backButton.setOnClickListener(this);
     }
 
     @Override
@@ -266,6 +269,11 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 });
 
                 break;
+
+            case R.id.backButton:
+                // Create explicit intent to go into MainPage
+                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                startActivity(intent);
 
             case R.id.createEventModule:
                 chooseModule();
