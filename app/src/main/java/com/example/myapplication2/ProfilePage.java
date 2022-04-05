@@ -14,10 +14,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
-import com.example.myapplication2.viewholder.RecyclerContactAdapter;
-import com.example.myapplication2.viewholder.RecyclerViewModel;
+import com.example.myapplication2.viewholder.ProfileRecyclerAdapter;
+import com.example.myapplication2.viewholder.ProfileViewModel;
 
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,16 +39,7 @@ public class ProfilePage extends AppCompatActivity {
     FirebaseFirestore db;
     String profileDocumentId;
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
-
-//    Data fields present in UI elements
-    enum Data {
-        PROFILE_PIC,
-        NAME,
-        PILLAR,
-        TERM,
-        MODULE,
-        BIO
-    }
+    final FirebaseContainer<ModuleModel> module = new FirebaseContainer<>(new ModuleModel());
 
     //View UI elements
     ImageView profilePicture;
@@ -63,8 +55,8 @@ public class ProfilePage extends AppCompatActivity {
     RecyclerView recyclerView;
 
     //RecyclerView components
-    RecyclerContactAdapter adapter;
-    ArrayList<RecyclerViewModel> arrModules  = new ArrayList<>();
+    ProfileRecyclerAdapter adapter;
+    ArrayList<ProfileViewModel> arrModules  = new ArrayList<>();
 
     //Shared Preferences to store Objects as a String
     SharedPreferences sharedPrefs;
@@ -104,12 +96,10 @@ public class ProfilePage extends AppCompatActivity {
         prefsEditor = sharedPrefs.edit();
 
         //Fetch Data from Profile Collection
-        profileDocumentId = "123456";
-        getProfileData(profileDocumentId);
-        //FIXME find a way to extract modules from Firestore DocumentReference
-        arrModules.add(new RecyclerViewModel(R.drawable.iot, "CSD", "IoT and all other stuff"));
-        arrModules.add(new RecyclerViewModel(R.drawable.data_analytics, "CSD", "Data and all dat shit"));
-        arrModules.add(new RecyclerViewModel(R.drawable.fin, "CSD", "Financial tech and all shit"));
+        //TODO Wire up Profile Document ID from preceding activity
+        profileDocumentId = "Test";
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+        getProfileData(profileRef);
 
         //initialise UI elements
         backArrow = findViewById(R.id.backArrow);
@@ -124,7 +114,7 @@ public class ProfilePage extends AppCompatActivity {
         //initialise RecyclerView elements for Modules Section
         recyclerView = findViewById(R.id.recyclerProfile);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecyclerContactAdapter(this, arrModules);
+        adapter = new ProfileRecyclerAdapter(this, arrModules);
         recyclerView.setAdapter(adapter);
 
         //initialise buttons
@@ -144,8 +134,11 @@ public class ProfilePage extends AppCompatActivity {
         super.onRestart();
         Log.i(TAG, "onRestart is called");
 
+        arrModules.clear();
+
         //TODO Store ProfileDocumentId and carry across activities
-        getProfileData(profileDocumentId);
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+        getProfileData(profileRef);
     }
 
     @Override
@@ -176,13 +169,14 @@ public class ProfilePage extends AppCompatActivity {
         Log.i(TAG, "onDestroy is called");
     }
 
-    ////To store contents in Bundle when user leaves Activity (occur before onStop)
+    //To store contents in Bundle when user leaves Activity (occur before onStop)
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
 //        Save the user's current workout state
 //        savedInstanceState.putInt(WORKOUT_STATE, currentState);
 
         super.onSaveInstanceState(savedInstanceState);
+        Log.i(TAG, "SaveInstanceState Saved");
     }
 
     //To retrieve contents from Bundle when user returns to Activity (occur after onStart)
@@ -192,6 +186,7 @@ public class ProfilePage extends AppCompatActivity {
 
 //        Restore state
 //        currentScore = savedInstanceState.getInt(WORKOUT_STATE);
+        Log.i(TAG, "SaveInstanceState Restored");
     }
 
 
@@ -219,17 +214,16 @@ public class ProfilePage extends AppCompatActivity {
     }
 
     //Get Data from Profiles Collection
-    public void getProfileData(String profileDocumentId) {
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+    public void getProfileData(DocumentReference profileRef) {
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
                 if (document.exists()) {
                     Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)).toString());
                     ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
-
+                    addModuleToRecyclerView();
                 }
                 else {
                     Log.w(TAG, "Document does not exist");
@@ -242,4 +236,32 @@ public class ProfilePage extends AppCompatActivity {
             }
         });
     }
-}
+
+    //Add Module Data Retrieved
+    public void addModuleToRecyclerView() {
+        for (DocumentReference moduleRef: profile.get().getModules()) {
+            moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot document) {
+                    if (document.exists()) {
+                        Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
+                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                        ProfilePage.this.module.set(document.toObject(ModuleModel.class));
+
+                        //Add modules from Firestore DocumentReference to Recycler View
+                        arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
+                        ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                    }
+                    else {
+                        Log.w(TAG, "Document does not exist");
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG, "Error retrieving document from Firestore", e);
+                }
+            });
+        }
+        }
+    }

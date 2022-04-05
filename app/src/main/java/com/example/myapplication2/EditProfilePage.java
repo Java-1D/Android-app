@@ -22,20 +22,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -45,9 +46,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.io.ByteArrayOutputStream;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-//TODO Data Persistence for EditProfilePage
+
 public class EditProfilePage extends AppCompatActivity {
     private static final String TAG = "EditProfilePage";
 
@@ -57,29 +61,25 @@ public class EditProfilePage extends AppCompatActivity {
     String profileDocumentId;
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
 
-    //Data fields present in UI elements
-    enum Data {
-        PROFILE_PIC,
-        NAME,
-        PILLAR,
-        TERM,
-        MODULE,
-        BIO
-    }
-
     //UI elements
     ImageView profilePicture;
     ImageView backButton;
     EditText editName;
     EditText editPillar;
     EditText editTerm;
-    EditText editModules;
+    TextView editModules;
     EditText editBio;
     Button confirmEdit;
 
+    //Initialise elements for Modules DropDown
     boolean[] selectedModule;
     ArrayList<Integer> moduleList = new ArrayList<>();
-    String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
+    String[] moduleArray;
+
+    // Store Hashmap of name, DocumentReference to update ArrayList of Modules
+    Map<String, DocumentReference> modulesMap = new HashMap<>();
+    // Update ProfileModel modules with this arraylist if arraylist != null
+    final FirebaseContainer<ArrayList<DocumentReference>> modules = new FirebaseContainer<>(new ArrayList<>());
 
     //Shared Preferences to store Objects as a String
     SharedPreferences sharedPrefs;
@@ -133,60 +133,6 @@ public class EditProfilePage extends AppCompatActivity {
         editBio = findViewById(R.id.editBio);
         confirmEdit = findViewById(R.id.confirmButton);
 
-
-        selectedModule = new boolean[moduleArray.length];
-        editModules.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(
-                        EditProfilePage.this
-                );
-                builder.setTitle("Select Modules");
-                builder.setCancelable(false);
-                builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                        if (b) {
-                            moduleList.add(i);
-                            Collections.sort(moduleList);
-                        }else {
-                            moduleList.remove(Integer.valueOf(i));
-                        }
-                    }
-                });
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (int j = 0; j < moduleList.size(); j ++) {
-                            stringBuilder.append(moduleArray[moduleList.get(j)]);
-                            if (j != moduleList.size() - 1) {
-                                stringBuilder.append(", ");
-                            }
-                        }
-                        editModules.setText(stringBuilder.toString());
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        for (int j = 0; j < selectedModule.length; j ++){
-                            selectedModule[j] = false;
-                            moduleList.clear();
-                            editModules.setText("");
-                        }
-                    }
-                });
-                builder.show();
-            }
-        });
-
         //initialise buttons
         profilePicture.setOnClickListener(new ClickListener());
         confirmEdit.setOnClickListener(new ClickListener());
@@ -197,6 +143,8 @@ public class EditProfilePage extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.i(TAG, "onStart is called");
+
+        getAllModulesFromFirebase();
     }
 
     @Override
@@ -230,11 +178,12 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
 //        Save the user's current workout state
 //        savedInstanceState.putInt(WORKOUT_STATE, currentState);
 
         super.onSaveInstanceState(savedInstanceState);
+        Log.i(TAG, "SaveInstanceState Saved");
     }
 
     @Override
@@ -243,13 +192,98 @@ public class EditProfilePage extends AppCompatActivity {
 
 //        Restore state
 //        currentScore = savedInstanceState.getInt(WORKOUT_STATE);
+        Log.i(TAG, "SaveInstanceState Restored");
     }
 
+    public void getAllModulesFromFirebase() {
+        db.collection("Modules").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document: task.getResult()) {
+                        Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
+                        modulesMap.put(document.getString("name"), document.getReference());
+                    }
+                    Log.i(TAG, String.valueOf(modulesMap.keySet()));
+                    Set<String> keys = modulesMap.keySet();
+                    moduleArray = keys.toArray(new String[keys.size()]);
+                    buildModuleDropDown(moduleArray);
+                }
+                else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
+
+    public void buildModuleDropDown(String[] moduleArray) {
+        selectedModule = new boolean[moduleArray.length];
+
+        editModules.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(EditProfilePage.this);
+                builder.setTitle("Select Modules").setCancelable(false).setMultiChoiceItems(moduleArray, selectedModule,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                                if (b) {
+                                    moduleList.add(i);
+                                    Collections.sort(moduleList);
+                                }else {
+                                    moduleList.remove(Integer.valueOf(i));
+                                }
+                            }
+                        });
+//                boolean[] selectedModule;
+//                ArrayList<Integer> moduleList = new ArrayList<>();
+//                String[] moduleArray;
+                // Store Hashmap of name, DocumentReference to update ArrayList of Modules
+//                Map<String, DocumentReference> modulesMap = new HashMap<>();
+                // Update ProfileModel modules with this arraylist if arraylist != null
+//                ArrayList<DocumentReference> modules;
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (int j = 0; j < moduleList.size(); j ++) {
+                            String key = moduleArray[moduleList.get(j)];
+                            stringBuilder.append(key);
+                            if (j != moduleList.size() - 1) {
+                                stringBuilder.append(", ");
+                            }
+                            Log.i(TAG, "Modules Key: " + modulesMap.get(key));
+                            modules.get().add(modulesMap.get(key));
+                        }
+                        Log.i(TAG, "Modules Array: " + modules.get().toString());
+                        editModules.setText(stringBuilder.toString());
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        for (int j = 0; j < selectedModule.length; j ++){
+                            selectedModule[j] = false;
+                        }
+                        moduleList.clear();
+                        editModules.setText("");
+                        modules.get().clear();
+                        Log.i(TAG, "Modules Array: " + modules.get().toString());
+                    }
+                });
+                builder.show();
+            }
+        });
+    }
 
     public void updateProfileDocument(String Id, Intent intent) {
         Date date = new Date();
-        Timestamp current = new Timestamp(date);
-        DocumentReference docRef = db.collection("Profiles").document(Id);
         if (!editName.getText().toString().matches("")) {
             profile.get().setName(editName.getText().toString());
         }
@@ -259,14 +293,18 @@ public class EditProfilePage extends AppCompatActivity {
         if (!editTerm.getText().toString().matches("")) {
             profile.get().setTerm((Integer.parseInt(editTerm.getText().toString())));
         }
+        if (!editModules.getText().toString().matches("")){
+            profile.get().setModules(modules.get());
+        }
         if (!editBio.getText().toString().matches("")) {
             profile.get().setBio(editBio.getText().toString());
         }
+        profile.get().setProfileUpdated(date);
         updateFirestore(Id, profile.get(), intent);
     }
 
-    public void updateFirestore(String Id, ProfileModel model, Intent intent) {
-        db.collection("Profiles").document(Id).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+    public void updateFirestore(String profileDocumentId, ProfileModel model, Intent intent) {
+        db.collection("Profiles").document(profileDocumentId).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "DocumentSnapshot successfully written!");
@@ -309,7 +347,7 @@ public class EditProfilePage extends AppCompatActivity {
                 if (document.exists()) {
                     Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
                     EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)).toString());
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
 
                 }
@@ -385,7 +423,7 @@ public class EditProfilePage extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Uri selectedImageUri = data.getData();
                     Log.i(TAG, "URI "+ selectedImageUri);
-                    uploadImagetoCloudStorage(selectedImageUri);
+                    uploadImageToCloudStorage(selectedImageUri);
                     profilePicture.setImageURI(selectedImageUri);
                 }
                 break;
@@ -393,13 +431,13 @@ public class EditProfilePage extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
                     Bitmap bitmapImage = (Bitmap) bundle.get("data");
-                    uploadImagetoCloudStorage(bitmapImage);
+                    uploadImageToCloudStorage(bitmapImage);
                     profilePicture.setImageBitmap(bitmapImage);
                 }
         }
     }
 
-    private void uploadImagetoCloudStorage(Uri imageUri) {
+    private void uploadImageToCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
         UploadTask uploadTask = imageRef.putFile(imageUri);
@@ -407,7 +445,7 @@ public class EditProfilePage extends AppCompatActivity {
         // Register observers to listen for when the download is done or if it fails
         uploadTask.continueWithTask(task -> {
             if (!task.isSuccessful()) {
-                throw task.getException();
+                throw Objects.requireNonNull(task.getException());
             }
             // Continue with the task to get the download URL
             return imageRef.getDownloadUrl();
@@ -423,7 +461,7 @@ public class EditProfilePage extends AppCompatActivity {
         });
     }
 
-    private void uploadImagetoCloudStorage(Bitmap bitmap) {
+    private void uploadImageToCloudStorage(Bitmap bitmap) {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
 
@@ -466,10 +504,11 @@ public class EditProfilePage extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 20 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+            Log.i(TAG, "Permission has been granted");
         }
         else {
             Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Permission not granted");
         }
     }
 }
