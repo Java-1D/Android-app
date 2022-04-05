@@ -70,27 +70,6 @@ public class EventModel implements ObjectModel {
         this.userJoined = new ArrayList<>(Arrays.asList(userCreated));
     }
 
-//     public EventModel(String documentId, int capacity, String description, Date eventCreated,
-//                         Date eventEnd, Date eventStart, String imagePath, Date lastUpdated,
-//                         DocumentReference module, String status, String title,
-//                         DocumentReference userCreated, ArrayList<DocumentReference> userJoined,
-//                         String venue) {
-//         this.documentId = documentId;
-//         this.capacity = capacity;
-//         this.description = description;
-//         this.eventCreated = eventCreated;
-//         this.eventEnd = eventEnd;
-//         this.eventStart = eventStart;
-//         this.imagePath = imagePath;
-//         this.lastUpdated = lastUpdated;
-//         this.module = module;
-//         this.status = status;
-//         this.title = title;
-//         this.userCreated = userCreated;
-//         this.userJoined = userJoined;
-//         this.venue = venue;
-//     }
-
     public static String getTAG() {
         return TAG;
     }

@@ -79,11 +79,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     Button createButton;
 
-    EditText module;
-    boolean[] selectedModule;
-    ArrayList<Integer> moduleList = new ArrayList<>();
-    String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
-
     // Global variable to take note of Calendar object for createDate
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
@@ -125,61 +120,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         createButton = (Button) findViewById(R.id.createEventButton);
 
-        module = (EditText) findViewById(R.id.createEventModule);
-        selectedModule = new boolean[moduleArray.length];
-        module.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        CreateEventActivity.this
-                );
-                builder.setTitle("Select Modules");
-                builder.setCancelable(false);
-                builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                        if (b) {
-                            moduleList.add(i);
-                            Collections.sort(moduleList);
-                        }else {
-                            moduleList.remove(i);
-                        }
-                    }
-                });
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (int j = 0; j < moduleList.size(); j ++) {
-                            stringBuilder.append(moduleArray[moduleList.get(j)]);
-                            if (j != moduleList.size() - 1) {
-                                stringBuilder.append(", ");
-                            }
-                        }
-                        module.setText(stringBuilder.toString());
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        for (int j = 0; j < selectedModule.length; j ++){
-                            selectedModule[j] = false;
-                            moduleList.clear();
-                            module.setText("");
-                        }
-                    }
-                });
-                builder.show();
-            }
-        });
+        createModule = (EditText) findViewById(R.id.createEventModule);
 
         // TODO: Should we do a network check here?
+        createModule.setOnClickListener(this);
         createButton.setOnClickListener(this);
         setImageButton.setOnClickListener(this);
         createStart.setOnClickListener(this);
@@ -219,7 +163,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 // Checking that the data does not exist in Firebase
-                DocumentReference docRef = db.collection("Events").document(eventName);
+                DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(eventName);
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -235,7 +179,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 FirebaseStorage storage = FirebaseStorage.getInstance();
 
                                 // Randomizing id for file name
-                                StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
+                                StorageReference eventImageRef = storage.getReference().child(EventModel.COLLECTION_ID + UUID.randomUUID().toString());
 
                                 // Get the data from an ImageView as bytes
                                 createImage.setDrawingCacheEnabled(true);
@@ -268,7 +212,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                                 userCreated
                                         );
 
-                                        db.collection("Events").document(eventName).set(eventModel);
+                                        db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
                                         Log.i(TAG, "createEvent: Successful. Event added to Firebase");
 
                                         // Explicit intent added in advance so that button is not clickable twice
@@ -286,6 +230,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 break;
 
+            case R.id.createEventModule:
+                chooseModule();
+                break;
+
             case R.id.setImageButton:
                 chooseImage();
                 break;
@@ -297,6 +245,65 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             case R.id.createEventEndDateTime:
                 dateTimePicker(createEnd);
         }
+    }
+
+    /**
+     * Module dialog picker
+     */
+    void chooseModule() {
+        boolean[] selectedModule;
+        ArrayList<Integer> moduleList = new ArrayList<>();
+        String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
+
+        selectedModule = new boolean[moduleArray.length];
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                CreateEventActivity.this
+        );
+        builder.setTitle("Select Modules");
+        builder.setCancelable(false);
+        builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                if (b) {
+                    moduleList.add(i);
+                    Collections.sort(moduleList);
+                }else {
+                    moduleList.remove(i);
+                }
+            }
+        });
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int j = 0; j < moduleList.size(); j ++) {
+                    stringBuilder.append(moduleArray[moduleList.get(j)]);
+                    if (j != moduleList.size() - 1) {
+                        stringBuilder.append(", ");
+                    }
+                }
+                createModule.setText(stringBuilder.toString());
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                for (int j = 0; j < selectedModule.length; j ++){
+                    selectedModule[j] = false;
+                    moduleList.clear();
+                    createModule.setText("");
+                }
+            }
+        });
+
+        builder.show();
     }
 
     /**
