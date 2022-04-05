@@ -34,6 +34,7 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -79,6 +80,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     Button createButton;
 
+    FirebaseFirestore db;
+
     // Global variable to take note of Calendar object for createDate
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
@@ -122,7 +125,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         createModule = (EditText) findViewById(R.id.createEventModule);
 
-        // TODO: Should we do a network check here?
+        // https://firebase.google.com/docs/firestore/quickstart#java
+        db = FirebaseFirestore.getInstance();
+
         createModule.setOnClickListener(this);
         createButton.setOnClickListener(this);
         setImageButton.setOnClickListener(this);
@@ -134,6 +139,14 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.createEventButton:
+                if (!Utils.isNetworkAvailable(this)) {
+                    Toast.makeText(CreateEventActivity.this, R.string.internet_required, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                createButton.setEnabled(false);
+                createButton.setText("Creating event...");
+
                 // Check if data are all filled and valid
                 if (invalidData(createName) |
                         invalidData(createDescription) |
@@ -142,6 +155,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                         invalidData(createCapacity) |
                         invalidData(createStart) |
                         invalidData(createEnd)) {
+                    createButton.setEnabled(true);
+                    createButton.setText(R.string.create_event);
                     return;
                 }
 
@@ -159,9 +174,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
-                // https://firebase.google.com/docs/firestore/quickstart#java
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-
                 // Checking that the data does not exist in Firebase
                 DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(eventName);
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -172,6 +184,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                             if (document.exists()) {
                                 createName.requestFocus();
                                 createName.setError("Please use a different event name.");
+                                createButton.setEnabled(true);
+                                createButton.setText(R.string.create_event);
                             } else {
                                 // Happens when eventName is not taken
                                 // https://firebase.google.com/docs/storage/android/upload-files
@@ -199,31 +213,39 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                     @Override
                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                         Log.i(TAG, "uploadTask: Image successfully uploaded");
-                                        String eventImage = taskSnapshot.getMetadata().getReference().toString();
-                                        EventModel eventModel = new EventModel(
-                                                eventName,
-                                                eventDescription,
-                                                eventVenue,
-                                                eventModule,
-                                                eventCapacity,
-                                                startDateTime.getTime(),
-                                                endDateTime.getTime(),
-                                                eventImage,
-                                                userCreated
-                                        );
+                                        taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Uri> task) {
+                                                String eventImage = task.getResult().toString();
 
-                                        db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
-                                        Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                                EventModel eventModel = new EventModel(
+                                                        eventName,
+                                                        eventDescription,
+                                                        eventVenue,
+                                                        eventModule,
+                                                        eventCapacity,
+                                                        startDateTime.getTime(),
+                                                        endDateTime.getTime(),
+                                                        eventImage,
+                                                        userCreated
+                                                );
 
-                                        // Explicit intent added in advance so that button is not clickable twice
-                                        // Create explicit intent to go into MainPage
-                                        Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-                                        startActivity(intent);
+                                                db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
+                                                Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+
+                                                // Create explicit intent to go into MainPage
+                                                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                                                startActivity(intent);
+                                            }
+                                        });
+
                                     }
                                 });
                             }
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
+                            createButton.setEnabled(true);
+                            createButton.setText(R.string.create_event);
                         }
                     }
                 });
@@ -269,7 +291,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     moduleList.add(i);
                     Collections.sort(moduleList);
                 }else {
-                    moduleList.remove(i);
+                    moduleList.remove(Integer.valueOf(i));
                 }
             }
         });
