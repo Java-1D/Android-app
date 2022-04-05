@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     DocumentReference profileRef = firebaseFirestore.collection("Users").document(document.getData().get("username").toString());
                                     LoggedInUser currentUser = LoggedInUser.getInstance();
                                     currentUser.setUser(profileRef, username);
-                                    startActivity(new Intent(LoginActivity.this, MainPageActivity.class));
+                                    startActivity(new Intent(LoginActivity.this, FilterActivity.class));
                                 }
                                 else {
                                     Toast toast = Toast.makeText(getApplicationContext(),

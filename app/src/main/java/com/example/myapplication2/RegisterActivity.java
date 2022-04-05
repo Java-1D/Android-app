@@ -163,7 +163,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                         Log.w(TAG, "Error writing document", e);
                                     }
                                 });
-
                     }
                 }
                 else {
@@ -171,8 +170,5 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         });
-
     }
-
-
 }
