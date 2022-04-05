@@ -60,7 +60,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         db = FirebaseFirestore.getInstance();
 
-        event_name  = findViewById(R.id.event_name); // Need to retrieve
+        event_name = findViewById(R.id.event_name); // Need to retrieve
         event_desc = findViewById(R.id.event_desc); // Need to retrieve
         event_creator = findViewById(R.id.event_creator); // Need to retrieve
         person = findViewById(R.id.person); // Need to retrieve
@@ -117,42 +117,47 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.join_button:
-            // TODO Check if event is full, if full reject join request.
+                // TODO Check if event is full, if full reject join request.
                 DocumentReference docRef = db.collection("Events").document("Test Event");
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                         int current = eventModel.getUserJoined().size();
-                        if (current == eventModel.getCapacity());
-                            Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
+                        if (current == eventModel.getCapacity()) ;
+                        Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
                         // TODO in else statement, add the user who clicked the join button into the UserJoined ArrayList
+                    }
+                });
 
-
-            // TODO Check with Yongkang how to use recycler view to show the profiles of the users
+                // TODO Check with Yongkang how to use recycler view to show the profiles of the users
             case R.id.search1:
-                DocumentReference docRef = db.collection("Events").document("Test Event");
-                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                DocumentReference docRef1 = db.collection("Events").document("Test Event");
+                docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                         // TODO Retrieve profile page of person1
+                    }
+                });
             case R.id.search2:
-                DocumentReference docRef = db.collection("Events").document("Test Event");
-                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                DocumentReference docRef2 = db.collection("Events").document("Test Event");
+                docRef2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                         // TODO Retrieve profile page of person2
-
+                    }
+                });
             case R.id.search3:
-                DocumentReference docRef = db.collection("Events").document("Test Event");
-                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                DocumentReference docRef3 = db.collection("Events").document("Test Event");
+                docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                         // TODO Retrieve profile page of person3
-
+                    }
+                });
         }
     }
 }
