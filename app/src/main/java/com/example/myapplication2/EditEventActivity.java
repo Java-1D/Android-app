@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,6 +48,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -63,32 +66,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-public class EditEventActivity extends AppCompatActivity implements View.OnClickListener{
 
-    ImageView createImage;
+public class EditEventActivity extends AppCompatActivity implements View.OnClickListener{
+    ImageView editImage;
     Button setImageButton;
 
-    EditText createName;
-    EditText createDescription;
-    EditText createVenue;
-    EditText createModule;
-    EditText createCapacity;
-    EditText createStart;
-    EditText createEnd;
+    EditText editName;
+    EditText editDescription;
+    EditText editVenue;
+    EditText editModule;
+    EditText editCapacity;
+    EditText editStart;
+    EditText editEnd;
 
-    Button createButton;
+    Button editButton;
 
-    // Global variable to take note of Calendar object for createDate
+    // Global variable to take note of Calendar object for editDate
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
     Calendar endDateTime;
+
+    FirebaseFirestore db;
+    FirebaseStorage firebaseStorage;
 
     static final String TAG = "CreateEvents";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_events);
+        setContentView(R.layout.activity_edit_events);
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         // Issues with user always being null, login having issues
@@ -106,150 +112,189 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 });
 
         // Casting to ensure that the types are correct
-        createImage = findViewById(R.id.createEventImage);
+        editImage = findViewById(R.id.editEventImage);
         setImageButton = findViewById(R.id.setImageButton);
 
-        createName = (EditText) findViewById(R.id.createEventName);
-        createDescription = (EditText) findViewById(R.id.createEventDescription);
-        createVenue = (EditText) findViewById(R.id.createEventVenue);
-        createModule = (EditText) findViewById(R.id.createEventModule);
-        createCapacity = (EditText) findViewById(R.id.createEventCapacity);
-        createStart = (EditText) findViewById(R.id.createEventStartDateTime);
-        createEnd = (EditText) findViewById(R.id.createEventEndDateTime);
+        editName = (EditText) findViewById(R.id.editEventName);
+        editDescription = (EditText) findViewById(R.id.editEventDescription);
+        editVenue = (EditText) findViewById(R.id.editEventVenue);
+        editModule = (EditText) findViewById(R.id.editEventModule);
+        editCapacity = (EditText) findViewById(R.id.editEventCapacity);
+        editStart = (EditText) findViewById(R.id.editEventStartDateTime);
+        editEnd = (EditText) findViewById(R.id.editEventEndDateTime);
 
-        createButton = (Button) findViewById(R.id.createEventButton);
+        editButton = (Button) findViewById(R.id.editEventButton);
 
-        // TODO: Should we do a network check here?
-        createButton.setOnClickListener(this);
+        // https://firebase.google.com/docs/firestore/quickstart#java
+        db = FirebaseFirestore.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
+
+        // Checking that the data does not exist in Firebase
+        DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document("YufanTest");
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                editName.setText(eventModel.getTitle());
+
+                Utils.loadImage(eventModel.getImagePath(), editImage);
+
+                editDescription.setText(eventModel.getDescription());
+                editVenue.setText(eventModel.getVenue());
+
+//                //TODO: FIX
+//                editModule.setText(eventModel.getModule());
+
+                editCapacity.setText(String.valueOf(eventModel.getCapacity()));
+
+                // Setting date
+                startDateTime = Calendar.getInstance();
+                startDateTime.setTime(eventModel.getEventStart());
+
+                endDateTime = Calendar.getInstance();
+                endDateTime.setTime(eventModel.getEventEnd());
+
+                DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
+                editStart.setText(dateFormat.format(startDateTime.getTime()));
+                editEnd.setText(dateFormat.format(endDateTime.getTime()));
+            }
+        });
+
+        editModule.setOnClickListener(this);
+        editButton.setOnClickListener(this);
         setImageButton.setOnClickListener(this);
-        createStart.setOnClickListener(this);
-        createEnd.setOnClickListener(this);
+        editStart.setOnClickListener(this);
+        editEnd.setOnClickListener(this);
+        editName.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.createEventButton:
-
-                // Check if data are all filled and valid
-                if (invalidData(createName) |
-                        invalidData(createDescription) |
-                        invalidData(createVenue) |
-                        invalidData(createModule) |
-                        invalidData(createCapacity) |
-                        invalidData(createStart) |
-                        invalidData(createEnd)) {
+            case R.id.editEventButton:
+                if (!Utils.isNetworkAvailable(this)) {
+                    Toast.makeText(EditEventActivity.this, R.string.internet_required, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // TODO: Check that event name does not repeat?
+                // Check if data are all filled and valid
+                if (invalidData(editName) |
+                        invalidData(editDescription) |
+                        invalidData(editVenue) |
+                        invalidData(editModule) |
+                        invalidData(editCapacity) |
+                        invalidData(editStart) |
+                        invalidData(editEnd)) {
+                    return;
+                }
 
-                String eventName = createName.getText().toString();
-                String eventDescription = createDescription.getText().toString();
-                String eventVenue = createVenue.getText().toString();
+
+                String eventName = editName.getText().toString();
+                String eventDescription = editDescription.getText().toString();
+                String eventVenue = editVenue.getText().toString();
 
                 // TODO: Module should be a DocumentReference but idk how to get, need to work with dropdown
-                // String eventModule = createVenue.getText().toString();
+                // String eventModule = editVenue.getText().toString();
                 DocumentReference eventModule = null;
 
                 // TODO: Get DocumentReference for current user, passed by previous intent??
                 DocumentReference userCreated = null;
 
-                Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
+                Integer eventCapacity = Integer.parseInt(editCapacity.getText().toString());
 
-                // https://firebase.google.com/docs/storage/android/upload-files
-                // Uploading image into Firebase Storage
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-
-                // Randomizing id for file name
-                StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
-
-                // Get the data from an ImageView as bytes
-                createImage.setDrawingCacheEnabled(true);
-                createImage.buildDrawingCache();
-                Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] data = baos.toByteArray();
-
-                UploadTask uploadTask = eventImageRef.putBytes(data);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
+                // https://firebase.google.com/docs/firestore/quickstart#java
+                // Checking that the data does not exist in Firebase
+                DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(eventName);
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                        return;
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.i(TAG, "uploadTask: Image successfully uploaded");
-                        String eventImage = taskSnapshot.getMetadata().getReference().toString();
-                        EventModel eventModel = new EventModel(
-                                eventName,
-                                eventDescription,
-                                eventVenue,
-                                eventModule,
-                                eventCapacity,
-                                startDateTime.getTime(),
-                                endDateTime.getTime(),
-                                eventImage,
-                                userCreated
-                        );
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                editName.requestFocus();
+                                editName.setError("Please use a different event name.");
+                            } else {
+                                // Happens when eventName is not taken
 
-                        // https://firebase.google.com/docs/firestore/quickstart#java
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                // https://firebase.google.com/docs/storage/android/upload-files
+                                // Uploading image into Firebase Storage
+                                // Randomizing id for file name
+                                StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + UUID.randomUUID().toString());
 
-                        db.collection("Events").document(eventName).set(eventModel);
-                        Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                // Get the data from an ImageView as bytes
+                                editImage.setDrawingCacheEnabled(true);
+                                editImage.buildDrawingCache();
+                                Bitmap bitmap = ((BitmapDrawable) editImage.getDrawable()).getBitmap();
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                byte[] data = baos.toByteArray();
 
-                        // Explicit intent added in advance so that button is not clickable twice
-                        // Create explicit intent to go into MainPage
-                        Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
-                        startActivity(intent);
+                                UploadTask uploadTask = eventImageRef.putBytes(data);
+                                uploadTask.addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                                    }
+                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        Log.i(TAG, "uploadTask: Image successfully uploaded");
+                                        taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Uri> task) {
+                                                String eventImage = task.getResult().toString();
+
+                                                EventModel eventModel = new EventModel(
+                                                        eventName,
+                                                        eventDescription,
+                                                        eventVenue,
+                                                        eventModule,
+                                                        eventCapacity,
+                                                        startDateTime.getTime(),
+                                                        endDateTime.getTime(),
+                                                        eventImage,
+                                                        userCreated
+                                                );
+
+                                                db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
+                                                Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+
+                                                // Create explicit intent to go into MainPage
+                                                Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                                                startActivity(intent);
+                                            }
+                                        });
+
+                                    }
+                                });
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
                     }
                 });
 
-//                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-//                        // Explicit intent added in advance so that button is not clickable twice
-//                        // Create explicit intent to go into MainPage
-//                        Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
-//                        startActivity(intent);
-//                    }
-//                });
+                break;
 
+            case R.id.editEventName:
+                editName.setError("Event name cannot be edited.");
+                Toast.makeText(EditEventActivity.this, "Event name cannot be edited.", Toast.LENGTH_SHORT).show();
+                break;
 
-
-
-
-
+            case R.id.editEventModule:
+                chooseModule();
                 break;
 
             case R.id.setImageButton:
                 chooseImage();
                 break;
 
-            case R.id.createEventStartDateTime:
-                dateTimePicker(createStart);
+            case R.id.editEventStartDateTime:
+                dateTimePicker(editStart);
                 break;
 
-            case R.id.createEventEndDateTime:
-                dateTimePicker(createEnd);
-        }
-    }
-
-    /**
-     * Entry validation
-     */
-    // https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
-    boolean invalidData(EditText editText) {
-        if (editText.getText().toString().length() == 0) {
-            editText.requestFocus();
-            editText.setError("Field cannot be empty");
-            return true;
-        } else {
-            return false;
+            case R.id.editEventEndDateTime:
+                dateTimePicker(editEnd);
         }
     }
 
@@ -275,7 +320,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     moduleList.add(i);
                     Collections.sort(moduleList);
                 }else {
-                    moduleList.remove(i);
+                    moduleList.remove(Integer.valueOf(i));
                 }
             }
         });
@@ -289,7 +334,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                         stringBuilder.append(", ");
                     }
                 }
-                createModule.setText(stringBuilder.toString());
+                editModule.setText(stringBuilder.toString());
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -304,7 +349,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 for (int j = 0; j < selectedModule.length; j ++){
                     selectedModule[j] = false;
                     moduleList.clear();
-                    createModule.setText("");
+                    editModule.setText("");
                 }
             }
         });
@@ -313,16 +358,30 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     }
 
     /**
+     * Entry validation
+     */
+    // https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
+    boolean invalidData(TextView editText) {
+        if (editText.getText().toString().length() == 0) {
+            editText.requestFocus();
+            editText.setError("Field cannot be empty");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * DateTimePicker
      */
     // Adapted to take in inputs and set date/time for different texts
-    // https://stackoverflow.com/questions/2055509/how-to-create-a-date-and-time-picker-in-android
+    // https://stackoverflow.com/questions/2055509/how-to-edit-a-date-and-time-picker-in-android
     public void dateTimePicker(EditText editText) {
         final Calendar currentDate = Calendar.getInstance();
         Calendar dateTime;
 
         // Assign for different widgets
-        if (editText == createStart) {
+        if (editText == editStart) {
             if (startDateTime == null) {
                 startDateTime = Calendar.getInstance();
             }
@@ -357,7 +416,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
         // Limiting input to valid time frame
         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
-        if (editText == createStart) {
+        if (editText == editStart) {
             if (endDateTime != null) {
                 datePickerDialog.getDatePicker().setMaxDate(endDateTime.getTimeInMillis());
             }
@@ -382,9 +441,9 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         // Creating AlertDialog for user action
         // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
         // Edited the part where user can still click and request individually
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // edit a menuOption Array
         Log.i(TAG, "chooseImage: Dialog launched");
-        // create a dialog for showing the optionsMenu
+        // edit a dialog for showing the optionsMenu
         AlertDialog.Builder builder = new AlertDialog.Builder(EditEventActivity.this);
         // set the items in builder
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
@@ -455,7 +514,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     if (result!=null ) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
-                            createImage.setImageURI(selectedImageUri);
+                            editImage.setImageURI(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                         } else {
                             Log.d(TAG, "onActivityResult: Cropping returned null");

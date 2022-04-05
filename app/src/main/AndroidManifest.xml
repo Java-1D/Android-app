@@ -77,6 +77,10 @@
             android:name=".CreateEventActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".EditEventActivity"
+            android:exported="true" />
+
         <activity android:name="com.canhub.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat"/>
 
