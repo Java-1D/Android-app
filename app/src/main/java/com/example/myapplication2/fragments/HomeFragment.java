@@ -19,10 +19,12 @@ import com.example.myapplication2.LoginActivity;
 import com.example.myapplication2.MainPageActivity;
 import com.example.myapplication2.R;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.EventViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -56,7 +58,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view1) {
                 Intent intent = new Intent(getActivity(), CreateEventActivity.class);
-                ((MainPageActivity)getActivity()).startActivity(intent);
+                ((MainPageActivity) getActivity()).startActivity(intent);
             }
         });
 
@@ -70,14 +72,18 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         firebaseFirestore = FirebaseFirestore.getInstance();
+        DocumentReference user = LoggedInUser.getInstance().getUserDocRef();
 
         // Query
-        Query query = firebaseFirestore.collection("Events");
+        Query query = firebaseFirestore.collection("Events")
+                .whereArrayContains("userJoined", user);
         Log.d(TAG, "Query" + query.toString());
+
 
         FirestoreRecyclerOptions<EventModel> options = new FirestoreRecyclerOptions.Builder<EventModel>()
                 .setQuery(query, EventModel.class)
                 .build();
+
 
         adapter = new FirestoreRecyclerAdapter<EventModel, EventViewHolder>(options) {
             @NonNull
@@ -91,13 +97,14 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull EventModel model) {
+                Log.d(TAG, "Query " + model);
 
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());
                 Utils.loadImage(model.getImagePath(), holder.event_image);
                 holder.status.setText(model.getStatus());
                 holder.location.setText(model.getVenue());
-                holder.capacity.setText(model.getCapacity());
+//                holder.capacity.setText(model.getCapacity()); //TODO : Yufan to the rescue
 //                holder.event_start.setText((CharSequence) model.getEventStart());
 //                holder.event_end.setText((CharSequence) model.getEventEnd());
 
