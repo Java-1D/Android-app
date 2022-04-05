@@ -50,10 +50,10 @@ public class EventModel implements ObjectModel {
     private ArrayList<DocumentReference> userJoined;
     private String venue;
 
-    public EventModel() {
-    } // no arg constructor for firebase
 
-    // FIXME To add String documentId into the constructor
+    public EventModel() {} //no arg constructor for firebase
+    
+    //FIXME To add String documentId into the constructor
     public EventModel(String title, String description, String venue, DocumentReference module,
             int capacity, Date eventStart, Date eventEnd, String imagePath,
             DocumentReference userCreated) {

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.objectmodel.ModuleModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -60,29 +61,29 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         db = FirebaseFirestore.getInstance();
 
-        event_name = findViewById(R.id.event_name); // Need to retrieve
-        event_desc = findViewById(R.id.event_desc); // Need to retrieve
+        event_name = findViewById(R.id.event_name); // DONE
+        event_desc = findViewById(R.id.event_desc); // DONE
         event_creator = findViewById(R.id.event_creator); // Need to retrieve
         person = findViewById(R.id.person); // Need to retrieve
         location_pic = findViewById(R.id.location_pic); // Need to retrieve
         calendar_icon = findViewById(R.id.calendar_icon);
         date = findViewById(R.id.date); // Need to retrieve
         start_time_icon = findViewById(R.id.start_time_icon);
-        start_time = findViewById(R.id.start_time); // Need to retrieve
+        start_time = findViewById(R.id.start_time); // DONE
         end_time_icon = findViewById(R.id.end_time_icon);
-        end_time = findViewById(R.id.end_time); // Need to retrieve
+        end_time = findViewById(R.id.end_time); // DONE
         location_icon = findViewById(R.id.location_icon);
-        location = findViewById(R.id.location); // Need to retrieve
+        location = findViewById(R.id.location); // DONE
         information_icon = findViewById(R.id.information_icon);
         information = findViewById(R.id.information); // Need to retrieve
         emoji = findViewById((R.id.emoji));
         no_of_ppl = findViewById(R.id.no_of_ppl); // Need to retrieve
-        person1 = findViewById(R.id.person1); // Need to retrieve
-        person2 = findViewById(R.id.person2); // Need to retrieve
-        person3 = findViewById(R.id.person3); // Need to retrieve
-        name1 = findViewById(R.id.name1); // Need to retrieve
-        name2 = findViewById(R.id.name2); // Need to retrieve
-        name3 = findViewById(R.id.name3); // Need to retrieve
+        person1 = findViewById(R.id.person1); // Recycler View?
+        person2 = findViewById(R.id.person2); // Recycler View?
+        person3 = findViewById(R.id.person3); // Recycler View?
+        name1 = findViewById(R.id.name1); // Recycler View?
+        name2 = findViewById(R.id.name2); // Recycler View?
+        name3 = findViewById(R.id.name3); // Recycler View?
         search1 = findViewById(R.id.search1);
         search2 = findViewById(R.id.search2);
         search3 = findViewById(R.id.search3);
@@ -99,9 +100,16 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
                 event_name.setText(eventModel.getTitle());
                 event_desc.setText(eventModel.getDescription());
                 location.setText(eventModel.getVenue());
+                start_time.setText("Start: " + eventModel.getEventStartTimeString());
+                end_time.setText("End: " + eventModel.getEventEndTimeString());
+                date.setText(eventModel.getEventStartDate());
+                information.setText(moduleModel.getName());
+
+
                 // TODO Retrieve person who created the event -> decipher document reference
                 // event_creator.setText(eventModel.getUserCreated()); -> Need to retrieve the person who created
                 // TODO Retrieve (Document References) from firebase, using bitmap (Images: person, person1,2,3 & location_pic; Text: Information)
@@ -109,9 +117,8 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
             }
         });
-
-
     }
+
 
     @Override
     public void onClick(View view) {
