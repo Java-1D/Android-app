@@ -35,7 +35,10 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
+import com.google.android.datatransport.runtime.dagger.Module;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,6 +53,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -89,27 +95,16 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     FirebaseFirestore db;
     FirebaseStorage firebaseStorage;
 
+    ArrayList<DocumentReference> moduleReferences;
+    ArrayList<String> moduleStringList;
+    DocumentReference selectedModuleReference;
+
     static final String TAG = "CreateEvents";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_events);
-
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        // Issues with user always being null, login having issues
-        mAuth.signInAnonymously().addOnSuccessListener(this, new  OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-                // do your stuff
-            }
-        })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.e(TAG, "signInAnonymously:FAILURE", exception);
-                    }
-                });
 
         // Casting to ensure that the types are correct
         editImage = findViewById(R.id.editEventImage);
@@ -129,6 +124,30 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
 
+        /**
+         * @see #chooseModule()
+         */
+        // For module dropdown initalization purposes
+        moduleReferences = new ArrayList<>();
+        moduleStringList = new ArrayList<>();
+
+        // https://stackoverflow.com/questions/50035752/how-to-get-list-of-documents-from-a-collection-in-firestore-android
+        db.collection(ModuleModel.COLLECTION_ID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        moduleReferences.add(documentSnapshot.getReference());
+                        moduleStringList.add(documentSnapshot.getString("name"));
+                        Log.i(TAG, "Module documentReferences loaded.");
+                    }
+                } else {
+                    Log.d(TAG, "Error getting module documents: ", task.getException());
+                }
+            }
+        });
+
+        // TODO: Get data from previous page
         // Checking that the data does not exist in Firebase
         DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document("YufanTest");
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -142,12 +161,18 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 editDescription.setText(eventModel.getDescription());
                 editVenue.setText(eventModel.getVenue());
 
-//                //TODO: FIX
-//                editModule.setText(eventModel.getModule());
+                eventModel.getModule().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
+                        editModule.setText(moduleModel.getName());
+                        selectedModuleReference = eventModel.getModule();
+                    }
+                });
 
                 editCapacity.setText(String.valueOf(eventModel.getCapacity()));
 
-                // Setting date
+                // Setting date and syncing global calendar variable
                 startDateTime = Calendar.getInstance();
                 startDateTime.setTime(eventModel.getEventStart());
 
@@ -177,6 +202,9 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     return;
                 }
 
+                editButton.setEnabled(false);
+                editButton.setText("Editing event...");
+
                 // Check if data are all filled and valid
                 if (invalidData(editName) |
                         invalidData(editDescription) |
@@ -185,20 +213,16 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                         invalidData(editCapacity) |
                         invalidData(editStart) |
                         invalidData(editEnd)) {
+                    editButton.setEnabled(true);
+                    editButton.setText(R.string.edit_event);
                     return;
                 }
-
 
                 String eventName = editName.getText().toString();
                 String eventDescription = editDescription.getText().toString();
                 String eventVenue = editVenue.getText().toString();
 
-                // TODO: Module should be a DocumentReference but idk how to get, need to work with dropdown
-                // String eventModule = editVenue.getText().toString();
-                DocumentReference eventModule = null;
-
-                // TODO: Get DocumentReference for current user, passed by previous intent??
-                DocumentReference userCreated = null;
+                DocumentReference userCreated = LoggedInUser.getInstance().getUserDocRef();
 
                 Integer eventCapacity = Integer.parseInt(editCapacity.getText().toString());
 
@@ -210,16 +234,10 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                editName.requestFocus();
-                                editName.setError("Please use a different event name.");
-                            } else {
-                                // Happens when eventName is not taken
-
                                 // https://firebase.google.com/docs/storage/android/upload-files
                                 // Uploading image into Firebase Storage
                                 // Randomizing id for file name
-                                StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + UUID.randomUUID().toString());
+                                StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
 
                                 // Get the data from an ImageView as bytes
                                 editImage.setDrawingCacheEnabled(true);
@@ -248,7 +266,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                                                         eventName,
                                                         eventDescription,
                                                         eventVenue,
-                                                        eventModule,
+                                                        selectedModuleReference,
                                                         eventCapacity,
                                                         startDateTime.getTime(),
                                                         endDateTime.getTime(),
@@ -267,9 +285,10 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
                                     }
                                 });
-                            }
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
+                            editButton.setEnabled(true);
+                            editButton.setText(R.string.create_event);
                         }
                     }
                 });
@@ -302,55 +321,26 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
      * Module dialog picker
      */
     void chooseModule() {
-        boolean[] selectedModule;
-        ArrayList<Integer> moduleList = new ArrayList<>();
-        String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
-
-        selectedModule = new boolean[moduleArray.length];
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(
-                EditEventActivity.this
-        );
-        builder.setTitle("Select Modules");
+        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditEventActivity.this);
+        builder.setTitle("Select Module");
         builder.setCancelable(false);
-        builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                if (b) {
-                    moduleList.add(i);
-                    Collections.sort(moduleList);
-                }else {
-                    moduleList.remove(Integer.valueOf(i));
-                }
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, moduleStringList.get(i) + " selected.");
             }
         });
+
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int j = 0; j < moduleList.size(); j ++) {
-                    stringBuilder.append(moduleArray[moduleList.get(j)]);
-                    if (j != moduleList.size() - 1) {
-                        stringBuilder.append(", ");
-                    }
+                if (i == -1) {
+                    i = 0;
+                    selectedModuleReference = moduleReferences.get(i);
+                    editModule.setText(moduleStringList.get(i));
                 }
-                editModule.setText(stringBuilder.toString());
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-            }
-        });
-        builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                for (int j = 0; j < selectedModule.length; j ++){
-                    selectedModule[j] = false;
-                    moduleList.clear();
-                    editModule.setText("");
-                }
             }
         });
 
@@ -359,8 +349,8 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * Entry validation
+     * https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
      */
-    // https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
     boolean invalidData(TextView editText) {
         if (editText.getText().toString().length() == 0) {
             editText.requestFocus();
@@ -373,9 +363,9 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * DateTimePicker
+     * Adapted to take in inputs and set date/time for different texts
+     * https://stackoverflow.com/questions/2055509/how-to-edit-a-date-and-time-picker-in-android
      */
-    // Adapted to take in inputs and set date/time for different texts
-    // https://stackoverflow.com/questions/2055509/how-to-edit-a-date-and-time-picker-in-android
     public void dateTimePicker(EditText editText) {
         final Calendar currentDate = Calendar.getInstance();
         Calendar dateTime;
