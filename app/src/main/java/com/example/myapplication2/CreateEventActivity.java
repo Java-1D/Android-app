@@ -3,10 +3,12 @@ package com.example.myapplication2;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -34,6 +36,8 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
+import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -46,19 +50,25 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import org.w3c.dom.Document;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -81,11 +91,16 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     Button createButton;
 
     FirebaseFirestore db;
+    FirebaseStorage firebaseStorage;
 
     // Global variable to take note of Calendar object for createDate
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
     Calendar endDateTime;
+
+    ArrayList<DocumentReference> moduleReferences;
+    ArrayList<String> moduleStringList;
+    DocumentReference selectedModuleReference;
 
     static final String TAG = "CreateEvents";
 
@@ -93,21 +108,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_events);
-
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        // Issues with user always being null, login having issues
-        mAuth.signInAnonymously().addOnSuccessListener(this, new  OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-                // do your stuff
-            }
-        })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.e(TAG, "signInAnonymously:FAILURE", exception);
-                    }
-                });
 
         // Casting to ensure that the types are correct
         createImage = findViewById(R.id.createEventImage);
@@ -127,6 +127,30 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
         // https://firebase.google.com/docs/firestore/quickstart#java
         db = FirebaseFirestore.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
+
+        /**
+         * @see #chooseModule()
+         */
+        // For module dropdown initalization purposes
+        moduleReferences = new ArrayList<>();
+        moduleStringList = new ArrayList<>();
+
+        // https://stackoverflow.com/questions/50035752/how-to-get-list-of-documents-from-a-collection-in-firestore-android
+        db.collection(ModuleModel.COLLECTION_ID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        moduleReferences.add(documentSnapshot.getReference());
+                        moduleStringList.add(documentSnapshot.getString("name"));
+                        Log.i(TAG, "Module documentReferences loaded.");
+                    }
+                } else {
+                    Log.d(TAG, "Error getting module documents: ", task.getException());
+                }
+            }
+        });
 
         createModule.setOnClickListener(this);
         createButton.setOnClickListener(this);
@@ -160,18 +184,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                     return;
                 }
 
-
                 String eventName = createName.getText().toString();
                 String eventDescription = createDescription.getText().toString();
                 String eventVenue = createVenue.getText().toString();
-
-                // TODO: Module should be a DocumentReference but idk how to get, need to work with dropdown
-                // String eventModule = createVenue.getText().toString();
-                DocumentReference eventModule = null;
-
-                // TODO: Get DocumentReference for current user, passed by previous intent??
-                DocumentReference userCreated = null;
-
+                DocumentReference userCreated = LoggedInUser.getInstance().getUserDocRef();
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
                 // Checking that the data does not exist in Firebase
@@ -187,13 +203,12 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 createButton.setEnabled(true);
                                 createButton.setText(R.string.create_event);
                             } else {
+
                                 // Happens when eventName is not taken
                                 // https://firebase.google.com/docs/storage/android/upload-files
                                 // Uploading image into Firebase Storage
-                                FirebaseStorage storage = FirebaseStorage.getInstance();
-
                                 // Randomizing id for file name
-                                StorageReference eventImageRef = storage.getReference().child(EventModel.COLLECTION_ID + UUID.randomUUID().toString());
+                                StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
 
                                 // Get the data from an ImageView as bytes
                                 createImage.setDrawingCacheEnabled(true);
@@ -222,7 +237,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                                         eventName,
                                                         eventDescription,
                                                         eventVenue,
-                                                        eventModule,
+                                                        selectedModuleReference,
                                                         eventCapacity,
                                                         startDateTime.getTime(),
                                                         endDateTime.getTime(),
@@ -269,59 +284,29 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    /**
-     * Module dialog picker
-     */
     void chooseModule() {
-        boolean[] selectedModule;
-        ArrayList<Integer> moduleList = new ArrayList<>();
-        String[] moduleArray = {"50.001: Shit", "50.002: Lao Sai" ,"50.003: Pang Sai", "50.004: Jiak Sai", "50.005: Bak Sai"};
-
-        selectedModule = new boolean[moduleArray.length];
-
+        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
         AlertDialog.Builder builder = new AlertDialog.Builder(
                 CreateEventActivity.this
         );
-        builder.setTitle("Select Modules");
+        builder.setTitle("Select Module");
         builder.setCancelable(false);
-        builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                if (b) {
-                    moduleList.add(i);
-                    Collections.sort(moduleList);
-                }else {
-                    moduleList.remove(Integer.valueOf(i));
-                }
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, moduleStringList.get(i) + " selected.");
             }
         });
+
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int j = 0; j < moduleList.size(); j ++) {
-                    stringBuilder.append(moduleArray[moduleList.get(j)]);
-                    if (j != moduleList.size() - 1) {
-                        stringBuilder.append(", ");
-                    }
+                if (i == -1) {
+                    i = 0;
+                    selectedModuleReference = moduleReferences.get(i);
+                    createModule.setText(moduleStringList.get(i));
                 }
-                createModule.setText(stringBuilder.toString());
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-            }
-        });
-        builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                for (int j = 0; j < selectedModule.length; j ++){
-                    selectedModule[j] = false;
-                    moduleList.clear();
-                    createModule.setText("");
-                }
             }
         });
 
@@ -330,8 +315,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     /**
      * Entry validation
+     * https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
      */
-    // https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
     boolean invalidData(EditText editText) {
         if (editText.getText().toString().length() == 0) {
             editText.requestFocus();
@@ -344,9 +329,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     /**
      * DateTimePicker
+     * Adapted to take in inputs and set date/time for different texts
+     * https://stackoverflow.com/questions/2055509/how-to-create-a-date-and-time-picker-in-android
      */
-    // Adapted to take in inputs and set date/time for different texts
-    // https://stackoverflow.com/questions/2055509/how-to-create-a-date-and-time-picker-in-android
     public void dateTimePicker(EditText editText) {
         final Calendar currentDate = Calendar.getInstance();
         Calendar dateTime;
