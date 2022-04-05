@@ -69,8 +69,6 @@ public class FilterActivity extends AppCompatActivity {
                 String item = adapterView.getItemAtPosition(i).toString();
             }
         });
-
-
     }
 
 
