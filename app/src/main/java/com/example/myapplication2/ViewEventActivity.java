@@ -118,6 +118,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                 setModuleDetails(eventModel.getModule(),information);
+                ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
                 event_name.setText(eventModel.getTitle());
                 event_desc.setText(eventModel.getDescription());
                 location.setText(eventModel.getVenue());
@@ -129,6 +130,13 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
                 // get users joined
                 ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
+                information.setText(moduleModel.getName());
+
+
+                // TODO Retrieve person who created the event -> decipher document reference
+                // event_creator.setText(eventModel.getUserCreated()); -> Need to retrieve the person who created
+                // TODO Retrieve (Document References) from firebase, using bitmap (Images: person, person1,2,3 & location_pic; Text: Information)
+                // TODO Retrieve (Date) start and end time from firebase, display in textview (start_time, end time)
 
             }
         });
@@ -167,6 +175,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 }
             });
         }
+
 
 
 
