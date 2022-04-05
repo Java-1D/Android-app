@@ -32,10 +32,16 @@ public class UserModel implements ObjectModel {
     public UserModel() {
     }
 
-    public UserModel(String documentId, Date dateCreated, String email, String password,
-                     DocumentReference profile, String username) {
-        this.documentId = documentId;
-        this.dateCreated = dateCreated;
+//    public UserModel(Date dateCreated, String email, String password, DocumentReference profile, String username) {
+//        this.dateCreated = dateCreated;
+//        this.email = email;
+//        this.password = password;
+//        this.profile = profile;
+//        this.username = username;
+//    }
+
+    public UserModel(String email, String password, DocumentReference profile, String username) {
+        this.dateCreated = new Date();
         this.email = email;
         this.password = password;
         this.profile = profile;
