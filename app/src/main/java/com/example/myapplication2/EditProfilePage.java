@@ -133,6 +133,60 @@ public class EditProfilePage extends AppCompatActivity {
         editBio = findViewById(R.id.editBio);
         confirmEdit = findViewById(R.id.confirmButton);
 
+
+        selectedModule = new boolean[moduleArray.length];
+        editModules.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(
+                        EditProfilePage.this
+                );
+                builder.setTitle("Select Modules");
+                builder.setCancelable(false);
+                builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                        if (b) {
+                            moduleList.add(i);
+                            Collections.sort(moduleList);
+                        }else {
+                            moduleList.remove(Integer.valueOf(i));
+                        }
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (int j = 0; j < moduleList.size(); j ++) {
+                            stringBuilder.append(moduleArray[moduleList.get(j)]);
+                            if (j != moduleList.size() - 1) {
+                                stringBuilder.append("\n");
+                            }
+                        }
+                        editModules.setText(stringBuilder.toString());
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        for (int j = 0; j < selectedModule.length; j ++){
+                            selectedModule[j] = false;
+                            moduleList.clear();
+                            editModules.setText("");
+                        }
+                    }
+                });
+                builder.show();
+            }
+        });
+
         //initialise buttons
         profilePicture.setOnClickListener(new ClickListener());
         confirmEdit.setOnClickListener(new ClickListener());
