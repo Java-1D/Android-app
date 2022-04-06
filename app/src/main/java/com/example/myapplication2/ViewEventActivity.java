@@ -9,9 +9,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.objectmodel.ProfileModel;
+import com.example.myapplication2.objectmodel.UserModel;
+import com.example.myapplication2.utils.LoggedInUser;
+import com.example.myapplication2.utils.Utils;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -19,8 +25,14 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
+
+import org.w3c.dom.Document;
+
+import java.sql.Array;
+import java.util.ArrayList;
 
 public class ViewEventActivity extends AppCompatActivity implements View.OnClickListener {
     static final String TAG = "ViewEvents";
@@ -54,6 +66,11 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     ImageView search3;
     MaterialButton join_button;
 
+    // Recycler View
+    private RecyclerView eventsList; // providing views that represent items in a data set.
+    private FirestoreRecyclerAdapter adapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,9 +82,9 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         event_desc = findViewById(R.id.event_desc); // DONE
         event_creator = findViewById(R.id.event_creator); // Need to retrieve
         person = findViewById(R.id.person); // Need to retrieve
-        location_pic = findViewById(R.id.location_pic); // Need to retrieve
+        location_pic = findViewById(R.id.location_pic); // DONE
         calendar_icon = findViewById(R.id.calendar_icon);
-        date = findViewById(R.id.date); // Need to retrieve
+        date = findViewById(R.id.date); // DONE
         start_time_icon = findViewById(R.id.start_time_icon);
         start_time = findViewById(R.id.start_time); // DONE
         end_time_icon = findViewById(R.id.end_time_icon);
@@ -100,24 +117,58 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
+                setModuleDetails(eventModel.getModule(),information);
                 event_name.setText(eventModel.getTitle());
                 event_desc.setText(eventModel.getDescription());
                 location.setText(eventModel.getVenue());
                 start_time.setText("Start: " + eventModel.getEventStartTimeString());
                 end_time.setText("End: " + eventModel.getEventEndTimeString());
                 date.setText(eventModel.getEventStartDate());
-                information.setText(moduleModel.getName());
+                Utils.loadImage(eventModel.getImagePath(),location_pic);
+                setCreatorDetails(eventModel.getUserCreated(),person,event_creator);
 
-
-                // TODO Retrieve person who created the event -> decipher document reference
-                // event_creator.setText(eventModel.getUserCreated()); -> Need to retrieve the person who created
-                // TODO Retrieve (Document References) from firebase, using bitmap (Images: person, person1,2,3 & location_pic; Text: Information)
-                // TODO Retrieve (Date) start and end time from firebase, display in textview (start_time, end time)
+                // get users joined
+                ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
 
             }
         });
     }
+
+            private void setModuleDetails(DocumentReference moduleReference, TextView text_name){
+            moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
+                    text_name.setText(model.getName());
+                }
+            });
+        }
+
+        private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName){
+            userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    UserModel model = documentSnapshot.toObject(UserModel.class);
+                    setCreatorProfileDetails(model.getProfile(),creatorProfilePic,creatorName);
+                }
+            });
+        }
+
+            private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name,TextView creatorName){
+                profileReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ProfileModel model = documentSnapshot.toObject(ProfileModel.class);
+                    Log.d(TAG, "" + model);
+                    Utils.loadImage(model.getImagePath(),image_name);
+                    creatorName.setText(model.getName());
+
+
+                }
+            });
+        }
+
+
 
 
     @Override
@@ -125,15 +176,40 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         switch (view.getId()) {
             case R.id.join_button:
                 // TODO Check if event is full, if full reject join request.
+                // Assume that we have the document id which was passed in from MainActivity
                 DocumentReference docRef = db.collection("Events").document("Test Event");
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        int current = eventModel.getUserJoined().size();
-                        if (current == eventModel.getCapacity()) ;
-                        Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
+                        ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
+                        int current = usersJoined.size();
+                        if (current == eventModel.getCapacity()){
+                            Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
+
+                        } ;
                         // TODO in else statement, add the user who clicked the join button into the UserJoined ArrayList
+
+                        // Recognise my profile name
+
+                        // Put my profile name into UserJoined array when I click Join
+//                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
+                        DocumentReference user = db.document("/Users/Test4");
+                        // check if user is already in the list
+                        if (usersJoined.contains(user)){
+                            Toast.makeText(ViewEventActivity.this, "You have already joined the event", Toast.LENGTH_SHORT).show();
+                        } else{
+                            // append the array list of usersJoined with your Profile
+                            usersJoined.add(user);
+                            docRef.update("userJoined", FieldValue.arrayUnion(user));
+
+                            // update the firebase with usersJoined
+                            Toast.makeText(ViewEventActivity.this, "You have successfully joined the event", Toast.LENGTH_SHORT).show();
+
+
+                        }
+
+
                     }
                 });
 
