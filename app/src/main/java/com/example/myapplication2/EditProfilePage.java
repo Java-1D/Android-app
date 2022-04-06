@@ -161,7 +161,7 @@ public class EditProfilePage extends AppCompatActivity {
                         for (int j = 0; j < moduleList.size(); j ++) {
                             stringBuilder.append(moduleArray[moduleList.get(j)]);
                             if (j != moduleList.size() - 1) {
-                                stringBuilder.append(", ");
+                                stringBuilder.append("\n");
                             }
                         }
                         editModules.setText(stringBuilder.toString());

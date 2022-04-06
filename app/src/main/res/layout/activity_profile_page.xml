@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_bg"
-    tools:context=".ProfilePage" >
+    android:background="@drawable/bg_editprofile"
+    tools:context=".ProfilePage">
 
 
     <ImageView
@@ -164,9 +164,9 @@
             android:layout_height="100dp">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerProfile"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/recyclerProfile"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
