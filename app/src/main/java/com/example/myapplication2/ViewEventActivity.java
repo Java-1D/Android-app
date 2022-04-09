@@ -1,6 +1,5 @@
 package com.example.myapplication2;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,21 +11,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
-import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
-import com.example.myapplication2.viewholder.EventViewHolder;
 import com.example.myapplication2.viewholder.ProfileViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
@@ -34,11 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.Source;
 
-import org.w3c.dom.Document;
-
-import java.sql.Array;
 import java.util.ArrayList;
 
 public class ViewEventActivity extends AppCompatActivity implements View.OnClickListener {
@@ -74,7 +66,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     MaterialButton join_button;
 
     // Recycler View
-    private RecyclerView eventsList; // providing views that represent items in a data set.
+    private RecyclerView usersList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
 
 
@@ -134,8 +126,8 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 start_time.setText("Start: " + eventModel.getEventStartTimeString());
                 end_time.setText("End: " + eventModel.getEventEndTimeString());
                 date.setText(eventModel.getEventStartDate());
-                Utils.loadImage(eventModel.getImagePath(),location_pic);
-                setCreatorDetails(eventModel.getUserCreated(),person,event_creator);
+                Utils.loadImage(eventModel.getImagePath(), location_pic);
+                setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
                 no_of_ppl.setText(eventModel.getRemainingCapacity());
 
                 // get users joined
@@ -150,7 +142,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
                 // RecyclerView
                 Query query = db.collection("Profiles")
-                        .whereIn("user",usersJoined);
+                        .whereIn("user", usersJoined);
 
                 FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
                         .setQuery(query, ProfileModel.class)
@@ -162,64 +154,59 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                         // Creates a new instance of View Holder
                         // Uses layout called R.layout.event_row
-                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
                         return new ProfileViewHolder(view);
                     }
-
 
                     @Override
                     protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull ProfileModel model) {
                         Log.d(TAG, "Query " + model);
-
                         holder.username.setText(model.getName());
-//                        holder.user_image.setText(model.getDescription());
                         Utils.loadImage(model.getImagePath(), holder.user_image);
-
                     }
                 };
 
+
+            }
+        });
+        usersList.setHasFixedSize(true);
+        usersList.setLayoutManager(new LinearLayoutManager(this));
+        usersList.setAdapter(adapter);
+    }
+
+    private void setModuleDetails(DocumentReference moduleReference, TextView text_name) {
+        moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
+                text_name.setText(model.getName());
+            }
+        });
+    }
+
+    private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName) {
+        userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                UserModel model = documentSnapshot.toObject(UserModel.class);
+                setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
+            }
+        });
+    }
+
+    private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name, TextView creatorName) {
+        profileReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ProfileModel model = documentSnapshot.toObject(ProfileModel.class);
+                Log.d(TAG, "" + model);
+                Utils.loadImage(model.getImagePath(), image_name);
+                creatorName.setText(model.getName());
 
 
             }
         });
     }
-
-            private void setModuleDetails(DocumentReference moduleReference, TextView text_name){
-            moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
-                    text_name.setText(model.getName());
-                }
-            });
-        }
-
-        private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName){
-            userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    UserModel model = documentSnapshot.toObject(UserModel.class);
-                    setCreatorProfileDetails(model.getProfile(),creatorProfilePic,creatorName);
-                }
-            });
-        }
-
-            private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name,TextView creatorName){
-                profileReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    ProfileModel model = documentSnapshot.toObject(ProfileModel.class);
-                    Log.d(TAG, "" + model);
-                    Utils.loadImage(model.getImagePath(),image_name);
-                    creatorName.setText(model.getName());
-
-
-                }
-            });
-        }
-
-
-
 
 
     @Override
@@ -235,10 +222,11 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                         ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
                         int current = usersJoined.size();
-                        if (current == eventModel.getCapacity()){
+                        if (current == eventModel.getCapacity()) {
                             Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
 
-                        } ;
+                        }
+                        ;
                         // TODO in else statement, add the user who clicked the join button into the UserJoined ArrayList
 
                         // Recognise my profile name
@@ -247,9 +235,9 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 //                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
                         DocumentReference user = db.document("/Users/Test4");
                         // check if user is already in the list
-                        if (usersJoined.contains(user)){
+                        if (usersJoined.contains(user)) {
                             Toast.makeText(ViewEventActivity.this, "You have already joined the event", Toast.LENGTH_SHORT).show();
-                        } else{
+                        } else {
                             // append the array list of usersJoined with your Profile
                             usersJoined.add(user);
                             docRef.update("userJoined", FieldValue.arrayUnion(user));
@@ -294,5 +282,17 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 //                    }
 //                });
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }
