@@ -185,6 +185,12 @@ public class EventModel implements ObjectModel {
     public void setUserJoined(ArrayList<DocumentReference> userJoined) {
         this.userJoined = userJoined;
     }
+    public String getRemainingCapacity(){
+        String currentCapacity = String.valueOf(this.userJoined.size());
+        String totalCapacity = String.valueOf(this.capacity);
+        String output = "Study Buddies Now : " + currentCapacity + " / " + totalCapacity;
+        return output;
+    }
 
     public String getEventStartTimeString() {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
