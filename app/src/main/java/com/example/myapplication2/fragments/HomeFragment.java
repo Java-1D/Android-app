@@ -105,12 +105,15 @@ public class HomeFragment extends Fragment {
                 holder.event_start.setText(model.getEventStartTimeString());
                 holder.event_end.setText(model.getEventEndTimeString());
                 holder.event_date.setText(model.getEventStartDate());
+//                String documentId = getSnapshots().getSnapshot(position).getId();
+                String documentId = getSnapshots().getSnapshot(position).getReference().getPath();
 
                 // Bring users to View Event when clicking on viewEventButton
                 holder.viewEventButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view1) {
                         Intent intent = new Intent(getActivity(), ViewEventActivity.class);
+                        intent.putExtra("documentId",documentId);
                         ((MainPageActivity) getActivity()).startActivity(intent);
                     }
                 });

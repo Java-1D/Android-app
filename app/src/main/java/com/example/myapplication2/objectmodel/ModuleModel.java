@@ -59,6 +59,9 @@ public class ModuleModel implements ObjectModel {
     }
 
     public String getName() {
+        if (name == null){
+            return "Test";
+        }
         return name;
     }
 
