@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /*
-    Filter Activity is not in used anymore. Refer to filterFragment - yk
+    Filter Activity is used instead of Filter Fragment due to bugs - yk
  */
 public class FilterActivity extends AppCompatActivity {
     private static final String TAG = "FILTERACTIVITY";
