@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
@@ -59,6 +61,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import java.util.UUID;
 
 public class EditProfilePage extends AppCompatActivity {
     private static final String TAG = "EditProfilePage";
@@ -107,7 +110,6 @@ public class EditProfilePage extends AppCompatActivity {
                 case R.id.backButton:
                     startActivity(new Intent(EditProfilePage.this, MainPageActivity.class));
                     break;
-
             }
         }
     }
@@ -479,6 +481,34 @@ public class EditProfilePage extends AppCompatActivity {
 
 
 
+
+
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        switch (requestCode) {
+//            case 1:
+//                if (resultCode == RESULT_OK) {
+//                    Uri selectedImageUri = data.getData();
+//                    Log.i(TAG, "URI "+ selectedImageUri);
+//                    uploadImagetoCloudStorage(selectedImageUri);
+//                    profilePicture.setImageURI(selectedImageUri);
+//                }
+//                break;
+//            case 2:
+//                if (resultCode == RESULT_OK) {
+//                    Bundle bundle = data.getExtras();
+//                    Bitmap bitmapImage = (Bitmap) bundle.get("data");
+//                    uploadImagetoCloudStorage(bitmapImage);
+//                    profilePicture.setImageBitmap(bitmapImage);
+//                }
+//        }
+//    }
+
+
+
+
     void chooseImage() {
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"};
         Log.i(TAG, "chooseImage: Dialog launched");
@@ -539,6 +569,7 @@ public class EditProfilePage extends AppCompatActivity {
                     if (result!=null ) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
+//                            Bitmap mBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                             profilePicture.setImageURI(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                         } else {
@@ -578,31 +609,6 @@ public class EditProfilePage extends AppCompatActivity {
 
                 }
             });
-
-
-
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case 1:
-//                if (resultCode == RESULT_OK) {
-//                    Uri selectedImageUri = data.getData();
-//                    Log.i(TAG, "URI "+ selectedImageUri);
-//                    uploadImagetoCloudStorage(selectedImageUri);
-//                    profilePicture.setImageURI(selectedImageUri);
-//                }
-//                break;
-//            case 2:
-//                if (resultCode == RESULT_OK) {
-//                    Bundle bundle = data.getExtras();
-//                    Bitmap bitmapImage = (Bitmap) bundle.get("data");
-//                    uploadImagetoCloudStorage(bitmapImage);
-//                    profilePicture.setImageBitmap(bitmapImage);
-//                }
-//        }
-//    }
 
 
 
@@ -658,6 +664,8 @@ public class EditProfilePage extends AppCompatActivity {
         });
     }
 
+
+
     private boolean checkAndRequestPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             int cameraPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
@@ -681,3 +689,31 @@ public class EditProfilePage extends AppCompatActivity {
         }
     }
 }
+
+
+//    // https://firebase.google.com/docs/storage/android/upload-files
+//// Uploading image into Firebase Storage
+//    FirebaseStorage storage = FirebaseStorage.getInstance();
+//
+//    // Randomizing id for file name
+//    StorageReference eventImageRef = storage.getReference().child("Events/" + UUID.randomUUID().toString());
+//
+//// Get the data from an ImageView as bytes
+//    profilePicture.setDrawingCacheEnabled(true);
+//            profilePicture.buildDrawingCache();
+//            Bitmap bitmap = ((BitmapDrawable) profilePicture.getDrawable()).getBitmap();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//            byte[] data = baos.toByteArray();
+//
+//            UploadTask uploadTask = eventImageRef.putBytes(data);
+//            uploadTask.addOnFailureListener(new OnFailureListener() {
+//@Override
+//public void onFailure(@NonNull Exception exception) {
+//        Log.i(TAG, "onFailure: Storage upload unsuccessful");
+//        }
+//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//@Override
+//public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//        Log.i(TAG, "uploadTask: Image successfully uploaded");
+//        String eventImage = taskSnapshot.getMetadata().getReference().toString(); }});
