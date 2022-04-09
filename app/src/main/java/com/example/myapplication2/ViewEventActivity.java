@@ -66,6 +66,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     ImageView search2;
     ImageView search3;
     MaterialButton join_button;
+    String documentName = "";
 
     // Recycler View
     private FirestoreRecyclerAdapter adapter;
@@ -107,33 +108,20 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         usersJoined.add(db.document("/Users/Test"));
 
         String documentId = getIntent().getStringExtra("documentId");
-        String documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
+        documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
+        Log.i(TAG, "Document Name" + documentName);
 
-        DocumentReference docRef = db.collection("Events").document(documentName);
+        DocumentReference docRef = db.collection("Events").document("Test Event");
+//        DocumentReference docRef = db.collection("Events").document(documentName);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                setModuleDetails(eventModel.getModule(), information);
-                // ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
-                event_name.setText(eventModel.getTitle());
-                event_desc.setText(eventModel.getDescription());
-                location.setText(eventModel.getVenue());
-                start_time.setText("Start: " + eventModel.getEventStartTimeString());
-                end_time.setText("End: " + eventModel.getEventEndTimeString());
-                date.setText(eventModel.getEventDateString());
-                Utils.loadImage(eventModel.getImagePath(), location_pic);
-                setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
-                no_of_ppl.setText(eventModel.getRemainingCapacity());
-
-                // get users joined
-                usersJoined = eventModel.getUserJoined();
-                setUserJoinedRecyclerView();
-
+                setEventDetails(eventModel);
 
                 adapter.startListening();
-//                usersList.setHasFixedSize(true); //TODO : Enable this when we are done
 
+//                usersList.setHasFixedSize(true); //TODO : Enable this when we are with UI
                 usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 usersList.setAdapter(adapter);
 
@@ -141,6 +129,25 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         });
 
 
+    }
+
+    private void setEventDetails(EventModel eventModel) {
+        setModuleDetails(eventModel.getModule(), information);
+
+        event_name.setText(eventModel.getTitle());
+        event_desc.setText(eventModel.getDescription());
+        location.setText(eventModel.getVenue());
+        start_time.setText("Start: " + eventModel.getEventStartTimeString());
+        end_time.setText("End: " + eventModel.getEventEndTimeString());
+        date.setText(eventModel.getEventDateString());
+        Utils.loadImage(eventModel.getImagePath(), location_pic);
+        setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
+        no_of_ppl.setText(eventModel.getRemainingCapacity());
+
+        // get users joined
+        usersJoined = eventModel.getUserJoined();
+        Log.i(TAG, "" + usersJoined);
+        setUserJoinedRecyclerView();
     }
 
     private void setModuleDetails(DocumentReference moduleReference, TextView text_name) {
@@ -194,8 +201,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         switch (view.getId()) {
             case R.id.join_button:
-                String documentId = getIntent().getStringExtra("documentId");
-                String documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
                 DocumentReference docRef = db.collection("Events").document(documentName);
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -207,10 +212,9 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
                         }
                         ;
-
-                        // Put my profile name into UserJoined array when I click Join
-//                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
-                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
+                        
+                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
+//                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
 
                         // check if user is already in the list
                         if (usersJoined.contains(user)) {
@@ -260,7 +264,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    private void setUserJoinedRecyclerView(){
+    private void setUserJoinedRecyclerView() {
         // RecyclerView
         Query query = db.collection("Profiles")
                 .whereIn("userId", usersJoined);
@@ -302,7 +306,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onStop() {
         super.onStop();
-
         if (adapter != null) {
             adapter.stopListening();
         }
