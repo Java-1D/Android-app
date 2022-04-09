@@ -209,8 +209,11 @@ public class ProfileFragment extends Fragment {
                         Log.i(ModuleModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ModuleModel.class)));
                         ProfileFragment.this.module.set(document.toObject(ModuleModel.class));
 
+
+                        //TODO: fix this
+
                         //Add modules from Firestore DocumentReference to Recycler View
-                        arrModules.add(new ProfileViewModel(ProfileFragment.this.module.get()));
+                        //arrModules.add(new ProfileViewModel(ProfileFragment.this.module.get()));
                         ProfileFragment.this.adapter.notifyItemInserted(arrModules.size());
                     }
                     else {
