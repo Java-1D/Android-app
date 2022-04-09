@@ -78,10 +78,6 @@
 
 
         <activity
-            android:name=".CreateEventActivity"
-            android:exported="true" />
-
-        <activity
             android:name=".EditEventActivity"
             android:exported="true" />
 
