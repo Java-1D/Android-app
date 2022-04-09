@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:hint="@string/module">
+        android:hint="Max Capacity">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteTxt"

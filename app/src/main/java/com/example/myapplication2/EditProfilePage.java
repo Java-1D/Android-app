@@ -1,10 +1,14 @@
 package com.example.myapplication2;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -25,6 +29,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.canhub.cropper.CropImageContract;
+import com.canhub.cropper.CropImageContractOptions;
+import com.canhub.cropper.CropImageOptions;
+import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
@@ -91,7 +99,7 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.editProfilePicture:
-                    chooseProfilePic();
+                    chooseImage();
                     break;
                 case R.id.confirmButton:
                     updateProfileDocument(profileDocumentId, new Intent(EditProfilePage.this, ProfilePage.class));
@@ -416,82 +424,189 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
+//
+//    private void chooseProfilePic() {
+//        View dialogView;
+//        AlertDialog.Builder builder;
+//        AlertDialog alertDialogProfilePicture;
+//        LayoutInflater inflater;
+//        ImageView takePic;
+//        ImageView chooseGallery;
+//
+//        builder = new AlertDialog.Builder(this);
+//        inflater = getLayoutInflater();
+//        dialogView = inflater.inflate(R.layout.add_picture_alert, null);
+//        builder.setCancelable(false);
+//        builder.setView(dialogView);
+//
+//        takePic = dialogView.findViewById(R.id.takePic);
+//        chooseGallery = dialogView.findViewById(R.id.chooseGallery);
+//
+//        alertDialogProfilePicture = builder.create();
+//        alertDialogProfilePicture.show();
+//
+//        takePic.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (checkAndRequestPermission()) {
+//                    takePicFromCamera();
+//                    alertDialogProfilePicture.cancel();
+//                }
+//            }
+//        });
+//
+//        chooseGallery.setOnClickListener((new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                takePicFromGallery();
+//                alertDialogProfilePicture.cancel();
+//            }
+//        }));
+//
+//    }
+//
+//    private void takePicFromGallery(){
+//        Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//        startActivityForResult(pickPhoto, 1);
+//    }
+//
+//    private void takePicFromCamera() {
+//        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        if (takePicture.resolveActivity(getPackageManager()) != null) {
+//            startActivityForResult(takePicture, 2);
+//        }
+//    }
 
-    private void chooseProfilePic() {
-        View dialogView;
-        AlertDialog.Builder builder;
-        AlertDialog alertDialogProfilePicture;
-        LayoutInflater inflater;
-        ImageView takePic;
-        ImageView chooseGallery;
 
-        builder = new AlertDialog.Builder(this);
-        inflater = getLayoutInflater();
-        dialogView = inflater.inflate(R.layout.add_picture_alert, null);
-        builder.setCancelable(false);
-        builder.setView(dialogView);
 
-        takePic = dialogView.findViewById(R.id.takePic);
-        chooseGallery = dialogView.findViewById(R.id.chooseGallery);
-
-        alertDialogProfilePicture = builder.create();
-        alertDialogProfilePicture.show();
-
-        takePic.setOnClickListener(new View.OnClickListener() {
+    void chooseImage() {
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"};
+        Log.i(TAG, "chooseImage: Dialog launched");
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditProfilePage.this);
+        builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if (checkAndRequestPermission()) {
-                    takePicFromCamera();
-                    alertDialogProfilePicture.cancel();
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(optionsMenu[i].equals("Take Photo")) {
+                    cameraLaunch();
+                    Log.i(TAG, "chooseImage: Camera chosen");
+                }
+                else if(optionsMenu[i].equals("Choose from Gallery")){
+                    galleryLaunch();
+                    Log.i(TAG, "chooseImage: Gallery chosen");
+                }
+                else if (optionsMenu[i].equals("Exit")){
+                    dialogInterface.dismiss();
+                    Log.i(TAG, "chooseImage: Dialog dismissed");
                 }
             }
         });
-
-        chooseGallery.setOnClickListener((new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePicFromGallery();
-                alertDialogProfilePicture.cancel();
-            }
-        }));
-
+        builder.show();
     }
 
-    private void takePicFromGallery(){
-        Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(pickPhoto, 1);
-    }
-
-    private void takePicFromCamera() {
-        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePicture.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePicture, 2);
+    void cameraLaunch() {
+        if (ContextCompat.checkSelfPermission(EditProfilePage.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
+            options.setAspectRatio(1, 1);
+            options.setImageSource(false, true);
+            cropImage.launch(options);
+            Log.i(TAG, "cameraLaunch: Permission allowed, camera launched");
+        }
+        else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            Log.i(TAG, "cameraLaunch: Permission for camera requested");
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 1:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImageUri = data.getData();
-                    Log.i(TAG, "URI "+ selectedImageUri);
-                    uploadImageToCloudStorage(selectedImageUri);
-                    profilePicture.setImageURI(selectedImageUri);
-                }
-                break;
-            case 2:
-                if (resultCode == RESULT_OK) {
-                    Bundle bundle = data.getExtras();
-                    Bitmap bitmapImage = (Bitmap) bundle.get("data");
-                    uploadImageToCloudStorage(bitmapImage);
-                    profilePicture.setImageBitmap(bitmapImage);
-                }
+    void galleryLaunch() {
+        if (ContextCompat.checkSelfPermission(EditProfilePage.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
+            options.setAspectRatio(1 ,1);
+            options.setImageSource(true, false);
+            cropImage.launch(options);
+            Log.i(TAG, "galleryLaunch: Permission allowed, camera launched");
+        }
+        else {
+            requestGalleryPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            Log.i(TAG, "galleryLaunch: Permission for camera requested");
         }
     }
 
-    private void uploadImageToCloudStorage(Uri imageUri) {
+    ActivityResultLauncher<CropImageContractOptions> cropImage = registerForActivityResult(
+            new CropImageContract(),
+            new ActivityResultCallback<CropImageView.CropResult>() {
+                @Override
+                public void onActivityResult(CropImageView.CropResult result) {
+                    if (result!=null ) {
+                        if (result.isSuccessful() && result.getUriContent() != null) {
+                            Uri selectedImageUri = result.getUriContent();
+                            profilePicture.setImageURI(selectedImageUri);
+                            Log.i(TAG, "onActivityResult: Cropped image set");
+                        } else {
+                            Log.d(TAG, "onActivityResult: Cropping returned null");
+                        }
+                    }
+                }
+            });
+
+    ActivityResultLauncher<String> requestCameraPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if (result == true) {
+                        // Permission is granted. Continue the action or workflow in your app.
+                        cameraLaunch();
+                    } else {
+                        Toast.makeText(EditProfilePage.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "PermissionRequest: Camera access denied");
+                    }
+                }
+            });
+
+    ActivityResultLauncher<String> requestGalleryPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if (result == true) {
+                        // Permission is granted. Continue the action or workflow in your app.
+                        galleryLaunch();
+                    } else {
+                        Toast.makeText(EditProfilePage.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "PermissionRequest: Gallery access denied");
+                    }
+
+                }
+            });
+
+
+
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        switch (requestCode) {
+//            case 1:
+//                if (resultCode == RESULT_OK) {
+//                    Uri selectedImageUri = data.getData();
+//                    Log.i(TAG, "URI "+ selectedImageUri);
+//                    uploadImagetoCloudStorage(selectedImageUri);
+//                    profilePicture.setImageURI(selectedImageUri);
+//                }
+//                break;
+//            case 2:
+//                if (resultCode == RESULT_OK) {
+//                    Bundle bundle = data.getExtras();
+//                    Bitmap bitmapImage = (Bitmap) bundle.get("data");
+//                    uploadImagetoCloudStorage(bitmapImage);
+//                    profilePicture.setImageBitmap(bitmapImage);
+//                }
+//        }
+//    }
+
+
+
+    private void uploadImagetoCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
         UploadTask uploadTask = imageRef.putFile(imageUri);
