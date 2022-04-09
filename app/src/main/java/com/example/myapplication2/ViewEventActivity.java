@@ -111,14 +111,14 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                setModuleDetails(eventModel.getModule(),information);
+                setModuleDetails(eventModel.getModule(), information);
                 // ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
                 event_name.setText(eventModel.getTitle());
                 event_desc.setText(eventModel.getDescription());
                 location.setText(eventModel.getVenue());
                 start_time.setText("Start: " + eventModel.getEventStartTimeString());
                 end_time.setText("End: " + eventModel.getEventEndTimeString());
-                date.setText(eventModel.getEventStartDate());
+                date.setText(eventModel.getEventDateString());
                 Utils.loadImage(eventModel.getImagePath(), location_pic);
                 setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
                 no_of_ppl.setText(eventModel.getRemainingCapacity());
@@ -141,7 +141,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
                 .setQuery(query, ProfileModel.class)
                 .build();
-        Log.d(TAG,options.toString());
+        Log.d(TAG, options.toString());
 
         adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
             @NonNull
