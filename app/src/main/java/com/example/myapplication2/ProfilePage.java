@@ -127,6 +127,10 @@ public class ProfilePage extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.i(TAG, "onStart is called");
+        prefsEditor.putString("PROFILE_ID", profileDocumentId);
+        prefsEditor.apply();
+        Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
+
     }
 
     @Override
@@ -151,9 +155,9 @@ public class ProfilePage extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause is called");
-        prefsEditor.putString("PROFILE_ID", profileDocumentId);
-        prefsEditor.apply();
-        Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
+//        prefsEditor.putString("PROFILE_ID", profileDocumentId);
+//        prefsEditor.apply();
+//        Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
 
     }
 

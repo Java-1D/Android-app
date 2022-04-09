@@ -15,32 +15,26 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication2.CreateEventActivity;
+import com.example.myapplication2.FilterActivity;
 import com.example.myapplication2.LoginActivity;
 import com.example.myapplication2.MainPageActivity;
 import com.example.myapplication2.R;
 import com.example.myapplication2.ViewEventActivity;
 import com.example.myapplication2.objectmodel.EventModel;
-import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.EventViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-/*
-Home Fragment contains the Fragment for the Homepage. I.e View All Events
- */
-
-public class HomeFragment extends Fragment {
+public class ExploreFragment extends Fragment {
     private static final String TAG = "HOMEFRAGMENT";
     private FirebaseFirestore firebaseFirestore;
     private RecyclerView eventsList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
-    private DocumentReference user;
 
-    public HomeFragment() {
+    public ExploreFragment() {
         // Required empty public constructor
     }
 
@@ -48,7 +42,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_view_events, container, false);
         eventsList = view.findViewById(R.id.recyclerViewEvents);
         eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
@@ -63,6 +57,15 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // Button to start FilterActivity
+        view.findViewById(R.id.filter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view1) {
+                Intent intent = new Intent(getActivity(), FilterActivity.class);
+                ((MainPageActivity) getActivity()).startActivity(intent);
+            }
+        });
+
         return view;
     }
 
@@ -71,11 +74,9 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         firebaseFirestore = FirebaseFirestore.getInstance();
-        DocumentReference user = LoggedInUser.getInstance().getUserDocRef();
 
         // Query
-        Query query = firebaseFirestore.collection("Events")
-                .whereArrayContains("userJoined", user);
+        Query query = firebaseFirestore.collection("Events");
         Log.d(TAG, "Query" + query.toString());
 
         FirestoreRecyclerOptions<EventModel> options = new FirestoreRecyclerOptions.Builder<EventModel>()
@@ -94,7 +95,6 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull EventModel model) {
-                Log.d(TAG, "Query " + model);
 
                 holder.event_title.setText(model.getTitle());
                 holder.event_description.setText(model.getDescription());

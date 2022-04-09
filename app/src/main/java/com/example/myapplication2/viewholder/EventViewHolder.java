@@ -26,6 +26,7 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
    public TextView event_end;
    public Activity mActivity;
    public Button viewEventButton;
+   public TextView event_date;
 
 
    // passed in the item from oncreate
@@ -40,6 +41,7 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
       event_start = (TextView) itemView.findViewById(R.id.event_start);
       event_end = (TextView) itemView.findViewById(R.id.event_end);
       viewEventButton = (Button) itemView.findViewById(R.id.view_event);
+      event_date = (TextView) itemView.findViewById(R.id.event_date);
 
    }
 
