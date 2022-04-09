@@ -54,20 +54,23 @@
 
             <TextView
                 android:id="@+id/event_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:layout_width="120dp"
+                android:layout_height="80dp"
                 android:layout_marginTop="5dp"
                 android:text="event_description"
                 app:layout_constraintStart_toStartOf="@+id/event_title"
-                app:layout_constraintTop_toBottomOf="@+id/location" />
+                app:layout_constraintTop_toBottomOf="@+id/location"/>
 
             <TextView
                 android:id="@+id/location"
+                android:textStyle="italic"
+                android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="event_venue"
-                app:layout_constraintTop_toBottomOf="@id/event_title"
-                app:layout_constraintStart_toStartOf="@id/event_title"
+                app:layout_constraintBottom_toBottomOf="@id/event_title"
+                app:layout_constraintStart_toEndOf="@id/event_title"
                 tools:layout_editor_absoluteX="326dp"
                 tools:layout_editor_absoluteY="16dp" />
 
@@ -77,15 +80,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/view_event"
-                app:layout_constraintStart_toStartOf="@id/view_event"
+                app:layout_constraintEnd_toStartOf="@id/to"
                 android:text="event_start"
                 tools:layout_editor_absoluteX="180dp"
                 tools:layout_editor_absoluteY="125dp" />
 
             <TextView
+                android:id="@+id/to"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="to"
+                android:layout_marginLeft="5dp"
+                android:textSize="11sp"
+                app:layout_constraintTop_toTopOf="@id/event_start"
+                app:layout_constraintEnd_toStartOf="@id/event_end"/>
+
+            <TextView
                 android:id="@+id/event_end"
                 android:textSize="11sp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="@id/event_start"
@@ -116,6 +129,18 @@
                 android:text="event_status"
                 tools:layout_editor_absoluteX="180dp"
                 tools:layout_editor_absoluteY="125dp" />
+
+            <TextView
+                android:id="@+id/event_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="18dp"
+                android:text="dd/mm/yyyy"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="@id/view_event"
+                app:layout_constraintBottom_toTopOf="@id/event_end"
+                tools:layout_editor_absoluteY="54dp" />
+
 
             <Button
                 android:id="@+id/view_event"

@@ -4,34 +4,35 @@ import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.protobuf.StringValue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
 /*
-* Firebase Firestore Document Object Model for the Events Collection
-* @ID documentId: string
-*
-* @field capacity: number
-* @field description: string
-* @field eventCreated: timestamp
-* @field eventEnd: timestamp
-* @field eventStart: timestamp
-* @field imagePath: string referencing URL from Firebase Cloud Storage
-* @field lastUpdated: timestamp
-* @field module: DocumentReference from Modules Collection
-* @field status: string
-* @field title: string
-* @field userCreated: DocumentReference from Users Collection
-* @field userJoined: ArrayList of DocumentReference from Users Collection
-*        @index: DocumentReference from Users Collection
-* @field venue: DocumentReference from Venues Collection
-*/
+ * Firebase Firestore Document Object Model for the Events Collection
+ * @ID documentId: string
+ *
+ * @field capacity: number
+ * @field description: string
+ * @field eventCreated: timestamp
+ * @field eventEnd: timestamp
+ * @field eventStart: timestamp
+ * @field imagePath: string referencing URL from Firebase Cloud Storage
+ * @field lastUpdated: timestamp
+ * @field module: DocumentReference from Modules Collection
+ * @field status: string
+ * @field title: string
+ * @field userCreated: DocumentReference from Users Collection
+ * @field userJoined: ArrayList of DocumentReference from Users Collection
+ *        @index: DocumentReference from Users Collection
+ * @field venue: DocumentReference from Venues Collection
+ */
 public class EventModel implements ObjectModel {
 
     public static final String TAG = "Event Model";
-    public static final String COLLECTION_ID  = "Events";
+    public static final String COLLECTION_ID = "Events";
     public static final ArrayList<String> STATUSES = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 
     @DocumentId
@@ -49,12 +50,13 @@ public class EventModel implements ObjectModel {
     private ArrayList<DocumentReference> userJoined;
     private String venue;
 
-    public EventModel() {} //no arg constructor for firebase
-    
-    //FIXME To add String documentId into the constructor
+    public EventModel() {
+    } // no arg constructor for firebase
+
+    // FIXME To add String documentId into the constructor
     public EventModel(String title, String description, String venue, DocumentReference module,
-                      int capacity, Date eventStart, Date eventEnd, String imagePath,
-                      DocumentReference userCreated) {
+            int capacity, Date eventStart, Date eventEnd, String imagePath,
+            DocumentReference userCreated) {
         this.title = title;
         this.description = description;
         this.venue = venue;
@@ -152,7 +154,9 @@ public class EventModel implements ObjectModel {
         this.eventEnd = eventEnd;
     }
 
-    public String getImagePath() { return imagePath; }
+    public String getImagePath() {
+        return imagePath;
+    }
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
@@ -180,6 +184,21 @@ public class EventModel implements ObjectModel {
 
     public void setUserJoined(ArrayList<DocumentReference> userJoined) {
         this.userJoined = userJoined;
+    }
+
+    public String getEventStartTimeString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+        return formatter.format(eventStart);
+    }
+
+    public String getEventEndTimeString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+        return formatter.format(eventEnd);
+    }
+
+    public String getEventStartDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, MMM d, yyyy");
+        return formatter.format(eventStart);
     }
 
     @Override
