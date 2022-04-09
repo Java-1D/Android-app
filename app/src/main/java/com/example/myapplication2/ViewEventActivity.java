@@ -18,6 +18,7 @@ import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
+import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileViewHolder;
@@ -105,8 +106,10 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         usersJoined.add(db.document("/Users/Test"));
 
-        // TODO how to reflect document path based on the event that users click on the app -> documentPath -> SharedPreferences from HomePage
-        DocumentReference docRef = db.collection("Events").document("Test Event");
+        String documentId = getIntent().getStringExtra("documentId");
+        String documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
+
+        DocumentReference docRef = db.collection("Events").document(documentName);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -125,66 +128,50 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
                 // get users joined
                 usersJoined = eventModel.getUserJoined();
+                setUserJoinedRecyclerView();
 
+
+                adapter.startListening();
+//                usersList.setHasFixedSize(true); //TODO : Enable this when we are done
+
+                usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                usersList.setAdapter(adapter);
 
             }
         });
 
-
-//        // RecyclerView
-        Query query = db.collection("Profiles")
-                .whereIn("userId", usersJoined);
-//
-//        Query query = db.collection("Profiles");
-//                .whereEqualTo("pillar", "ESD");
-
-        FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
-                .setQuery(query, ProfileModel.class)
-                .build();
-        Log.d(TAG, options.toString());
-
-        adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
-            @NonNull
-            @Override
-            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // Creates a new instance of View Holder
-                // Uses layout called R.layout.event_row
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
-                return new ProfileViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull ProfileModel model) {
-                Log.d(TAG, "Query " + model);
-                holder.username.setText(model.getName());
-                Utils.loadImage(model.getImagePath(), holder.user_image);
-            }
-        };
-
-//        usersList.setHasFixedSize(true); //TODO : Enable this when we are done
-        usersList.setLayoutManager(new LinearLayoutManager(this));
-        usersList.setAdapter(adapter);
 
     }
 
     private void setModuleDetails(DocumentReference moduleReference, TextView text_name) {
-        moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
-                text_name.setText(model.getName());
-            }
-        });
+        if (moduleReference != null) {
+            moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
+                    text_name.setText(model.getName());
+                }
+            });
+
+        } else {
+            Log.d(TAG, "No module reference");
+        }
+
     }
 
     private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName) {
-        userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                UserModel model = documentSnapshot.toObject(UserModel.class);
-                setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
-            }
-        });
+        if (userReference != null) {
+            userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    UserModel model = documentSnapshot.toObject(UserModel.class);
+                    setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
+                }
+            });
+        } else {
+            Log.d(TAG, "User Reference is Null");
+        }
+
     }
 
     private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name, TextView creatorName) {
@@ -203,11 +190,13 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View view) {
+        adapter.startListening();
+
         switch (view.getId()) {
             case R.id.join_button:
-                // TODO Check if event is full, if full reject join request.
-                // Assume that we have the document id which was passed in from MainActivity
-                DocumentReference docRef = db.collection("Events").document("Test Event");
+                String documentId = getIntent().getStringExtra("documentId");
+                String documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
+                DocumentReference docRef = db.collection("Events").document(documentName);
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -221,7 +210,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
                         // Put my profile name into UserJoined array when I click Join
 //                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
-                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Dlete after use
+                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
 
                         // check if user is already in the list
                         if (usersJoined.contains(user)) {
@@ -271,15 +260,51 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
+    private void setUserJoinedRecyclerView(){
+        // RecyclerView
+        Query query = db.collection("Profiles")
+                .whereIn("userId", usersJoined);
+
+
+        FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
+                .setQuery(query, ProfileModel.class)
+                .build();
+
+
+        adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
+            @NonNull
+            @Override
+            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                // Creates a new instance of View Holder
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
+                return new ProfileViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull ProfileModel model) {
+                Log.d(TAG, "Query " + model);
+                holder.username.setText(model.getName());
+                Utils.loadImage(model.getImagePath(), holder.user_image);
+            }
+
+
+        };
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        adapter.startListening();
+        if (adapter != null) {
+            adapter.startListening();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        adapter.stopListening();
+
+        if (adapter != null) {
+            adapter.stopListening();
+        }
     }
 }
