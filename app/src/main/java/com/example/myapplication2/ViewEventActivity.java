@@ -2,24 +2,37 @@ package com.example.myapplication2;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication2.objectmodel.EventModel;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.objectmodel.ProfileModel;
+import com.example.myapplication2.objectmodel.UserModel;
+import com.example.myapplication2.utils.LoggedInUser;
+import com.example.myapplication2.utils.Utils;
+import com.example.myapplication2.viewholder.ProfileViewHolder;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
+import com.google.firebase.firestore.Query;
+
+import java.util.ArrayList;
 
 public class ViewEventActivity extends AppCompatActivity implements View.OnClickListener {
     static final String TAG = "ViewEvents";
@@ -53,45 +66,44 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     ImageView search3;
     MaterialButton join_button;
 
+    // Recycler View
+    private FirestoreRecyclerAdapter adapter;
+    private RecyclerView usersList; // providing views that represent items in a data set.
+
+    ArrayList<DocumentReference> usersJoined = new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_events);
+        setContentView(R.layout.view_events_users);
 
         db = FirebaseFirestore.getInstance();
 
-        event_name = findViewById(R.id.event_name); // Need to retrieve
-        event_desc = findViewById(R.id.event_desc); // Need to retrieve
+        event_name = findViewById(R.id.event_name); // DONE
+        event_desc = findViewById(R.id.event_desc); // DONE
         event_creator = findViewById(R.id.event_creator); // Need to retrieve
         person = findViewById(R.id.person); // Need to retrieve
-        location_pic = findViewById(R.id.location_pic); // Need to retrieve
+        location_pic = findViewById(R.id.location_pic); // DONE
         calendar_icon = findViewById(R.id.calendar_icon);
-        date = findViewById(R.id.date); // Need to retrieve
+        date = findViewById(R.id.date); // DONE
         start_time_icon = findViewById(R.id.start_time_icon);
-        start_time = findViewById(R.id.start_time); // Need to retrieve
+        start_time = findViewById(R.id.start_time); // DONE
         end_time_icon = findViewById(R.id.end_time_icon);
-        end_time = findViewById(R.id.end_time); // Need to retrieve
+        end_time = findViewById(R.id.end_time); // DONE
         location_icon = findViewById(R.id.location_icon);
-        location = findViewById(R.id.location); // Need to retrieve
+        location = findViewById(R.id.location); // DONE
         information_icon = findViewById(R.id.information_icon);
         information = findViewById(R.id.information); // Need to retrieve
         emoji = findViewById((R.id.emoji));
         no_of_ppl = findViewById(R.id.no_of_ppl); // Need to retrieve
-        person1 = findViewById(R.id.person1); // Need to retrieve
-        person2 = findViewById(R.id.person2); // Need to retrieve
-        person3 = findViewById(R.id.person3); // Need to retrieve
-        name1 = findViewById(R.id.name1); // Need to retrieve
-        name2 = findViewById(R.id.name2); // Need to retrieve
-        name3 = findViewById(R.id.name3); // Need to retrieve
-        search1 = findViewById(R.id.search1);
-        search2 = findViewById(R.id.search2);
-        search3 = findViewById(R.id.search3);
+
         join_button = findViewById(R.id.join_button);
+        usersList = findViewById(R.id.users_list);
 
         join_button.setOnClickListener(this);
-        search1.setOnClickListener(this);
-        search2.setOnClickListener(this);
-        search3.setOnClickListener(this);
+
+        usersJoined.add(db.document("/Users/Test"));
 
         // TODO how to reflect document path based on the event that users click on the app -> documentPath -> SharedPreferences from HomePage
         DocumentReference docRef = db.collection("Events").document("Test Event");
@@ -99,36 +111,134 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                setModuleDetails(eventModel.getModule(), information);
+                // ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
                 event_name.setText(eventModel.getTitle());
                 event_desc.setText(eventModel.getDescription());
                 location.setText(eventModel.getVenue());
-                // TODO Retrieve person who created the event -> decipher document reference
-                // event_creator.setText(eventModel.getUserCreated()); -> Need to retrieve the person who created
-                // TODO Retrieve (Document References) from firebase, using bitmap (Images: person, person1,2,3 & location_pic; Text: Information)
-                // TODO Retrieve (Date) start and end time from firebase, display in textview (start_time, end time)
+                start_time.setText("Start: " + eventModel.getEventStartTimeString());
+                end_time.setText("End: " + eventModel.getEventEndTimeString());
+                date.setText(eventModel.getEventDateString());
+                Utils.loadImage(eventModel.getImagePath(), location_pic);
+                setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
+                no_of_ppl.setText(eventModel.getRemainingCapacity());
+
+                // get users joined
+                usersJoined = eventModel.getUserJoined();
+
 
             }
         });
 
 
+//        // RecyclerView
+        Query query = db.collection("Profiles")
+                .whereIn("userId", usersJoined);
+//
+//        Query query = db.collection("Profiles");
+//                .whereEqualTo("pillar", "ESD");
+
+        FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
+                .setQuery(query, ProfileModel.class)
+                .build();
+        Log.d(TAG, options.toString());
+
+        adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
+            @NonNull
+            @Override
+            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                // Creates a new instance of View Holder
+                // Uses layout called R.layout.event_row
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
+                return new ProfileViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull ProfileModel model) {
+                Log.d(TAG, "Query " + model);
+                holder.username.setText(model.getName());
+                Utils.loadImage(model.getImagePath(), holder.user_image);
+            }
+        };
+
+//        usersList.setHasFixedSize(true); //TODO : Enable this when we are done
+        usersList.setLayoutManager(new LinearLayoutManager(this));
+        usersList.setAdapter(adapter);
+
     }
+
+    private void setModuleDetails(DocumentReference moduleReference, TextView text_name) {
+        moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
+                text_name.setText(model.getName());
+            }
+        });
+    }
+
+    private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName) {
+        userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                UserModel model = documentSnapshot.toObject(UserModel.class);
+                setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
+            }
+        });
+    }
+
+    private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name, TextView creatorName) {
+        profileReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ProfileModel model = documentSnapshot.toObject(ProfileModel.class);
+                Utils.loadImage(model.getImagePath(), image_name);
+                creatorName.setText(model.getName());
+
+
+            }
+        });
+    }
+
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.join_button:
                 // TODO Check if event is full, if full reject join request.
+                // Assume that we have the document id which was passed in from MainActivity
                 DocumentReference docRef = db.collection("Events").document("Test Event");
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        int current = eventModel.getUserJoined().size();
-                        if (current == eventModel.getCapacity()) ;
-                        Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
-                        // TODO in else statement, add the user who clicked the join button into the UserJoined ArrayList
+                        ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
+                        int current = usersJoined.size();
+                        if (current == eventModel.getCapacity()) {
+                            Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
+                        }
+                        ;
+
+                        // Put my profile name into UserJoined array when I click Join
+//                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
+                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Dlete after use
+
+                        // check if user is already in the list
+                        if (usersJoined.contains(user)) {
+                            Toast.makeText(ViewEventActivity.this, "You have already joined the event", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // append the array list of usersJoined with your Profile
+                            usersJoined.add(user);
+                            docRef.update("userJoined", FieldValue.arrayUnion(user));
+
+                            // update the firebase with usersJoined
+                            Toast.makeText(ViewEventActivity.this, "You have successfully joined the event", Toast.LENGTH_SHORT).show();
+
+                        }
+
                     }
                 });
+
 
                 // TODO Check with Yongkang how to use recycler view to show the profiles of the users
             case R.id.search1:
@@ -159,5 +269,17 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }

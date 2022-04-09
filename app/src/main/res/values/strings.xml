@@ -17,11 +17,8 @@
     <string name="email">Email</string>
     <string name="lorem_ipsum">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</string>
     <string name="edit">Edit</string>
-    <string name="bio">Bio</string>
     <string name="_4">4</string>
-    <string name="term">Term</string>
     <string name="csd">CSD</string>
-    <string name="pillar">Pillar</string>
     <string name="chadmaximus_googly_com_us">ChadMaximus@googly.com.us</string>
     <string name="select">Select Item</string>
     <string name="eventname">Library Study Group</string>
@@ -37,6 +34,7 @@
     <string name="name2">Nigel Mun</string>
     <string name="name3">Vernon Toh</string>
     <string name="join">JOIN!</string>
+    <string name="select_modules">Select Module</string>
 
     <!--    Used for accessing to camera/gallery for images -->
     <string name="camera_access">Camera access is required</string>
@@ -52,6 +50,7 @@
     <string name="user_bio">Hello everyone this is lorem ipsum. I am a handsome GIGA CHAD</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="confirm">Confirm</string>
+    <string name="pillar">Pillar</string>
 
 
     <!-- Create Event & Edit Event -->
@@ -69,5 +68,7 @@
     <string name="edit_event_title">Edit your event</string>
     <string name="edit_event">Edit Event</string>
     <string name="module">Module</string>
+    <string name="term">term</string>
+    <string name="bio">bio</string>
 
 </resources>

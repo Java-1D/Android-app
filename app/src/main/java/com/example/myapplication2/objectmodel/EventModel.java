@@ -50,13 +50,14 @@ public class EventModel implements ObjectModel {
     private ArrayList<DocumentReference> userJoined;
     private String venue;
 
-    public EventModel() {
-    } // no arg constructor for firebase
 
-    // FIXME To add String documentId into the constructor
+    public EventModel() {
+    } //no arg constructor for firebase
+
+    //FIXME To add String documentId into the constructor
     public EventModel(String title, String description, String venue, DocumentReference module,
-            int capacity, Date eventStart, Date eventEnd, String imagePath,
-            DocumentReference userCreated) {
+                      int capacity, Date eventStart, Date eventEnd, String imagePath,
+                      DocumentReference userCreated) {
         this.title = title;
         this.description = description;
         this.venue = venue;
@@ -182,8 +183,23 @@ public class EventModel implements ObjectModel {
         return userJoined;
     }
 
+//    public ArrayList<String> getUsernameUserJoined(){
+//        ArrayList<String> usernameList = new ArrayList<>();
+//        for (DocumentReference user :userJoined){
+//
+//            usernameList.add(user.getUsername());
+//        }
+//    }
+
     public void setUserJoined(ArrayList<DocumentReference> userJoined) {
         this.userJoined = userJoined;
+    }
+
+    public String getRemainingCapacity() {
+        String currentCapacity = String.valueOf(this.userJoined.size());
+        String totalCapacity = String.valueOf(this.capacity);
+        String output = "Study Buddies Now : " + currentCapacity + " / " + totalCapacity;
+        return output;
     }
 
     public String getEventStartTimeString() {
@@ -199,6 +215,13 @@ public class EventModel implements ObjectModel {
     public String getEventStartDate() {
         SimpleDateFormat formatter = new SimpleDateFormat("EEE, MMM d, yyyy");
         return formatter.format(eventStart);
+    }
+
+    public String getEventDateString() {
+        SimpleDateFormat formatter = new SimpleDateFormat(" d, MMM");
+        return formatter.format(eventStart);
+
+
     }
 
     @Override
