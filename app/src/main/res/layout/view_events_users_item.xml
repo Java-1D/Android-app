@@ -44,21 +44,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:text="user_name"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@+id/user_image"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!--            <TextView-->
-            <!--                android:id="@+id/event_description"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="5dp"-->
-            <!--                android:text="event_description"-->
-            <!--                app:layout_constraintStart_toStartOf="@+id/event_title"-->
-            <!--                app:layout_constraintTop_toBottomOf="@+id/location" />-->
+
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
