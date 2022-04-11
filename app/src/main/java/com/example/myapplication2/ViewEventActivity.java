@@ -1,5 +1,9 @@
 package com.example.myapplication2;
 
+import static com.example.myapplication2.utils.Utils.getCurrentUser;
+import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +22,7 @@ import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
+import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileViewHolder;
@@ -55,16 +60,22 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     TextView information;
     ImageView emoji;
     TextView no_of_ppl;
-    ShapeableImageView person1;
-    ShapeableImageView person2;
-    ShapeableImageView person3;
-    TextView name1;
-    TextView name2;
-    TextView name3;
-    ImageView search1;
-    ImageView search2;
-    ImageView search3;
+//    ShapeableImageView person1;
+//    ShapeableImageView person2;
+//    ShapeableImageView person3;
+//    TextView name1;
+//    TextView name2;
+//    TextView name3;
+//    ImageView search1;
+//    ImageView search2;
+//    ImageView search3;
     MaterialButton join_button;
+    MaterialButton edit_event_button;
+    String documentName = "";
+    DocumentReference user; //singleton User
+    DocumentReference docRef;
+    ImageView backButton;
+
 
     // Recycler View
     private FirestoreRecyclerAdapter adapter;
@@ -100,91 +111,100 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         join_button = findViewById(R.id.join_button);
         usersList = findViewById(R.id.users_list);
+        edit_event_button = findViewById(R.id.edit_event_button);
+        backButton = (ImageView) findViewById(R.id.backButton);
+
 
         join_button.setOnClickListener(this);
+        edit_event_button.setVisibility(View.GONE);
+        edit_event_button.setOnClickListener(this);
+
+        backButton.setOnClickListener(this);
+
+
 
         usersJoined.add(db.document("/Users/Test"));
 
-        // TODO how to reflect document path based on the event that users click on the app -> documentPath -> SharedPreferences from HomePage
-        DocumentReference docRef = db.collection("Events").document("Test Event");
+        user = getCurrentUser(db);
+
+        String documentId = getIntent().getStringExtra("documentId");
+        documentName = getDocumentFromPath(documentId);
+        Log.i(TAG, "Document Name" + documentName);
+
+//        docRef = db.collection("Events").document("Test Event"); //TODO remove after test
+        docRef = db.collection("Events").document(documentName); // TODO: enable this after testing
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                setModuleDetails(eventModel.getModule(), information);
-                // ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
-                event_name.setText(eventModel.getTitle());
-                event_desc.setText(eventModel.getDescription());
-                location.setText(eventModel.getVenue());
-                start_time.setText("Start: " + eventModel.getEventStartTimeString());
-                end_time.setText("End: " + eventModel.getEventEndTimeString());
-                date.setText(eventModel.getEventDateString());
-                Utils.loadImage(eventModel.getImagePath(), location_pic);
-                setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
-                no_of_ppl.setText(eventModel.getRemainingCapacity());
+                setEventDetails(eventModel);
+                DocumentReference userCreated = eventModel.getUserCreated();
+                if ( userCreated!= null && userCreated == user) {
+                    Log.d(TAG, "getUserCreated : " + eventModel.getUserCreated() + "\n \n currentuser : " + user );
+                    join_button.setVisibility(View.GONE);
+                    edit_event_button.setVisibility(View.VISIBLE);
+                }
 
-                // get users joined
-                usersJoined = eventModel.getUserJoined();
+                adapter.startListening();
 
+//                usersList.setHasFixedSize(true); //TODO : Enable this when we are with UI
+                usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                usersList.setAdapter(adapter);
 
             }
         });
 
 
-//        // RecyclerView
-        Query query = db.collection("Profiles")
-                .whereIn("userId", usersJoined);
-//
-//        Query query = db.collection("Profiles");
-//                .whereEqualTo("pillar", "ESD");
+    }
 
-        FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
-                .setQuery(query, ProfileModel.class)
-                .build();
-        Log.d(TAG, options.toString());
+    private void setEventDetails(EventModel eventModel) {
+        setModuleDetails(eventModel.getModule(), information);
 
-        adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
-            @NonNull
-            @Override
-            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // Creates a new instance of View Holder
-                // Uses layout called R.layout.event_row
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
-                return new ProfileViewHolder(view);
-            }
+        event_name.setText(eventModel.getTitle());
+        event_desc.setText(eventModel.getDescription());
+        location.setText(eventModel.getVenue());
+        start_time.setText("Start: " + eventModel.getEventStartTimeString());
+        end_time.setText("End: " + eventModel.getEventEndTimeString());
+        date.setText(eventModel.getEventDateString());
+        Utils.loadImage(eventModel.getImagePath(), location_pic);
+        setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
+        no_of_ppl.setText(eventModel.getRemainingCapacity());
 
-            @Override
-            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull ProfileModel model) {
-                Log.d(TAG, "Query " + model);
-                holder.username.setText(model.getName());
-                Utils.loadImage(model.getImagePath(), holder.user_image);
-            }
-        };
-
-//        usersList.setHasFixedSize(true); //TODO : Enable this when we are done
-        usersList.setLayoutManager(new LinearLayoutManager(this));
-        usersList.setAdapter(adapter);
-
+        // get users joined
+        usersJoined = eventModel.getUserJoined();
+        Log.i(TAG, "" + usersJoined);
+        setUserJoinedRecyclerView();
     }
 
     private void setModuleDetails(DocumentReference moduleReference, TextView text_name) {
-        moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
-                text_name.setText(model.getName());
-            }
-        });
+        if (moduleReference != null) {
+            moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
+                    text_name.setText(model.getName());
+                }
+            });
+
+        } else {
+            Log.d(TAG, "No module reference");
+        }
+
     }
 
     private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName) {
-        userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                UserModel model = documentSnapshot.toObject(UserModel.class);
-                setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
-            }
-        });
+        if (userReference != null) {
+            userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    UserModel model = documentSnapshot.toObject(UserModel.class);
+                    setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
+                }
+            });
+        } else {
+            Log.d(TAG, "User Reference is Null");
+        }
+
     }
 
     private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name, TextView creatorName) {
@@ -203,11 +223,17 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View view) {
+        adapter.startListening();
+
         switch (view.getId()) {
+            case R.id.edit_event_button:
+                Intent intent = new Intent(ViewEventActivity.this, EditEventActivity.class);
+                intent.putExtra("documentId", docRef.getPath());
+                Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
+                ViewEventActivity.this.startActivity(intent);
+
             case R.id.join_button:
-                // TODO Check if event is full, if full reject join request.
-                // Assume that we have the document id which was passed in from MainActivity
-                DocumentReference docRef = db.collection("Events").document("Test Event");
+//                DocumentReference docRef = db.collection("Events").document(documentName);
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -218,10 +244,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
                         }
                         ;
-
-                        // Put my profile name into UserJoined array when I click Join
-//                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
-                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Dlete after use
+//                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
 
                         // check if user is already in the list
                         if (usersJoined.contains(user)) {
@@ -239,47 +262,86 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
 
+            case R.id.backButton:
+                // Create explicit intent to go into MainPage
+                Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
+                startActivity(mainActivityIntent);
 
-                // TODO Check with Yongkang how to use recycler view to show the profiles of the users
-            case R.id.search1:
-                DocumentReference docRef1 = db.collection("Events").document("Test Event");
-                docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        // TODO Retrieve profile page of person1
-                    }
-                });
-            case R.id.search2:
-                DocumentReference docRef2 = db.collection("Events").document("Test Event");
-                docRef2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        // TODO Retrieve profile page of person2
-                    }
-                });
-            case R.id.search3:
-                DocumentReference docRef3 = db.collection("Events").document("Test Event");
-                docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        // TODO Retrieve profile page of person3
-                    }
-                });
+
+//            case R.id.search1:
+//                DocumentReference docRef1 = db.collection("Events").document("Test Event");
+//                docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+//                        // TODO Retrieve profile page of person1
+//                    }
+//                });
+//            case R.id.search2:
+//                DocumentReference docRef2 = db.collection("Events").document("Test Event");
+//                docRef2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+//                        // TODO Retrieve profile page of person2
+//                    }
+//                });
+//            case R.id.search3:
+//                DocumentReference docRef3 = db.collection("Events").document("Test Event");
+//                docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+//                        // TODO Retrieve profile page of person3
+//                    }
+//                });
         }
+    }
+
+    private void setUserJoinedRecyclerView() {
+        // RecyclerView
+        Query query = db.collection("Profiles")
+                .whereIn("userId", usersJoined);
+
+
+        FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
+                .setQuery(query, ProfileModel.class)
+                .build();
+
+
+        adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
+            @NonNull
+            @Override
+            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                // Creates a new instance of View Holder
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
+                return new ProfileViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull ProfileModel model) {
+                Log.d(TAG, "Query " + model);
+                holder.username.setText(model.getName());
+                Utils.loadImage(model.getImagePath(), holder.user_image);
+            }
+
+
+        };
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        adapter.startListening();
+        if (adapter != null) {
+            adapter.startListening();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        adapter.stopListening();
+        if (adapter != null) {
+            adapter.stopListening();
+        }
     }
 }
