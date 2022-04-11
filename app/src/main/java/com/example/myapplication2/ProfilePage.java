@@ -58,11 +58,12 @@ public class ProfilePage extends AppCompatActivity {
 
     //RecyclerView components
     ProfileRecyclerAdapter adapter;
-    ArrayList<ProfileViewModel> arrModules  = new ArrayList<>();
+    ArrayList<ProfileViewModel> arrModules = new ArrayList<>();
 
     //Shared Preferences to store Objects as a String
     SharedPreferences sharedPrefs;
     SharedPreferences.Editor prefsEditor;
+    DocumentReference profileRef;
 
 
     //Button interactions in Profile Page Activity
@@ -99,9 +100,8 @@ public class ProfilePage extends AppCompatActivity {
         prefsEditor = sharedPrefs.edit();
 
         // getting Profile Id from viewEvents TODO : let issac know about this
-        String documentId = getIntent().getStringExtra("profileId");
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(),getDocumentFromPath(documentId));
-        Log.i(TAG, "Document Name" + profileRef);
+        profileRef = getProfileRef();
+
 
 //        //Fetch Data from Profile Collection
 //        //TODO Wire up Profile Document ID from preceding activity
@@ -129,6 +129,17 @@ public class ProfilePage extends AppCompatActivity {
         backArrow.setOnClickListener(new ClickListener());
         logOutButton.setOnClickListener(new ClickListener());
         editButton.setOnClickListener(new ClickListener());
+    }
+
+    private DocumentReference getProfileRef() {
+        String documentId = getIntent().getStringExtra("profileId");
+        if (documentId != null) {
+            profileRef = getDocumentReference(ProfileModel.getCollectionId(), getDocumentFromPath(documentId));
+        } else {
+            profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+        }
+        Log.i(TAG, "Document Name" + profileRef);
+        return profileRef;
     }
 
     @Override
@@ -233,12 +244,11 @@ public class ProfilePage extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot document) {
                 if (document.exists()) {
                     Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
                     ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
                     addModuleToRecyclerView();
-                }
-                else {
+                } else {
                     Log.w(TAG, "Document does not exist");
                 }
             }
@@ -252,20 +262,19 @@ public class ProfilePage extends AppCompatActivity {
 
     //Add Module Data Retrieved
     public void addModuleToRecyclerView() {
-        for (DocumentReference moduleRef: profile.get().getModules()) {
+        for (DocumentReference moduleRef : profile.get().getModules()) {
             moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot document) {
                     if (document.exists()) {
                         Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
-                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
                         ProfilePage.this.module.set(document.toObject(ModuleModel.class));
 
                         //Add modules from Firestore DocumentReference to Recycler View
                         arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
                         ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
-                    }
-                    else {
+                    } else {
                         Log.w(TAG, "Document does not exist");
                     }
                 }
@@ -276,5 +285,5 @@ public class ProfilePage extends AppCompatActivity {
                 }
             });
         }
-        }
     }
+}
