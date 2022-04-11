@@ -77,13 +77,6 @@ public class ModuleModel implements ObjectModel {
         this.pillar = pillar;
     }
 
-    public String getModuleName(){
-        // get the element before the spacing
-        String[] split = name.split(" ");
-        String moduleName = split[0];
-        return moduleName;
-    }
-
     @Override
     public String toString() {
         return "ModuleModel{" +
