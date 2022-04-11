@@ -1,5 +1,7 @@
 package com.example.myapplication2;
 
+import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -62,6 +64,7 @@ public class ProfilePage extends AppCompatActivity {
     SharedPreferences sharedPrefs;
     SharedPreferences.Editor prefsEditor;
 
+
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
@@ -95,11 +98,16 @@ public class ProfilePage extends AppCompatActivity {
         sharedPrefs = getSharedPreferences("PROFILE_PAGE", MODE_PRIVATE);
         prefsEditor = sharedPrefs.edit();
 
-        //Fetch Data from Profile Collection
-        //TODO Wire up Profile Document ID from preceding activity
-        profileDocumentId = "Test";
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-        getProfileData(profileRef);
+        // getting Profile Id from viewEvents TODO : let issac know about this
+        String documentId = getIntent().getStringExtra("profileId");
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(),getDocumentFromPath(documentId));
+        Log.i(TAG, "Document Name" + profileRef);
+
+//        //Fetch Data from Profile Collection
+//        //TODO Wire up Profile Document ID from preceding activity
+//        profileDocumentId = "Test";
+//        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+//        getProfileData(profileRef);
 
         //initialise UI elements
         backArrow = findViewById(R.id.backArrow);
@@ -216,6 +224,7 @@ public class ProfilePage extends AppCompatActivity {
     public DocumentReference getDocumentReference(String collectionId, String documentId) {
         return db.collection(collectionId).document(documentId);
     }
+
 
     //Get Data from Profiles Collection
     public void getProfileData(DocumentReference profileRef) {
