@@ -135,7 +135,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
 
 //         getting ID from intent
-        String documentId = getIntent().getStringExtra("documentId");
+        String documentId = getIntent().getStringExtra("DOCUMENT_ID");
         documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
@@ -163,7 +163,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         });
 
         // Get edit documentID from previous intent
-        documentId = getIntent().getStringExtra("documentId");
+        documentId = getIntent().getStringExtra("DOCUMENT_ID");
 
         // Checking that data exists in Firestore and can be retrieved and initializing values
         DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(documentId);
