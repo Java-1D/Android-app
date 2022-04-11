@@ -127,7 +127,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         user = getCurrentUser(db);
 
-        String documentId = getIntent().getStringExtra("DOCUMENT_ID");
+        String documentId = getIntent().getStringExtra("documentId");
         documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
@@ -182,7 +182,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
-                    text_name.setText(model.getModuleName());
+                    text_name.setText(model.getName());
                 }
             });
 
@@ -228,7 +228,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         switch (view.getId()) {
             case R.id.edit_event_button:
                 Intent intent = new Intent(ViewEventActivity.this, EditEventActivity.class);
-                intent.putExtra("DOCUMENT_ID", docRef.getPath());
+                intent.putExtra("documentId", docRef.getPath());
                 Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
                 ViewEventActivity.this.startActivity(intent);
 
@@ -323,23 +323,11 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 Log.d(TAG, "Query " + model);
                 holder.username.setText(model.getName());
                 Utils.loadImage(model.getImagePath(), holder.user_image);
-                // Bring users to View Event when clicking on viewEventButton
-                String profileId = getSnapshots().getSnapshot(position).getReference().getPath();
-                holder.user_profile.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view1) {
-                        Toast.makeText(ViewEventActivity.this, "UserProfile Clicked : " + profileId, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(ViewEventActivity.this, ProfilePage.class);
-                        intent.putExtra("PROFILE_ID",profileId);
-                        ViewEventActivity.this.startActivity(intent);
-                    }
-                });
-
             }
-            };
 
 
         };
+    }
 
     @Override
     protected void onStart() {

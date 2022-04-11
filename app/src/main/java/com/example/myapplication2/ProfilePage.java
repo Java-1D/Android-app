@@ -1,7 +1,5 @@
 package com.example.myapplication2;
 
-import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -60,8 +58,7 @@ public class ProfilePage extends AppCompatActivity {
 
     //RecyclerView components
     ProfileRecyclerAdapter adapter;
-    ArrayList<ProfileViewModel> arrModules = new ArrayList<>();
-
+    ArrayList<ProfileViewModel> arrModules  = new ArrayList<>();
 
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
@@ -98,19 +95,6 @@ public class ProfilePage extends AppCompatActivity {
         //initialise Firestore db
         db = FirebaseFirestore.getInstance();
 
-        sharedPrefs = getSharedPreferences("PROFILE_PAGE", MODE_PRIVATE);
-        prefsEditor = sharedPrefs.edit();
-
-        // getting Profile Id from viewEvents TODO : let issac know about this
-        profileRef = getProfileRef();
-
-
-//        //Fetch Data from Profile Collection
-//        //TODO Wire up Profile Document ID from preceding activity
-//        profileDocumentId = "Test";
-//        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-//        getProfileData(profileRef);
-
         //initialise UI elements
         backArrow = findViewById(R.id.backArrow);
         logOutButton = findViewById(R.id.logOutButton);
@@ -132,7 +116,6 @@ public class ProfilePage extends AppCompatActivity {
         else {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
         }
-      
         //Check whether user is not checking his own profile
         LoggedInUser user = LoggedInUser.getInstance();
         if (profileDocumentId != user.getUserString()) {
@@ -141,7 +124,7 @@ public class ProfilePage extends AppCompatActivity {
         }
 
         //Get Profile Data from Firestore
-//      Note to issac: I have refactored this out in function getProfileRef()  DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
         getProfileData(profileRef);
 
         //initialise RecyclerView elements for Modules Section
@@ -156,31 +139,6 @@ public class ProfilePage extends AppCompatActivity {
         editButton.setOnClickListener(new ClickListener());
     }
 
-    private DocumentReference getProfileRef() {
-        profileDocumentId = getIntent().getStringExtra("PROFILE_ID");
-
-        //Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
-        if (profileDocumentId == null) {
-            Log.w(TAG, "Profile Document ID is null");
-            profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-            finish();
-        } else {
-            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-            profileRef = getDocumentReference(ProfileModel.getCollectionId(), getDocumentFromPath(profileDocumentId));
-            Log.i(TAG, "Profile Name : " + profileRef);
-        }
-        return profileRef;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart is called");
-        prefsEditor.putString("PROFILE_ID", profileDocumentId);
-        prefsEditor.apply();
-        Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
-
-    }
 
     @Override
     protected void onRestart() {
@@ -215,7 +173,6 @@ public class ProfilePage extends AppCompatActivity {
         return db.collection(collectionId).document(documentId);
     }
 
-
     //Get Data from Profiles Collection
     public void getProfileData(DocumentReference profileRef) {
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -223,7 +180,7 @@ public class ProfilePage extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot document) {
                 if (document.exists()) {
                     Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
                     ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
                     if (ProfilePage.this.profile.get().getModules() != null) {
@@ -244,32 +201,29 @@ public class ProfilePage extends AppCompatActivity {
 
     //Add Module Data Retrieved
     public void addModuleToRecyclerView() {
-        if (profile.get().getModules() != null) {
-            for (DocumentReference moduleRef : profile.get().getModules()) {
+        for (DocumentReference moduleRef: profile.get().getModules()) {
+            moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot document) {
+                    if (document.exists()) {
+                        Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
+                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                        ProfilePage.this.module.set(document.toObject(ModuleModel.class));
 
-                moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot document) {
-                        if (document.exists()) {
-                            Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
-                            Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
-                            ProfilePage.this.module.set(document.toObject(ModuleModel.class));
-
-                            //Add modules from Firestore DocumentReference to Recycler View
-                            arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
-                            ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
-                        } else {
-                            Log.w(TAG, "Document does not exist");
-                        }
+                        //Add modules from Firestore DocumentReference to Recycler View
+                        arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
+                        ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error retrieving document from Firestore", e);
+                    else {
+                        Log.w(TAG, "Document does not exist");
                     }
-                });
-            }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(TAG, "Error retrieving document from Firestore", e);
+                }
+            });
         }
-
+        }
     }
-}
