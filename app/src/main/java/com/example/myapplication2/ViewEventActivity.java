@@ -182,7 +182,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
-                    text_name.setText(model.getName());
+                    text_name.setText(model.getModuleName());
                 }
             });
 
