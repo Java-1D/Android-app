@@ -35,10 +35,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,13 +58,10 @@ import java.util.Set;
 
 public class EditProfilePage extends AppCompatActivity {
     private static final String TAG = "EditProfilePage";
-    private static final String PROFILE_ID = "PROFILE_ID";
+
     //Objects to handle data from Firebase
     FirebaseFirestore db;
     FirebaseStorage storage;
-    FirebaseAuth mAuth;
-    FirebaseUser user;
-
     String profileDocumentId;
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
 
@@ -92,6 +85,10 @@ public class EditProfilePage extends AppCompatActivity {
     // Update ProfileModel modules with this arraylist if arraylist != null
     final FirebaseContainer<ArrayList<DocumentReference>> modules = new FirebaseContainer<>(new ArrayList<>());
 
+    //Shared Preferences to store Objects as a String
+    SharedPreferences sharedPrefs;
+    SharedPreferences.Editor prefsEditor;
+
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
@@ -101,14 +98,10 @@ public class EditProfilePage extends AppCompatActivity {
                     chooseImage();
                     break;
                 case R.id.confirmButton:
-                    Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
-                    confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
-                    updateProfileDocument(profileDocumentId, confirmIntent);
+                    updateProfileDocument(profileDocumentId, new Intent(EditProfilePage.this, ProfilePage.class));
                     break;
                 case R.id.backButton:
-                    Intent backIntent = new Intent(EditProfilePage.this, ProfilePage.class);
-                    backIntent.putExtra(PROFILE_ID, profileDocumentId);
-                    startActivity(backIntent);
+                    startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
                     break;
 
             }
@@ -127,20 +120,12 @@ public class EditProfilePage extends AppCompatActivity {
         //initialise Firebase Cloud Storage
         storage = FirebaseStorage.getInstance();
 
-        //Retrieve profileDocumentId from Intent
-        Intent intent = getIntent();
-        profileDocumentId = intent.getStringExtra(PROFILE_ID);
-        if (profileDocumentId == null) {
-            Log.w(TAG, "Profile Document ID is null");
-            finish();
-        }
-        else {
-            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-        }
-
-        //Get Profile Data from Firestore
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-        getProfileData(profileRef);
+        //Retrieve Object Data from SharedPrefs
+        sharedPrefs = getSharedPreferences("PROFILE_PAGE", MODE_PRIVATE);
+        prefsEditor = sharedPrefs.edit();
+        profileDocumentId = sharedPrefs.getString("PROFILE_ID", null);
+        Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+        getProfileData(profileDocumentId);
 
         //initialise UI elements
         profilePicture = findViewById(R.id.editProfilePicture);
@@ -254,7 +239,6 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     public void updateProfileDocument(String Id, Intent intent) {
-        HashMap<String, Object> model = new HashMap<>();
         Date date = new Date();
         if (!editName.getText().toString().matches("")) {
             profile.get().setName(editName.getText().toString());
@@ -263,7 +247,7 @@ public class EditProfilePage extends AppCompatActivity {
             profile.get().setPillar(editPillar.getText().toString());
         }
         if (!editTerm.getText().toString().matches("")) {
-            profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
+            profile.get().setTerm((Integer.parseInt(editTerm.getText().toString())));
         }
         if (!editModules.getText().toString().matches("")){
             profile.get().setModules(modules.get());
@@ -299,9 +283,15 @@ public class EditProfilePage extends AppCompatActivity {
         setImage(profile.getImagePath());
     }
 
-    //Set Image for ImageView
+    //Set Image for ImageView using String
     public void setImage(String imageURL) {
         Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
+        Log.i(TAG, "Profile Picture set");
+    }
+
+    //Set Image for ImageView using Uri
+    public void setImage(Uri imageURI) {
+        Picasso.get().load(imageURI).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
         Log.i(TAG, "Profile Picture set");
     }
 
@@ -311,7 +301,8 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     //Get Data from Profiles Collection
-    public void getProfileData(DocumentReference profileRef) {
+    public void getProfileData(String profileDocumentId) {
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
@@ -395,6 +386,7 @@ public class EditProfilePage extends AppCompatActivity {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
                             uploadImageToCloudStorage(selectedImageUri);
+                            setImage(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                         } else {
                             Log.d(TAG, "onActivityResult: Cropping returned null");
@@ -451,7 +443,6 @@ public class EditProfilePage extends AppCompatActivity {
             if (task.isSuccessful()) {
                 Uri downloadUri = task.getResult();
                 profile.get().setImagePath(downloadUri.toString());
-                setImage(profile.get().getImagePath());
                 Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
             } else {
                 // Handle failures
@@ -459,4 +450,32 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
+
+//    private void uploadImageToCloudStorage(Bitmap bitmap) {
+//        StorageReference storageRef = storage.getReference();
+//        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
+//
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+//        byte[] data = byteArrayOutputStream.toByteArray();
+//        UploadTask uploadTask = imageRef.putBytes(data);
+//
+//        // Register observers to listen for when the download is done or if it fails
+//        uploadTask.continueWithTask(task -> {
+//            if (!task.isSuccessful()) {
+//                throw task.getException();
+//            }
+//            // Continue with the task to get the download URL
+//            return imageRef.getDownloadUrl();
+//        }).addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                Uri downloadUri = task.getResult();
+//                profile.get().setImagePath(downloadUri.toString());
+//                Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
+//            } else {
+//                // Handle failures
+//                Log.i(TAG, "Unable to obtain URI from Cloud Storage");
+//            }
+//        });
+//    }
 }
