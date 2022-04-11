@@ -90,12 +90,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     ImageView backButton;
 
     // Global variable to take note of Calendar object for editDate
-    EditText module;
-    boolean[] selectedModule;
-    ArrayList<Integer> moduleList = new ArrayList<>();
-    String[] moduleArray = {"50.001: Shit","50.002: Lao Sai","50.003: Pang Sai","50.004: Jiak Sai","50.005: Bak Sai"};
-
-    // Global variable to take note of Calendar object for createDate
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
     Calendar endDateTime;
@@ -202,68 +196,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editEnd.setOnClickListener(this);
         editName.setOnClickListener(this);
         backButton.setOnClickListener(this);
-        selectedModule = new boolean[moduleArray.length];
-        createModule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        EditEventActivity.this
-                );
-                builder.setTitle("Select Modules");
-                builder.setCancelable(false);
-                builder.setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                        if (b) {
-                            moduleList.add(i);
-                            Collections.sort(moduleList);}
-                        else {
-                            moduleList.remove(Integer.valueOf(i));
-                        }
-                    }
-                });
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (int j = 0; j < moduleList.size(); j ++) {
-                            stringBuilder.append(moduleArray[moduleList.get(j)]);
-                            if (j != moduleList.size() - 1) {
-                                stringBuilder.append(", ");
-                            }
-                        }
-                        createModule.setText(stringBuilder.toString());
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        for (int j = 0; j < selectedModule.length; j ++){
-                            selectedModule[j] = false;
-                            moduleList.clear();
-                            createModule.setText("");
-                        }
-                    }
-                });
-                builder.show();
-            }
-        });
-
-
-
-        // TODO: Should we do a network check here?
-        createButton.setOnClickListener(this);
-        setImageButton.setOnClickListener(this);
-        createStart.setOnClickListener(this);
-        createEnd.setOnClickListener(this);
-
-
     }
 
     @Override
