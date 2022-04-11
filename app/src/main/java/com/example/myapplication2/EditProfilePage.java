@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -157,6 +156,8 @@ public class EditProfilePage extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         Log.i(TAG, "onRestart is called");
+
+        getAllModulesFromFirebase();
     }
 
     @Override
@@ -325,9 +326,15 @@ public class EditProfilePage extends AppCompatActivity {
         setImage(profile.getImagePath());
     }
 
-    //Set Image for ImageView
+    //Set Image for ImageView using String
     public void setImage(String imageURL) {
         Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
+        Log.i(TAG, "Profile Picture set");
+    }
+
+    //Set Image for ImageView using Uri
+    public void setImage(Uri imageURI) {
+        Picasso.get().load(imageURI).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
         Log.i(TAG, "Profile Picture set");
     }
 
@@ -422,7 +429,7 @@ public class EditProfilePage extends AppCompatActivity {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
                             uploadImageToCloudStorage(selectedImageUri);
-                            Picasso.get().load(selectedImageUri).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
+                            setImage(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                         } else {
                             Log.d(TAG, "onActivityResult: Cropping returned null");
@@ -514,102 +521,4 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
-
-
-//    private void chooseProfilePic() {
-//        View dialogView;
-//        AlertDialog.Builder builder;
-//        AlertDialog alertDialogProfilePicture;
-//        LayoutInflater inflater;
-//        ImageView takePic;
-//        ImageView chooseGallery;
-//
-//        builder = new AlertDialog.Builder(this);
-//        inflater = getLayoutInflater();
-//        dialogView = inflater.inflate(R.layout.add_picture_alert, null);
-//        builder.setCancelable(false);
-//        builder.setView(dialogView);
-//
-//        takePic = dialogView.findViewById(R.id.takePic);
-//        chooseGallery = dialogView.findViewById(R.id.chooseGallery);
-//
-//        alertDialogProfilePicture = builder.create();
-//        alertDialogProfilePicture.show();
-//
-//        takePic.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (checkAndRequestPermission()) {
-//                    takePicFromCamera();
-//                    alertDialogProfilePicture.cancel();
-//                }
-//            }
-//        });
-//
-//        chooseGallery.setOnClickListener((new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                takePicFromGallery();
-//                alertDialogProfilePicture.cancel();
-//            }
-//        }));
-//
-//    }
-//
-//    private void takePicFromGallery(){
-//        Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        startActivityForResult(pickPhoto, 1);
-//    }
-//
-//    private void takePicFromCamera() {
-//        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if (takePicture.resolveActivity(getPackageManager()) != null) {
-//            startActivityForResult(takePicture, 2);
-//        }
-//    }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case 1:
-//                if (resultCode == RESULT_OK) {
-//                    Uri selectedImageUri = data.getData();
-//                    Log.i(TAG, "URI "+ selectedImageUri);
-//                    uploadImageToCloudStorage(selectedImageUri);
-//                    profilePicture.setImageURI(selectedImageUri);
-//                }
-//                break;
-//            case 2:
-//                if (resultCode == RESULT_OK) {
-//                    Bundle bundle = data.getExtras();
-//                    Bitmap bitmapImage = (Bitmap) bundle.get("data");
-//                    uploadImageToCloudStorage(bitmapImage);
-//                    profilePicture.setImageBitmap(bitmapImage);
-//                }
-//        }
-//    }
-
-//    private boolean checkAndRequestPermission() {
-//        if (Build.VERSION.SDK_INT >= 23) {
-//            int cameraPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-//            if (cameraPermission == PackageManager.PERMISSION_DENIED){
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 20);
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == 20 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//            Log.i(TAG, "Permission has been granted");
-//        }
-//        else {
-//            Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show();
-//            Log.i(TAG, "Permission not granted");
-//        }
-//    }
 }
