@@ -107,12 +107,12 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         usersJoined.add(db.document("/Users/Test"));
 
-        String documentId = getIntent().getStringExtra("documentId");
-        documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
-        Log.i(TAG, "Document Name" + documentName);
+//        String documentId = getIntent().getStringExtra("documentId");
+//        documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
+//        Log.i(TAG, "Document Name" + documentName);
 
-        DocumentReference docRef = db.collection("Events").document("Test Event");
-//        DocumentReference docRef = db.collection("Events").document(documentName);
+        DocumentReference docRef = db.collection("Events").document("Test Event"); //TODO remove after test
+//        DocumentReference docRef = db.collection("Events").document(documentName); // TODO: enable this after testing
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -121,7 +121,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
                 adapter.startListening();
 
-//                usersList.setHasFixedSize(true); //TODO : Enable this when we are with UI
+                usersList.setHasFixedSize(true); //TODO : Enable after testing
                 usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 usersList.setAdapter(adapter);
 
@@ -212,7 +212,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
                         }
                         ;
-                        
+
                         DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
 //                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
 
