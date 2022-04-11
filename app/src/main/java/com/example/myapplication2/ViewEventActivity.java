@@ -323,11 +323,23 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 Log.d(TAG, "Query " + model);
                 holder.username.setText(model.getName());
                 Utils.loadImage(model.getImagePath(), holder.user_image);
+                // Bring users to View Event when clicking on viewEventButton
+                String profileId = getSnapshots().getSnapshot(position).getReference().getPath();
+                holder.user_profile.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view1) {
+                        Toast.makeText(ViewEventActivity.this, "UserProfile Clicked : " + profileId, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ViewEventActivity.this, ProfilePage.class);
+                        intent.putExtra("profileId",profileId);
+                        ViewEventActivity.this.startActivity(intent);
+                    }
+                });
+
             }
+            };
 
 
         };
-    }
 
     @Override
     protected void onStart() {
