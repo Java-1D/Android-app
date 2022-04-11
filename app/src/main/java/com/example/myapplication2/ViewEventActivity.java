@@ -268,33 +268,33 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 startActivity(mainActivityIntent);
 
 
-            case R.id.search1:
-                DocumentReference docRef1 = db.collection("Events").document("Test Event");
-                docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        // TODO Retrieve profile page of person1
-                    }
-                });
-            case R.id.search2:
-                DocumentReference docRef2 = db.collection("Events").document("Test Event");
-                docRef2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        // TODO Retrieve profile page of person2
-                    }
-                });
-            case R.id.search3:
-                DocumentReference docRef3 = db.collection("Events").document("Test Event");
-                docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        // TODO Retrieve profile page of person3
-                    }
-                });
+//            case R.id.search1:
+//                DocumentReference docRef1 = db.collection("Events").document("Test Event");
+//                docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+//                        // TODO Retrieve profile page of person1
+//                    }
+//                });
+//            case R.id.search2:
+//                DocumentReference docRef2 = db.collection("Events").document("Test Event");
+//                docRef2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+//                        // TODO Retrieve profile page of person2
+//                    }
+//                });
+//            case R.id.search3:
+//                DocumentReference docRef3 = db.collection("Events").document("Test Event");
+//                docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+//                        // TODO Retrieve profile page of person3
+//                    }
+//                });
         }
     }
 
