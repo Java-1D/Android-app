@@ -132,7 +132,7 @@ public class ProfilePage extends AppCompatActivity {
     }
 
     private DocumentReference getProfileRef() {
-        String documentId = getIntent().getStringExtra("profileId");
+        String documentId = getIntent().getStringExtra("PROFILE_ID");
         if (documentId != null) {
             profileRef = getDocumentReference(ProfileModel.getCollectionId(), getDocumentFromPath(documentId));
         } else {
