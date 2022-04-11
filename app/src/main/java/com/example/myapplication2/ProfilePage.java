@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.FirebaseContainer;
+import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileRecyclerAdapter;
 import com.example.myapplication2.viewholder.ProfileViewModel;
@@ -70,16 +71,27 @@ public class ProfilePage extends AppCompatActivity {
     class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
+            //initialise Shared Preferences and Editor
+            sharedPrefs = getSharedPreferences("PROFILE_PAGE", MODE_PRIVATE);
+            prefsEditor = sharedPrefs.edit();
             switch (view.getId()) {
                 case R.id.backArrow:
                     startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
                     break;
                 case R.id.logOutButton:
-                    startActivity((new Intent(ProfilePage.this, LoginActivity.class)));
+                    prefsEditor.clear();
+                    prefsEditor.apply();
+                    Intent logOutIntent = new Intent(ProfilePage.this, LoginActivity.class);
+                    logOutIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(logOutIntent);
+                    finish();
                     break;
                 case R.id.editButton:
-                    Intent intent = new Intent(ProfilePage.this, EditProfilePage.class);
-                    startActivity(intent);
+                    prefsEditor.putString("PROFILE_ID", profileDocumentId);
+                    prefsEditor.apply();
+                    Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
+                    Intent editIntent = new Intent(ProfilePage.this, EditProfilePage.class);
+                    startActivity(editIntent);
                     break;
                 default:
                     Log.w(TAG, "Button not Found");
@@ -119,6 +131,28 @@ public class ProfilePage extends AppCompatActivity {
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
+        //Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
+        Intent intent = getIntent();
+        profileDocumentId = intent.getStringExtra("PROFILE_ID");
+        if (profileDocumentId == null) {
+            Log.w(TAG, "Profile Document ID is null");
+//            profileDocumentId = "Test";
+            finish();
+        }
+        else {
+            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+        }
+        //Check whether user is not checking his own profile
+        LoggedInUser user = LoggedInUser.getInstance();
+        if (profileDocumentId != user.getUserString()) {
+            editButton.setVisibility(View.GONE);
+            logOutButton.setVisibility(View.GONE);
+        }
+
+        //Get Profile Data from Firestore
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+        getProfileData(profileRef);
+
         //initialise RecyclerView elements for Modules Section
         recyclerView = findViewById(R.id.recyclerProfile);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -156,10 +190,8 @@ public class ProfilePage extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         Log.i(TAG, "onRestart is called");
-
         arrModules.clear();
 
-        //TODO Store ProfileDocumentId and carry across activities
         DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
         getProfileData(profileRef);
     }
@@ -174,42 +206,6 @@ public class ProfilePage extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause is called");
-//        prefsEditor.putString("PROFILE_ID", profileDocumentId);
-//        prefsEditor.apply();
-//        Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG, "onStop is called");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "onDestroy is called");
-    }
-
-    //To store contents in Bundle when user leaves Activity (occur before onStop)
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-//        Save the user's current workout state
-//        savedInstanceState.putInt(WORKOUT_STATE, currentState);
-
-        super.onSaveInstanceState(savedInstanceState);
-        Log.i(TAG, "SaveInstanceState Saved");
-    }
-
-    //To retrieve contents from Bundle when user returns to Activity (occur after onStart)
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-//        Restore state
-//        currentScore = savedInstanceState.getInt(WORKOUT_STATE);
-        Log.i(TAG, "SaveInstanceState Restored");
     }
 
 
