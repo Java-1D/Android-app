@@ -95,14 +95,13 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.editProfilePicture:
-//                    chooseProfilePic();
                     chooseImage();
                     break;
                 case R.id.confirmButton:
                     updateProfileDocument(profileDocumentId, new Intent(EditProfilePage.this, ProfilePage.class));
                     break;
                 case R.id.backButton:
-                    startActivity(new Intent(EditProfilePage.this, MainPageActivity.class));
+                    startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
                     break;
 
             }
@@ -158,48 +157,6 @@ public class EditProfilePage extends AppCompatActivity {
         Log.i(TAG, "onRestart is called");
 
         getAllModulesFromFirebase();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume is called");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i(TAG, "onPause is called");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG, "onStop is called");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG, "onDestroy is called");
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-//        Save the user's current workout state
-//        savedInstanceState.putInt(WORKOUT_STATE, currentState);
-
-        super.onSaveInstanceState(savedInstanceState);
-        Log.i(TAG, "SaveInstanceState Saved");
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-//        Restore state
-//        currentScore = savedInstanceState.getInt(WORKOUT_STATE);
-        Log.i(TAG, "SaveInstanceState Restored");
     }
 
     public void getAllModulesFromFirebase() {
@@ -469,7 +426,7 @@ public class EditProfilePage extends AppCompatActivity {
                 }
             });
 
-
+    //Upload image from Gallery/Camera to Firebase Cloud Storage
     private void uploadImageToCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
         StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
@@ -494,31 +451,31 @@ public class EditProfilePage extends AppCompatActivity {
         });
     }
 
-    private void uploadImageToCloudStorage(Bitmap bitmap) {
-        StorageReference storageRef = storage.getReference();
-        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] data = byteArrayOutputStream.toByteArray();
-        UploadTask uploadTask = imageRef.putBytes(data);
-
-        // Register observers to listen for when the download is done or if it fails
-        uploadTask.continueWithTask(task -> {
-            if (!task.isSuccessful()) {
-                throw task.getException();
-            }
-            // Continue with the task to get the download URL
-            return imageRef.getDownloadUrl();
-        }).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Uri downloadUri = task.getResult();
-                profile.get().setImagePath(downloadUri.toString());
-                Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
-            } else {
-                // Handle failures
-                Log.i(TAG, "Unable to obtain URI from Cloud Storage");
-            }
-        });
-    }
+//    private void uploadImageToCloudStorage(Bitmap bitmap) {
+//        StorageReference storageRef = storage.getReference();
+//        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
+//
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+//        byte[] data = byteArrayOutputStream.toByteArray();
+//        UploadTask uploadTask = imageRef.putBytes(data);
+//
+//        // Register observers to listen for when the download is done or if it fails
+//        uploadTask.continueWithTask(task -> {
+//            if (!task.isSuccessful()) {
+//                throw task.getException();
+//            }
+//            // Continue with the task to get the download URL
+//            return imageRef.getDownloadUrl();
+//        }).addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                Uri downloadUri = task.getResult();
+//                profile.get().setImagePath(downloadUri.toString());
+//                Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
+//            } else {
+//                // Handle failures
+//                Log.i(TAG, "Unable to obtain URI from Cloud Storage");
+//            }
+//        });
+//    }
 }

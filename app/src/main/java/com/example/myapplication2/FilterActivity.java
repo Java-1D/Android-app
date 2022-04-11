@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
     Filter Activity is used instead of Filter Fragment due to bugs - yk
  */
 public class FilterActivity extends AppCompatActivity {
-    private static final String TAG = "FILTERACTIVITY";
+    private static final String TAG = "FILTER_ACTIVITY";
     /**
      * Filter Activity returns a page that allows user to filter the type of events
      * they want to join
