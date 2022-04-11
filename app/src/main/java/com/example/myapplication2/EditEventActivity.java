@@ -151,9 +151,11 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        // TODO: Get data from previous page
-        // Checking that the data does not exist in Firebase
-        DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document("YufanTest");
+        // Get edit documentID from previous intent
+        String documentId = getIntent().getStringExtra("documentId");
+
+        // Checking that data exists in Firestore and can be retrieved and initializing values
+        DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(documentId);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
