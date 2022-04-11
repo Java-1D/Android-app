@@ -131,17 +131,7 @@ public class ProfilePage extends AppCompatActivity {
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
-        //Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
-        Intent intent = getIntent();
-        profileDocumentId = intent.getStringExtra("PROFILE_ID");
-        if (profileDocumentId == null) {
-            Log.w(TAG, "Profile Document ID is null");
-//            profileDocumentId = "Test";
-            finish();
-        }
-        else {
-            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-        }
+
         //Check whether user is not checking his own profile
         LoggedInUser user = LoggedInUser.getInstance();
         if (profileDocumentId != user.getUserString()) {
@@ -150,7 +140,7 @@ public class ProfilePage extends AppCompatActivity {
         }
 
         //Get Profile Data from Firestore
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+//      Note to issac: I have refactored this out in function getProfileRef()  DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
         getProfileData(profileRef);
 
         //initialise RecyclerView elements for Modules Section
@@ -166,13 +156,19 @@ public class ProfilePage extends AppCompatActivity {
     }
 
     private DocumentReference getProfileRef() {
-        String documentId = getIntent().getStringExtra("PROFILE_ID");
-        if (documentId != null) {
-            profileRef = getDocumentReference(ProfileModel.getCollectionId(), getDocumentFromPath(documentId));
-        } else {
+        profileDocumentId = getIntent().getStringExtra("PROFILE_ID");
+
+        //Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
+        if (profileDocumentId == null) {
+            Log.w(TAG, "Profile Document ID is null");
             profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+            finish();
         }
-        Log.i(TAG, "Document Name" + profileRef);
+        else {
+            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+            profileRef = getDocumentReference(ProfileModel.getCollectionId(), getDocumentFromPath(profileDocumentId));
+            Log.i(TAG, "Profile Name : " + profileRef);
+        }
         return profileRef;
     }
 
