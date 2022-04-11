@@ -253,8 +253,9 @@ public class ProfilePage extends AppCompatActivity {
 
     //Add Module Data Retrieved
     public void addModuleToRecyclerView() {
-        for (DocumentReference moduleRef : profile.get().getModules()) {
-            if (moduleRef != null) {
+        if (profile.get().getModules() != null) {
+            for (DocumentReference moduleRef : profile.get().getModules()) {
+
                 moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot document) {
@@ -277,7 +278,7 @@ public class ProfilePage extends AppCompatActivity {
                     }
                 });
             }
-
         }
+
     }
 }
