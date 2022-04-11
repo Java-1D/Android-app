@@ -16,7 +16,12 @@
         app:cardCornerRadius="20dp"
         app:cardMaxElevation="12dp"
         app:cardPreventCornerOverlap="true"
-        app:cardUseCompatPadding="true"
+        app:cardUseCompatPadding="false"
+        android:layout_marginBottom = "10dp"
+        android:layout_marginTop = "10dp"
+        android:layout_marginLeft = "10dp"
+        android:layout_marginRight = "10dp"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
