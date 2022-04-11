@@ -1,5 +1,9 @@
 package com.example.myapplication2;
 
+import static com.example.myapplication2.utils.Utils.getCurrentUser;
+import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,17 +60,22 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     TextView information;
     ImageView emoji;
     TextView no_of_ppl;
-    ShapeableImageView person1;
-    ShapeableImageView person2;
-    ShapeableImageView person3;
-    TextView name1;
-    TextView name2;
-    TextView name3;
-    ImageView search1;
-    ImageView search2;
-    ImageView search3;
+//    ShapeableImageView person1;
+//    ShapeableImageView person2;
+//    ShapeableImageView person3;
+//    TextView name1;
+//    TextView name2;
+//    TextView name3;
+//    ImageView search1;
+//    ImageView search2;
+//    ImageView search3;
     MaterialButton join_button;
+    MaterialButton edit_event_button;
     String documentName = "";
+    DocumentReference user; //singleton User
+    DocumentReference docRef;
+    ImageView backButton;
+
 
     // Recycler View
     private FirestoreRecyclerAdapter adapter;
@@ -102,22 +111,39 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         join_button = findViewById(R.id.join_button);
         usersList = findViewById(R.id.users_list);
+        edit_event_button = findViewById(R.id.edit_event_button);
+        backButton = (ImageView) findViewById(R.id.backButton);
+
 
         join_button.setOnClickListener(this);
+        edit_event_button.setVisibility(View.GONE);
+        edit_event_button.setOnClickListener(this);
+
+        backButton.setOnClickListener(this);
+
+
 
         usersJoined.add(db.document("/Users/Test"));
 
+        user = getCurrentUser(db);
+
         String documentId = getIntent().getStringExtra("documentId");
-        documentName = documentId.substring(documentId.lastIndexOf("/") + 1);
+        documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
-        DocumentReference docRef = db.collection("Events").document("Test Event");
-//        DocumentReference docRef = db.collection("Events").document(documentName);
+//        docRef = db.collection("Events").document("Test Event"); //TODO remove after test
+        docRef = db.collection("Events").document(documentName); // TODO: enable this after testing
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                 setEventDetails(eventModel);
+                DocumentReference userCreated = eventModel.getUserCreated();
+                if ( userCreated!= null && userCreated == user) {
+                    Log.d(TAG, "getUserCreated : " + eventModel.getUserCreated() + "\n \n currentuser : " + user );
+                    join_button.setVisibility(View.GONE);
+                    edit_event_button.setVisibility(View.VISIBLE);
+                }
 
                 adapter.startListening();
 
@@ -200,8 +226,14 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         adapter.startListening();
 
         switch (view.getId()) {
+            case R.id.edit_event_button:
+                Intent intent = new Intent(ViewEventActivity.this, EditEventActivity.class);
+                intent.putExtra("documentId", docRef.getPath());
+                Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
+                ViewEventActivity.this.startActivity(intent);
+
             case R.id.join_button:
-                DocumentReference docRef = db.collection("Events").document(documentName);
+//                DocumentReference docRef = db.collection("Events").document(documentName);
                 docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -212,8 +244,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
                         }
                         ;
-                        
-                        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
 //                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
 
                         // check if user is already in the list
@@ -232,8 +262,12 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
 
+            case R.id.backButton:
+                // Create explicit intent to go into MainPage
+                Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
+                startActivity(mainActivityIntent);
 
-                // TODO Check with Yongkang how to use recycler view to show the profiles of the users
+
             case R.id.search1:
                 DocumentReference docRef1 = db.collection("Events").document("Test Event");
                 docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

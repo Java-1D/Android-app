@@ -13,6 +13,8 @@ import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -90,5 +92,18 @@ public class Utils {
         public String key() {
             return "circle";
         }
+    }
+
+    public static String getDocumentFromPath(String documentId){
+        return documentId.substring(documentId.lastIndexOf("/") + 1);
+    }
+
+    public static DocumentReference getCurrentUser(FirebaseFirestore db){
+        DocumentReference user = LoggedInUser.getInstance().getUserDocRef(); // singleton
+        if (user != null) {
+            return user;
+        }
+        user = db.document("/Users/Test4");
+        return user;
     }
 }
