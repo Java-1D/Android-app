@@ -163,8 +163,7 @@ public class ProfilePage extends AppCompatActivity {
             Log.w(TAG, "Profile Document ID is null");
             profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
             finish();
-        }
-        else {
+        } else {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
             profileRef = getDocumentReference(ProfileModel.getCollectionId(), getDocumentFromPath(profileDocumentId));
             Log.i(TAG, "Profile Name : " + profileRef);
@@ -255,27 +254,30 @@ public class ProfilePage extends AppCompatActivity {
     //Add Module Data Retrieved
     public void addModuleToRecyclerView() {
         for (DocumentReference moduleRef : profile.get().getModules()) {
-            moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot document) {
-                    if (document.exists()) {
-                        Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
-                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
-                        ProfilePage.this.module.set(document.toObject(ModuleModel.class));
+            if (moduleRef != null) {
+                moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot document) {
+                        if (document.exists()) {
+                            Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
+                            Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                            ProfilePage.this.module.set(document.toObject(ModuleModel.class));
 
-                        //Add modules from Firestore DocumentReference to Recycler View
-                        arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
-                        ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
-                    } else {
-                        Log.w(TAG, "Document does not exist");
+                            //Add modules from Firestore DocumentReference to Recycler View
+                            arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
+                            ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                        } else {
+                            Log.w(TAG, "Document does not exist");
+                        }
                     }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG, "Error retrieving document from Firestore", e);
-                }
-            });
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error retrieving document from Firestore", e);
+                    }
+                });
+            }
+
         }
     }
 }
