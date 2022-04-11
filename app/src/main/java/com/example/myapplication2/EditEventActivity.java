@@ -1,5 +1,7 @@
 package com.example.myapplication2;
 
+import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -100,8 +102,12 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     ArrayList<DocumentReference> moduleReferences;
     ArrayList<String> moduleStringList;
     DocumentReference selectedModuleReference;
+    String documentName;
 
     static final String TAG = "CreateEvents";
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,9 +130,14 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
         backButton = (ImageView) findViewById(R.id.backButton);
 
-        // https://firebase.google.com/docs/firestore/quickstart#java
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
+
+
+//         getting ID from intent
+        String documentId = getIntent().getStringExtra("documentId");
+        documentName = getDocumentFromPath(documentId);
+        Log.i(TAG, "Document Name" + documentName);
 
         /**
          * @see #chooseModule()
@@ -167,14 +178,18 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 editDescription.setText(eventModel.getDescription());
                 editVenue.setText(eventModel.getVenue());
 
-                eventModel.getModule().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
-                        editModule.setText(moduleModel.getName());
-                        selectedModuleReference = eventModel.getModule();
-                    }
-                });
+                DocumentReference moduleReference = eventModel.getModule();
+                if (moduleReference != null){
+                    moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
+                            editModule.setText(moduleModel.getName());
+                            selectedModuleReference = eventModel.getModule();
+                        }
+                    });
+                }
+
 
                 editCapacity.setText(String.valueOf(eventModel.getCapacity()));
 
