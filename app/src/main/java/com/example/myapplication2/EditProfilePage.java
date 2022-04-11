@@ -35,6 +35,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -58,10 +62,13 @@ import java.util.Set;
 
 public class EditProfilePage extends AppCompatActivity {
     private static final String TAG = "EditProfilePage";
-
+    private static final String PROFILE_ID = "PROFILE_ID";
     //Objects to handle data from Firebase
     FirebaseFirestore db;
     FirebaseStorage storage;
+    FirebaseAuth mAuth;
+    FirebaseUser user;
+
     String profileDocumentId;
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
 
@@ -85,10 +92,6 @@ public class EditProfilePage extends AppCompatActivity {
     // Update ProfileModel modules with this arraylist if arraylist != null
     final FirebaseContainer<ArrayList<DocumentReference>> modules = new FirebaseContainer<>(new ArrayList<>());
 
-    //Shared Preferences to store Objects as a String
-    SharedPreferences sharedPrefs;
-    SharedPreferences.Editor prefsEditor;
-
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
@@ -98,10 +101,14 @@ public class EditProfilePage extends AppCompatActivity {
                     chooseImage();
                     break;
                 case R.id.confirmButton:
-                    updateProfileDocument(profileDocumentId, new Intent(EditProfilePage.this, ProfilePage.class));
+                    Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
+                    confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
+                    updateProfileDocument(profileDocumentId, confirmIntent);
                     break;
                 case R.id.backButton:
-                    startActivity(new Intent(EditProfilePage.this, ProfilePage.class));
+                    Intent backIntent = new Intent(EditProfilePage.this, ProfilePage.class);
+                    backIntent.putExtra(PROFILE_ID, profileDocumentId);
+                    startActivity(backIntent);
                     break;
 
             }
@@ -120,12 +127,28 @@ public class EditProfilePage extends AppCompatActivity {
         //initialise Firebase Cloud Storage
         storage = FirebaseStorage.getInstance();
 
-        //Retrieve Object Data from SharedPrefs
-        sharedPrefs = getSharedPreferences("PROFILE_PAGE", MODE_PRIVATE);
-        prefsEditor = sharedPrefs.edit();
-        profileDocumentId = sharedPrefs.getString("PROFILE_ID", null);
-        Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-        getProfileData(profileDocumentId);
+        //Retrieve profileDocumentId from Intent
+        Intent intent = getIntent();
+        profileDocumentId = intent.getStringExtra(PROFILE_ID);
+        if (profileDocumentId == null) {
+            Log.w(TAG, "Profile Document ID is null");
+            finish();
+        }
+        else {
+            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+        }
+
+//        mAuth = FirebaseAuth.getInstance();
+//        user = mAuth.getCurrentUser();
+//        if (user != null) {
+//            // do your stuff
+//        } else {
+//            signInAnonymously();
+//        }
+
+        //Get Profile Data from Firestore
+        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+        getProfileData(profileRef);
 
         //initialise UI elements
         profilePicture = findViewById(R.id.editProfilePicture);
@@ -239,24 +262,32 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     public void updateProfileDocument(String Id, Intent intent) {
+        HashMap<String, Object> model = new HashMap<>();
         Date date = new Date();
         if (!editName.getText().toString().matches("")) {
             profile.get().setName(editName.getText().toString());
+//            model.put("name", editName.getText().toString());
         }
         if (!editPillar.getText().toString().matches("")) {
             profile.get().setPillar(editPillar.getText().toString());
+//            model.put("pillar", editPillar.getText().toString());
         }
         if (!editTerm.getText().toString().matches("")) {
-            profile.get().setTerm((Integer.parseInt(editTerm.getText().toString())));
+            profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
+//            model.put("term", Integer.parseInt(editTerm.getText().toString()));
         }
         if (!editModules.getText().toString().matches("")){
             profile.get().setModules(modules.get());
+//            model.put("modules", modules.get());
         }
         if (!editBio.getText().toString().matches("")) {
             profile.get().setBio(editBio.getText().toString());
+//            model.put("bio", editBio.getText().toString());
         }
         profile.get().setProfileUpdated(date);
+//        model.put("profileUpdated", new Timestamp(date));
         updateFirestore(Id, profile.get(), intent);
+//        updateFirestore(Id, model, intent);
     }
 
     public void updateFirestore(String profileDocumentId, ProfileModel model, Intent intent) {
@@ -277,21 +308,33 @@ public class EditProfilePage extends AppCompatActivity {
         });
     }
 
+//    public void updateFirestore(String profileDocumentId, Map<String, Object> model, Intent intent) {
+//        db.collection("Profiles").document(profileDocumentId).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                Log.d(TAG, "DocumentSnapshot successfully written!");
+//                if (intent != null) {
+//                    startActivity(intent);
+//                }
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Log.w(TAG, "Error writing document", e);
+//
+//            }
+//        });
+//    }
+
     //Set UI Elements using data from Firebase
     public void setUIElements(ProfileModel profile) {
         //Set Image
         setImage(profile.getImagePath());
     }
 
-    //Set Image for ImageView using String
+    //Set Image for ImageView
     public void setImage(String imageURL) {
         Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
-        Log.i(TAG, "Profile Picture set");
-    }
-
-    //Set Image for ImageView using Uri
-    public void setImage(Uri imageURI) {
-        Picasso.get().load(imageURI).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
         Log.i(TAG, "Profile Picture set");
     }
 
@@ -301,8 +344,7 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     //Get Data from Profiles Collection
-    public void getProfileData(String profileDocumentId) {
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
+    public void getProfileData(DocumentReference profileRef) {
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
@@ -386,7 +428,6 @@ public class EditProfilePage extends AppCompatActivity {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
                             uploadImageToCloudStorage(selectedImageUri);
-                            setImage(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                         } else {
                             Log.d(TAG, "onActivityResult: Cropping returned null");
@@ -426,6 +467,21 @@ public class EditProfilePage extends AppCompatActivity {
                 }
             });
 
+
+//    private void signInAnonymously() {
+//        mAuth.signInAnonymously().addOnSuccessListener(this, new  OnSuccessListener<AuthResult>() {
+//            @Override
+//            public void onSuccess(AuthResult authResult) {
+//                Log.i(TAG, "signInAnonymously: SUCCESS");
+//            }
+//        }).addOnFailureListener(this, new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception exception) {
+//                        Log.e(TAG, "signInAnonymously: FAILURE", exception);
+//                    }
+//                });
+//    }
+
     //Upload image from Gallery/Camera to Firebase Cloud Storage
     private void uploadImageToCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
@@ -443,6 +499,7 @@ public class EditProfilePage extends AppCompatActivity {
             if (task.isSuccessful()) {
                 Uri downloadUri = task.getResult();
                 profile.get().setImagePath(downloadUri.toString());
+                setImage(profile.get().getImagePath());
                 Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
             } else {
                 // Handle failures
@@ -450,6 +507,34 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
+
+//    private void uploadImageToCloudStorage(Uri imageUri) {
+//        StorageReference storageRef = storage.getReference();
+//        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
+//        UploadTask uploadTask = imageRef.putFile(imageUri);
+//
+//        // Register observers to listen for when the download is done or if it fails
+//        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                Log.i(TAG, "uploadTask: Image has been successfully uploaded");
+//                taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Uri> task) {
+//                        String imagePath = task.getResult().toString();
+//                        profile.get().setImagePath(imagePath);
+//                        setImage(profile.get().getImagePath());
+//                        Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
+//                    }
+//                });
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Log.w(TAG, "Image upload is unsuccessful", e);
+//            }
+//        });
+//    }
 
 //    private void uploadImageToCloudStorage(Bitmap bitmap) {
 //        StorageReference storageRef = storage.getReference();
