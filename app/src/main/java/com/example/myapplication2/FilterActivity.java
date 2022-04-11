@@ -39,9 +39,28 @@ import java.util.concurrent.Executors;
     Filter Activity is used instead of Filter Fragment due to bugs - yk
  */
 public class FilterActivity extends AppCompatActivity {
+    private static final String TAG = "FILTERACTIVITY";
+    /**
+     * Filter Activity returns a page that allows user to filter the type of events
+     * they want to join
+     */
+    ArrayList<String> moduleItems = new ArrayList<String>();
+    AutoCompleteTextView autoCompleteTxt;
+    ArrayAdapter<String> adapterItems;
+    FirebaseFirestore firebaseFirestore;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_filter_page);
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        getModules(firebaseFirestore, moduleItems); // populate array list with modules
 
 
-
+        autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
+        adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
+        autoCompleteTxt.setAdapter(adapterItems);
 
 
         autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -74,63 +93,7 @@ public class FilterActivity extends AppCompatActivity {
 
                 });
 
-//    private static final String TAG = "FILTERACTIVITY";
-//    /**
-//     * Filter Activity returns a page that allows user to filter the type of events
-//     * they want to join
-//     */
-//    ArrayList<String> moduleItems = new ArrayList<String>();
-//    AutoCompleteTextView autoCompleteTxt;
-//    ArrayAdapter<String> adapterItems;
-//    FirebaseFirestore firebaseFirestore;
-//
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_filter_page);
-//
-//        firebaseFirestore = FirebaseFirestore.getInstance();
-//        getModules(firebaseFirestore, moduleItems); // populate array list with modules
-//
-//
-//        autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
-//        adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
-//        autoCompleteTxt.setAdapter(adapterItems);
-//
-//
-//        autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                String item = adapterView.getItemAtPosition(i).toString();
-//            }
-//        });
-//
-//
     }
-//
-//
-//    void getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {
-//        final FirebaseContainer<ArrayList<String>> container = new FirebaseContainer<>();
-//
-//        firebaseFirestore.collection("Modules")
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                Log.d(TAG, document.getData().toString());
-//                                modules.add(document.getData().get("name").toString());
-//                            }
-//                        } else {
-//                        }
-//                        container.set(modules);
-//                        Log.d(TAG, "Container Object" + container.get().toString());
-//                    }
-//
-//                });
-//
-//    }
 
 }
 
