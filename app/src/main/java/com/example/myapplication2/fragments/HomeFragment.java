@@ -113,7 +113,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onClick(View view1) {
                         Intent intent = new Intent(getActivity(), ViewEventActivity.class);
-                        intent.putExtra("documentId",documentId);
+                        intent.putExtra("DOCUMENT_ID",documentId);
                         ((MainPageActivity) getActivity()).startActivity(intent);
                     }
                 });
