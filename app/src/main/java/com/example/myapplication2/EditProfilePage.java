@@ -138,14 +138,6 @@ public class EditProfilePage extends AppCompatActivity {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
         }
 
-//        mAuth = FirebaseAuth.getInstance();
-//        user = mAuth.getCurrentUser();
-//        if (user != null) {
-//            // do your stuff
-//        } else {
-//            signInAnonymously();
-//        }
-
         //Get Profile Data from Firestore
         DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
         getProfileData(profileRef);
@@ -266,28 +258,21 @@ public class EditProfilePage extends AppCompatActivity {
         Date date = new Date();
         if (!editName.getText().toString().matches("")) {
             profile.get().setName(editName.getText().toString());
-//            model.put("name", editName.getText().toString());
         }
         if (!editPillar.getText().toString().matches("")) {
             profile.get().setPillar(editPillar.getText().toString());
-//            model.put("pillar", editPillar.getText().toString());
         }
         if (!editTerm.getText().toString().matches("")) {
             profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
-//            model.put("term", Integer.parseInt(editTerm.getText().toString()));
         }
         if (!editModules.getText().toString().matches("")){
             profile.get().setModules(modules.get());
-//            model.put("modules", modules.get());
         }
         if (!editBio.getText().toString().matches("")) {
             profile.get().setBio(editBio.getText().toString());
-//            model.put("bio", editBio.getText().toString());
         }
         profile.get().setProfileUpdated(date);
-//        model.put("profileUpdated", new Timestamp(date));
         updateFirestore(Id, profile.get(), intent);
-//        updateFirestore(Id, model, intent);
     }
 
     public void updateFirestore(String profileDocumentId, ProfileModel model, Intent intent) {
@@ -307,24 +292,6 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
-
-//    public void updateFirestore(String profileDocumentId, Map<String, Object> model, Intent intent) {
-//        db.collection("Profiles").document(profileDocumentId).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                Log.d(TAG, "DocumentSnapshot successfully written!");
-//                if (intent != null) {
-//                    startActivity(intent);
-//                }
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Log.w(TAG, "Error writing document", e);
-//
-//            }
-//        });
-//    }
 
     //Set UI Elements using data from Firebase
     public void setUIElements(ProfileModel profile) {
@@ -467,21 +434,6 @@ public class EditProfilePage extends AppCompatActivity {
                 }
             });
 
-
-//    private void signInAnonymously() {
-//        mAuth.signInAnonymously().addOnSuccessListener(this, new  OnSuccessListener<AuthResult>() {
-//            @Override
-//            public void onSuccess(AuthResult authResult) {
-//                Log.i(TAG, "signInAnonymously: SUCCESS");
-//            }
-//        }).addOnFailureListener(this, new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception exception) {
-//                        Log.e(TAG, "signInAnonymously: FAILURE", exception);
-//                    }
-//                });
-//    }
-
     //Upload image from Gallery/Camera to Firebase Cloud Storage
     private void uploadImageToCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
@@ -507,60 +459,4 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
-
-//    private void uploadImageToCloudStorage(Uri imageUri) {
-//        StorageReference storageRef = storage.getReference();
-//        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
-//        UploadTask uploadTask = imageRef.putFile(imageUri);
-//
-//        // Register observers to listen for when the download is done or if it fails
-//        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                Log.i(TAG, "uploadTask: Image has been successfully uploaded");
-//                taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Uri> task) {
-//                        String imagePath = task.getResult().toString();
-//                        profile.get().setImagePath(imagePath);
-//                        setImage(profile.get().getImagePath());
-//                        Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
-//                    }
-//                });
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Log.w(TAG, "Image upload is unsuccessful", e);
-//            }
-//        });
-//    }
-
-//    private void uploadImageToCloudStorage(Bitmap bitmap) {
-//        StorageReference storageRef = storage.getReference();
-//        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
-//
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-//        byte[] data = byteArrayOutputStream.toByteArray();
-//        UploadTask uploadTask = imageRef.putBytes(data);
-//
-//        // Register observers to listen for when the download is done or if it fails
-//        uploadTask.continueWithTask(task -> {
-//            if (!task.isSuccessful()) {
-//                throw task.getException();
-//            }
-//            // Continue with the task to get the download URL
-//            return imageRef.getDownloadUrl();
-//        }).addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                Uri downloadUri = task.getResult();
-//                profile.get().setImagePath(downloadUri.toString());
-//                Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
-//            } else {
-//                // Handle failures
-//                Log.i(TAG, "Unable to obtain URI from Cloud Storage");
-//            }
-//        });
-//    }
 }
