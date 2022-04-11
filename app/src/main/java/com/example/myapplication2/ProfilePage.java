@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +37,7 @@ import java.util.Objects;
 
 public class ProfilePage extends AppCompatActivity {
     private static final String TAG = "ProfilePage";
+    private static final String PROFILE_ID = "PROFILE_ID";
 
     //Objects to handle data from Firebase
     FirebaseFirestore db;
@@ -61,36 +62,25 @@ public class ProfilePage extends AppCompatActivity {
     ProfileRecyclerAdapter adapter;
     ArrayList<ProfileViewModel> arrModules = new ArrayList<>();
 
-    //Shared Preferences to store Objects as a String
-    SharedPreferences sharedPrefs;
-    SharedPreferences.Editor prefsEditor;
-    DocumentReference profileRef;
-
 
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            //initialise Shared Preferences and Editor
-            sharedPrefs = getSharedPreferences("PROFILE_PAGE", MODE_PRIVATE);
-            prefsEditor = sharedPrefs.edit();
             switch (view.getId()) {
                 case R.id.backArrow:
                     startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
                     break;
                 case R.id.logOutButton:
-                    prefsEditor.clear();
-                    prefsEditor.apply();
                     Intent logOutIntent = new Intent(ProfilePage.this, LoginActivity.class);
                     logOutIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(logOutIntent);
                     finish();
                     break;
                 case R.id.editButton:
-                    prefsEditor.putString("PROFILE_ID", profileDocumentId);
-                    prefsEditor.apply();
-                    Log.i(TAG, "PROFILE_ID has been added to prefsEditor");
                     Intent editIntent = new Intent(ProfilePage.this, EditProfilePage.class);
+                    editIntent.putExtra(PROFILE_ID, profileDocumentId);
+                    Log.i(TAG, "PROFILE_ID has been added to Intent");
                     startActivity(editIntent);
                     break;
                 default:
@@ -131,7 +121,18 @@ public class ProfilePage extends AppCompatActivity {
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
-
+        //TODO: Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
+        Intent intent = getIntent();
+        profileDocumentId = intent.getStringExtra(PROFILE_ID);
+//        profileDocumentId = "Test";
+        if (profileDocumentId == null) {
+            Log.w(TAG, "Profile Document ID is null");
+            finish();
+        }
+        else {
+            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+        }
+      
         //Check whether user is not checking his own profile
         LoggedInUser user = LoggedInUser.getInstance();
         if (profileDocumentId != user.getUserString()) {
@@ -191,19 +192,6 @@ public class ProfilePage extends AppCompatActivity {
         getProfileData(profileRef);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume is called");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i(TAG, "onPause is called");
-    }
-
-
     //Set UI Elements using data from Firebase
     public void setUIElements(ProfileModel profile) {
         //Set Text
@@ -238,8 +226,11 @@ public class ProfilePage extends AppCompatActivity {
                     Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
                     ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
-                    addModuleToRecyclerView();
-                } else {
+                    if (ProfilePage.this.profile.get().getModules() != null) {
+                        addModuleToRecyclerView();
+                    }
+                }
+                else {
                     Log.w(TAG, "Document does not exist");
                 }
             }

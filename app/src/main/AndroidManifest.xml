@@ -40,8 +40,7 @@
             android:name=".FilterActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden"
-            >
+            android:configChanges="orientation|keyboardHidden">
 
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
@@ -50,12 +49,14 @@
         </activity>
         <activity
             android:name=".EditProfilePage"
-            android:exported="true" >
+            android:exported="true"
+            android:screenOrientation="portrait">
 
             </activity>
         <activity
             android:name=".ProfilePage"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".RegisterActivity"
             android:exported="true" />
