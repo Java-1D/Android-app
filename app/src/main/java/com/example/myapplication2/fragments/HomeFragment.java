@@ -35,10 +35,7 @@ Home Fragment contains the Fragment for the Homepage. I.e View All Events
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOMEFRAGMENT";
-    private FirebaseFirestore firebaseFirestore;
-    private RecyclerView eventsList; // providing views that represent items in a data set.
     private FirestoreRecyclerAdapter adapter;
-    private DocumentReference user;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -49,7 +46,8 @@ public class HomeFragment extends Fragment {
             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        eventsList = view.findViewById(R.id.recyclerViewEvents);
+        // providing views that represent items in a data set.
+        RecyclerView eventsList = view.findViewById(R.id.recyclerViewEvents);
         eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
         eventsList.setAdapter(adapter);
@@ -70,13 +68,11 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        user = LoggedInUser.getInstance().getUserDocRef();
+        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+        DocumentReference user = LoggedInUser.getInstance().getUserDocRef();
 
-        // Query
         Query query = firebaseFirestore.collection("Events")
                 .whereArrayContains("userJoined", user);
-        Log.d(TAG, "Query" + query.toString());
 
         FirestoreRecyclerOptions<EventModel> options = new FirestoreRecyclerOptions.Builder<EventModel>()
                 .setQuery(query, EventModel.class)
@@ -86,8 +82,6 @@ public class HomeFragment extends Fragment {
             @NonNull
             @Override
             public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // Creates a new instance of View Holder
-                // Uses layout called R.layout.event_row
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
                 return new EventViewHolder(view);
             }

@@ -32,7 +32,6 @@ import java.util.Locale;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView registerWord, registerUser;
     private EditText username, password, name, email;
     private ProgressBar progressBar;
 

@@ -177,8 +177,8 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         event_name.setText(eventModel.getTitle());
         event_desc.setText(eventModel.getDescription());
         location.setText(eventModel.getVenue());
-        start_time.setText("Start: " + eventModel.getEventStartTimeString());
-        end_time.setText("End: " + eventModel.getEventEndTimeString());
+        start_time.setText(String.format("Start: %s", eventModel.getEventStartTimeString()));
+        end_time.setText(String.format("End: %s", eventModel.getEventEndTimeString()));
         date.setText(eventModel.getEventDateString());
         Utils.loadImage(eventModel.getImagePath(), location_pic);
         setCreatorDetails(eventModel.getUserCreated(), person, event_creator);
@@ -256,7 +256,8 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             int current = usersJoined.size();
                             if (current == eventModel.getCapacity()) {
                                 Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
-                            };
+                            }
+                            ;
 
                             // check if user is already in the list
                             if (usersJoined.contains(user)) {
@@ -288,10 +289,12 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void setUserJoinedRecyclerView() {
-        // RecyclerView
+        /**
+         * This functions set users joined in the recycler view layout using Firebase Recycler
+         */
+
         Query query = db.collection("Profiles")
                 .whereIn("userId", usersJoined);
-
 
         FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
                 .setQuery(query, ProfileModel.class)
@@ -326,8 +329,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
             }
         };
-
-
     }
 
     ;

@@ -29,7 +29,7 @@ import java.util.Date;
  */
 public class EventModel implements ObjectModel {
 
-    public static final String TAG = "Event Model";
+    private static final String TAG = "Event Model";
     public static final String COLLECTION_ID = "Events";
     public static final ArrayList<String> STATUSES = new ArrayList<>(Arrays.asList("upcoming", "ongoing", "completed"));
 

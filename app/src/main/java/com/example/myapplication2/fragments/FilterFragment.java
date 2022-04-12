@@ -53,10 +53,8 @@ public class FilterFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_filter_page, container, false);
         autoCompleteTxt = view.findViewById(R.id.autoCompleteTxt);
 
-        // Filter Button to go to View All Events after filtering
-//        filterButton = view.findViewById(R.id.filter_button);
 
-        autoCompleteTxt.setAdapter(adapterItems); // TODO : Debug null pointer exception here upon going back to the activity a second time
+        autoCompleteTxt.setAdapter(adapterItems);
 
         autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -84,10 +82,7 @@ public class FilterFragment extends Fragment {
 
         firebaseFirestore = FirebaseFirestore.getInstance();
         FirebaseContainer container = getModules(firebaseFirestore, moduleItems); // populate array list with modules
-        Log.d(TAG, "" + container.get());
-        adapterItems = new ArrayAdapter<String>(getActivity(), R.layout.list_item, moduleItems); //TODO : Adapter Item becomes null after revisiting it for the second time
-        Log.d(TAG, moduleItems + "");
-
+        adapterItems = new ArrayAdapter<String>(getActivity(), R.layout.list_item, moduleItems);
     }
 
 
