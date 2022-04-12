@@ -106,7 +106,7 @@ public class FilterActivity extends AppCompatActivity {
         });
     }
 
-    //
+
     protected Query filterEvents(ArrayList<String> moduleSelection) {
         //Only accepts up to 10 comparisons, i.e. modulesDocRef must have at most 10 elements
         ArrayList<DocumentReference> modulesDocRef = new ArrayList<>();
@@ -144,7 +144,9 @@ public class FilterActivity extends AppCompatActivity {
         FirestoreRecyclerOptions<EventModel> options = new FirestoreRecyclerOptions.Builder<EventModel>()
                 .setQuery(query, EventModel.class)
                 .build();
+
         adapter = new FirestoreRecyclerAdapter<EventModel, EventViewHolder>(options) {
+
             @NonNull
             @Override
             public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -153,6 +155,7 @@ public class FilterActivity extends AppCompatActivity {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
                 return new EventViewHolder(view);
             }
+
             @Override
             protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull EventModel model) {
                 Log.d(TAG, "Query " + model);
