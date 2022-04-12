@@ -244,7 +244,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             case R.id.edit_event_button:
                 backButton.setEnabled(false);
                 Intent editIntent = new Intent(ViewEventActivity.this, EditEventActivity.class);
-                editIntent.putExtra("DOCUMENT_ID", docRef.getPath());
+                editIntent.putExtra("DOCUMENT_ID", getDocumentFromPath(docRef.getPath()));
                 Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
                 ViewEventActivity.this.startActivity(editIntent);
 
@@ -255,7 +255,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                            ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
+                            usersJoined = eventModel.getUserJoined();
                             int current = usersJoined.size();
                             if (current == eventModel.getCapacity()) {
                                 Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
