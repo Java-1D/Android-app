@@ -16,7 +16,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.myapplication2.fragments.ExploreFragment;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
@@ -25,7 +24,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -43,7 +41,7 @@ import java.util.Set;
  * they want to join
  */
 
-public class FilterActivity extends AppCompatActivity implements View.OnClickListener {
+public class FilterActivity extends AppCompatActivity {
 
     String[] items = {"1", "2", "3", "4", "5", "6"};
     AutoCompleteTextView autoCompleteTxtCapacity;
@@ -74,8 +72,8 @@ public class FilterActivity extends AppCompatActivity implements View.OnClickLis
         db = FirebaseFirestore.getInstance();
         getModulesFromFirestore(); // populate array list with modules
 
-        ImageView gobackArrow = (ImageView) findViewById(R.id.gobackArrow);
-        gobackArrow.setOnClickListener(this);
+        ImageView goBackArrow = (ImageView) findViewById(R.id.gobackArrow);
+        goBackArrow.setOnClickListener(new ClickListener());
     }
 
     //Get Modules from Firestore for Auto Complete Text
@@ -210,12 +208,12 @@ public class FilterActivity extends AppCompatActivity implements View.OnClickLis
         };
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.gobackArrow:
+    class ClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (view.getId() == R.id.gobackArrow) {
                 startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
-                break;
+            }
         }
     }
 }
