@@ -37,7 +37,7 @@ public class FilterFragment extends Fragment {
 
 
     private static final String TAG = "FilterFragment";
-    ArrayList<String> moduleItems  = new ArrayList<String>();
+    ArrayList<String> moduleItems = new ArrayList<String>();
     AutoCompleteTextView autoCompleteTxt;
     ArrayAdapter<String> adapterItems;
     FirebaseFirestore firebaseFirestore;
@@ -82,58 +82,13 @@ public class FilterFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        if (savedInstanceState != null) {
-//            moduleItems = savedInstanceState.getStringArrayList("adapter");
-//
-//        } else {
-//            moduleItems = new ArrayList<String>();
-//            firebaseFirestore = FirebaseFirestore.getInstance();
-//            getModules(firebaseFirestore, moduleItems); // populate array list with modules
-//
-//        }
-
-//        moduleItems = new ArrayList<String>();
         firebaseFirestore = FirebaseFirestore.getInstance();
         FirebaseContainer container = getModules(firebaseFirestore, moduleItems); // populate array list with modules
         Log.d(TAG, "" + container.get());
         adapterItems = new ArrayAdapter<String>(getActivity(), R.layout.list_item, moduleItems); //TODO : Adapter Item becomes null after revisiting it for the second time
-
         Log.d(TAG, moduleItems + "");
 
-
     }
-
-//    public Object onRetainNonConfigurationInstance() {
-//        return this.adapterItems;
-//    }
-
-//    @Override
-//    public void onSaveInstanceState(@NonNull Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putStringArrayList("adapter", moduleItems);
-//    }
-
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//        // Restore UI state from the savedInstanceState.
-//        // This bundle has also been passed to onCreate.
-//        moduleItems = savedInstanceState.getStringArrayList("adapter");
-//    }
-
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-////        adapterItems = new ArrayAdapter<String>(getActivity(), R.layout.list_item, moduleItems);
-//        autoCompleteTxt.setAdapter(adapterItems);
-//
-//        autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                String module = adapterView.getItemAtPosition(i).toString();
-//            }
-//        });
-//    }
 
 
     FirebaseContainer getModules(FirebaseFirestore firebaseFirestore, ArrayList<String> modules) {
