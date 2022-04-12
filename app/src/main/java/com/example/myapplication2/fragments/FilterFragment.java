@@ -54,7 +54,7 @@ public class FilterFragment extends Fragment {
         autoCompleteTxt = view.findViewById(R.id.autoCompleteTxt);
 
         // Filter Button to go to View All Events after filtering
-        filterButton = view.findViewById(R.id.filter_button);
+        filterButton = view.findViewById(R.id.FilterButton);
 
         autoCompleteTxt.setAdapter(adapterItems); // TODO : Debug null pointer exception here upon going back to the activity a second time
 
