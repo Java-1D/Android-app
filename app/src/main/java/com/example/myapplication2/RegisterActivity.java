@@ -176,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 emptyProfileModel.setImagePath("https://lh3.googleusercontent.com/FvbhxldyJyNdgPmJHBs-iYSIAwIzWTnUkk9GCMegaaNgMQJVpFCHzamZP9AcFX8HdaHUy7qLUNAsVBQN_wH_si1WIgdrWzVNrLNz3Q=w600");
                 emptyProfileModel.setUserId(docIdRef);
                 emptyProfileModel.setName(enteredName);
-                emptyProfileModel.setBio("a rabbit jumped over my grave");
+                emptyProfileModel.setBio("A rabbit jumped over my grave");
                 emptyProfileModel.setPillar("CSD");
                 emptyProfileModel.setTerm(5);
             }
