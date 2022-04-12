@@ -58,7 +58,8 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="180dp"
         android:padding="20dp"
-        android:hint="@string/module">
+        android:hint="@string/module"
+        tools:ignore="ExtraText">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteTxt"
@@ -71,9 +72,9 @@
             android:id="@+id/FilterButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/filter"
             android:layout_marginTop="20dp"
-            android:layout_marginStart="120dp"
-            android:text="@string/filter" />
+            android:layout_marginStart="120dp"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
