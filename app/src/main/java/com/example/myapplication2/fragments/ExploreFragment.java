@@ -58,13 +58,52 @@ public class ExploreFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        db = FirebaseFirestore.getInstance();
+
         View view = inflater.inflate(R.layout.fragment_view_events, container, false);
         eventsList = view.findViewById(R.id.recyclerViewEvents);
+
+        FilterActivity activity = (FilterActivity) getActivity();
+        int capacity = activity.getCapacitySelection();
+        String modulePath = activity.getFilterModuleSelection();
+        if (modulePath != null && capacity != 0) {
+                query = filterEvents(modulePath, capacity);
+            } else if (modulePath != null) {
+                query = filterEvents(modulePath);
+            } else if (capacity != 0) {
+                query = filterEvents(capacity);
+            } else {
+            query = db.collection("Events");
+        }
+        Log.d(TAG, "String" + modulePath + "int" + String.valueOf(capacity));
+
+
+//        Bundle bundle = this.getArguments();
+//        if (bundle != null) {
+//            String modulePath = bundle.getString("MODULE_SELECTION");
+//            int capacity = bundle.getInt("CAPACITY_SELECTION", 0);
+//            if (modulePath != null && capacity != 0) {
+//                query = filterEvents(modulePath, capacity);
+//            } else if (modulePath != null) {
+//                query = filterEvents(modulePath);
+//            } else if (capacity != 0) {
+//                query = filterEvents(capacity);
+//            }
+//            Log.d(TAG, "String" + modulePath + "int" + String.valueOf(capacity));
+//
+//        } else {
+//            query = db.collection("Events");
+//            Log.d(TAG, "Query" + query.toString());
+//        }
+
+        buildFirestoreRecyclerView(query);
+
         eventsList.setHasFixedSize(true);
         eventsList.setLayoutManager(new LinearLayoutManager(eventsList.getContext()));
         eventsList.setAdapter(adapter);
+
 
         // Button to create new event
         view.findViewById(R.id.create_event).setOnClickListener(new View.OnClickListener() {
@@ -91,13 +130,6 @@ public class ExploreFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        db = FirebaseFirestore.getInstance();
-
-        // Query
-        //TODO: Replace Query object from Filter Activity if there is no null values passed via intent
-        query = db.collection("Events");
-        Log.d(TAG, "Query" + query.toString());
-        buildFirestoreRecyclerView(query);
     }
 
     @Override
@@ -112,20 +144,7 @@ public class ExploreFragment extends Fragment {
         super.onResume();
         Log.i(TAG, "onResume is called");
 
-        Intent intent = getActivity().getIntent();
-        String modulePath = intent.getStringExtra("MODULE_SELECTION");
-        int capacity = intent.getIntExtra("CAPACITY_SELECTION", 0);
 
-        if (modulePath != null && capacity != 0) {
-             query = filterEvents(modulePath, capacity);
-        } else if (modulePath != null) {
-            query = filterEvents(modulePath);
-        } else if (capacity != 0) {
-            query = filterEvents(capacity);
-        } else {
-            query = db.collection("Events");
-            Log.d(TAG, "Query" + query.toString());
-        }
         buildFirestoreRecyclerView(query);
     }
 
@@ -197,7 +216,7 @@ public class ExploreFragment extends Fragment {
                     @Override
                     public void onClick(View view1) {
                         Intent intent = new Intent(getActivity(), ViewEventActivity.class);
-                        intent.putExtra("DOCUMENT_ID",documentId);
+                        intent.putExtra("DOCUMENT_ID", documentId);
                         ((MainPageActivity) getActivity()).startActivity(intent);
                     }
                 });

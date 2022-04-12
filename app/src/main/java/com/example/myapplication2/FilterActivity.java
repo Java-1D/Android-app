@@ -2,6 +2,9 @@ package com.example.myapplication2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -142,11 +145,20 @@ public class FilterActivity extends AppCompatActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString("MODULE_SELECTION", moduleSelection);
                 bundle.putInt("CAPACITY_SELECTION", capacitySelection);
-                ExploreFragment exploreFragment = new ExploreFragment();
+                Log.d(TAG,moduleSelection + "");
+                Fragment exploreFragment = new ExploreFragment();
                 exploreFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, exploreFragment).commit();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.flFragment, exploreFragment).commit();
+//                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, exploreFragment).commit();
             }
         }
+    }
+    public String getFilterModuleSelection() {
+        return moduleSelection;
+    }
+    public int getCapacitySelection(){
+        return capacitySelection;
     }
 }
 
