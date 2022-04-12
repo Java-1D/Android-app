@@ -117,6 +117,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     else {
                         // add profile to firestore
                         ProfileModel emptyProfileModel = new ProfileModel();
+                        setProfileDetails(emptyProfileModel);
+
 
                         db.collection("Profiles")
                                 .document(enteredName)
@@ -168,6 +170,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 else {
                     Log.d(TAG, "Failed with: ", task.getException());
                 }
+            }
+
+            private void setProfileDetails(ProfileModel emptyProfileModel) {
+                emptyProfileModel.setImagePath("https://lh3.googleusercontent.com/FvbhxldyJyNdgPmJHBs-iYSIAwIzWTnUkk9GCMegaaNgMQJVpFCHzamZP9AcFX8HdaHUy7qLUNAsVBQN_wH_si1WIgdrWzVNrLNz3Q=w600");
+                emptyProfileModel.setUserId(docIdRef);
+                emptyProfileModel.setName(enteredName);
+                emptyProfileModel.setBio("a rabbit jumped over my grave");
+                emptyProfileModel.setPillar("CSD");
+                emptyProfileModel.setTerm(5);
             }
         });
     }
