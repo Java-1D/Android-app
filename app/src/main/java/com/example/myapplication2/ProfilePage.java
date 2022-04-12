@@ -63,24 +63,21 @@ public class ProfilePage extends AppCompatActivity {
     class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.backArrow:
-                    startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
-                    break;
-                case R.id.logOutButton:
-                    Intent logOutIntent = new Intent(ProfilePage.this, LoginActivity.class);
-                    logOutIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(logOutIntent);
-                    finish();
-                    break;
-                case R.id.editButton:
-                    Intent editIntent = new Intent(ProfilePage.this, EditProfilePage.class);
-                    editIntent.putExtra(PROFILE_ID, profileDocumentId);
-                    Log.i(TAG, "PROFILE_ID has been added to Intent");
-                    startActivity(editIntent);
-                    break;
-                default:
-                    Log.w(TAG, "Button not Found");
+            int id = view.getId();
+            if (id == R.id.backArrow) {
+                startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
+            } else if (id == R.id.logOutButton) {
+                Intent logOutIntent = new Intent(ProfilePage.this, LoginActivity.class);
+                logOutIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(logOutIntent);
+                finish();
+            } else if (id == R.id.editButton) {
+                Intent editIntent = new Intent(ProfilePage.this, EditProfilePage.class);
+                editIntent.putExtra(PROFILE_ID, profileDocumentId);
+                Log.i(TAG, "PROFILE_ID has been added to Intent");
+                startActivity(editIntent);
+            } else {
+                Log.w(TAG, "Button not Found");
             }
         }
     }
@@ -107,20 +104,20 @@ public class ProfilePage extends AppCompatActivity {
         //TODO: Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
         Intent intent = getIntent();
         profileDocumentId = intent.getStringExtra(PROFILE_ID);
-//        profileDocumentId = "Test";
-        if (profileDocumentId == null) {
-            Log.w(TAG, "Profile Document ID is null");
-            finish();
-        }
-        else {
-            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-        }
+        profileDocumentId = "Test";
+//        if (profileDocumentId == null) {
+//            Log.w(TAG, "Profile Document ID is null");
+//            finish();
+//        }
+//        else {
+//            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+//        }
         //Check whether user is not checking his own profile
-        LoggedInUser user = LoggedInUser.getInstance();
-        if (profileDocumentId != user.getUserString()) {
-            editButton.setVisibility(View.GONE);
-            logOutButton.setVisibility(View.GONE);
-        }
+//        LoggedInUser user = LoggedInUser.getInstance();
+//        if (!profileDocumentId.equals(user.getUserString())) {
+//            editButton.setVisibility(View.GONE);
+//            logOutButton.setVisibility(View.GONE);
+//        }
 
         //Get Profile Data from Firestore
         DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
@@ -149,31 +146,14 @@ public class ProfilePage extends AppCompatActivity {
         getProfileData(profileRef);
     }
 
-    //Set UI Elements using data from Firebase
-    public void setUIElements(ProfileModel profile) {
-        //Set Text
-        profileName.setText(profile.getName());
-        pillarValue.setText(profile.getPillar());
-        termValue.setText(String.valueOf(profile.getTerm()));
-        bioText.setText(profile.getBio());
-
-        //Set Image
-        setImage(profile.getImagePath());
-    }
-
-    //Set Image for ImageView
-    public void setImage(String imageURL) {
-        Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
-        Log.i(TAG, "Profile Picture set");
-    }
 
     //Firebase-Specific Methods
-    public DocumentReference getDocumentReference(String collectionId, String documentId) {
+    protected DocumentReference getDocumentReference(String collectionId, String documentId) {
         return db.collection(collectionId).document(documentId);
     }
 
     //Get Data from Profiles Collection
-    public void getProfileData(DocumentReference profileRef) {
+    protected void getProfileData(DocumentReference profileRef) {
         profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
@@ -198,8 +178,26 @@ public class ProfilePage extends AppCompatActivity {
         });
     }
 
+    //Set UI Elements using data from Firebase
+    protected void setUIElements(ProfileModel profile) {
+        //Set Text
+        profileName.setText(profile.getName());
+        pillarValue.setText(profile.getPillar());
+        termValue.setText(String.valueOf(profile.getTerm()));
+        bioText.setText(profile.getBio());
+
+        //Set Image
+        setImage(profile.getImagePath());
+    }
+
+    //Set Image for ImageView
+    protected void setImage(String imageURL) {
+        Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
+        Log.i(TAG, "Profile Picture set");
+    }
+
     //Add Module Data Retrieved
-    public void addModuleToRecyclerView() {
+    protected void addModuleToRecyclerView() {
         for (DocumentReference moduleRef: profile.get().getModules()) {
             moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
