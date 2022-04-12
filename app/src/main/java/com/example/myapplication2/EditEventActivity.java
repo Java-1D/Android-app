@@ -108,7 +108,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,7 +131,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
-
 
 //         getting ID from intent
         String documentId = getIntent().getStringExtra("DOCUMENT_ID");

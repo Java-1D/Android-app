@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import com.example.myapplication2.fragments.HomeFragment;
 import com.example.myapplication2.fragments.ExploreFragment;
 import com.example.myapplication2.fragments.ProfileFragment;
+import com.example.myapplication2.utils.LoggedInUser;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -54,7 +55,7 @@ public class MainPageActivity extends AppCompatActivity implements NavigationBar
 
             case R.id.profile:
                 Intent profileIntent = new Intent(this, ProfilePage.class);
-                profileIntent.putExtra("PROFILE_ID","Test");
+                profileIntent.putExtra("PROFILE_ID", LoggedInUser.getInstance().getUserId()); //TODO : bugs here
                 startActivity(profileIntent);
                 return true;
         }

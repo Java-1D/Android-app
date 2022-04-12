@@ -71,7 +71,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         firebaseFirestore = FirebaseFirestore.getInstance();
-        DocumentReference user = LoggedInUser.getInstance().getUserDocRef();
+        user = LoggedInUser.getInstance().getUserDocRef();
 
         // Query
         Query query = firebaseFirestore.collection("Events")

@@ -7,7 +7,6 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -105,5 +104,11 @@ public class Utils {
         }
         user = db.document("/Users/Test4");
         return user;
+    }
+
+    public static String getProfileID(String path){
+        // get the element before the spacing
+        Log.i(TAG, "STRING" + path.substring(path.lastIndexOf('/') + 1));
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 }
