@@ -124,8 +124,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         edit_event_button.setEnabled(false);
 
 
-
-
         usersJoined.add(db.document("/Users/Test"));
 
         user = getCurrentUser(db);
@@ -134,8 +132,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
-//        docRef = db.collection("Events").document("Test Event"); //TODO remove after test
-        docRef = db.collection("Events").document(documentName); // TODO: enable this after testing
+        docRef = db.collection("Events").document(documentName);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -164,7 +161,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
                 adapter.startListening();
 
-                usersList.setHasFixedSize(true); //TODO : Enable this when we are with UI
+                usersList.setHasFixedSize(true);
                 usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 usersList.setAdapter(adapter);
 
@@ -259,9 +256,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             int current = usersJoined.size();
                             if (current == eventModel.getCapacity()) {
                                 Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
-                            }
-                            ;
-//                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
+                            };
 
                             // check if user is already in the list
                             if (usersJoined.contains(user)) {
@@ -289,33 +284,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     startActivity(mainActivityIntent);
                 }
 
-//            case R.id.search1:
-//                DocumentReference docRef1 = db.collection("Events").document("Test Event");
-//                docRef1.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-//                        // TODO Retrieve profile page of person1
-//                    }
-//                });
-//            case R.id.search2:
-//                DocumentReference docRef2 = db.collection("Events").document("Test Event");
-//                docRef2.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-//                        // TODO Retrieve profile page of person2
-//                    }
-//                });
-//            case R.id.search3:
-//                DocumentReference docRef3 = db.collection("Events").document("Test Event");
-//                docRef3.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-//                        // TODO Retrieve profile page of person3
-//                    }
-//                });
         }
     }
 

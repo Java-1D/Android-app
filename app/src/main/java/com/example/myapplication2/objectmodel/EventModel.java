@@ -181,14 +181,6 @@ public class EventModel implements ObjectModel {
         return userJoined;
     }
 
-//    public ArrayList<String> getUsernameUserJoined(){
-//        ArrayList<String> usernameList = new ArrayList<>();
-//        for (DocumentReference user :userJoined){
-//
-//            usernameList.add(user.getUsername());
-//        }
-//    }
-
     public void setUserJoined(ArrayList<DocumentReference> userJoined) {
         this.userJoined = userJoined;
     }
