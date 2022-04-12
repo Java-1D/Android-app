@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter"
+        android:text="@string/filter"
         android:textSize="35sp"
         android:textStyle="bold"
         android:layout_marginStart="150dp"
@@ -19,7 +19,7 @@
 
 
     <ImageView
-        android:id="@+id/gobackArrow"
+        android:id="@+id/BackArrow"
         android:layout_width="36dp"
         android:layout_height="30dp"
         android:layout_margin="15dp"
@@ -68,13 +68,12 @@
             tools:ignore="LabelFor" />
 
         <Button
-            android:id="@+id/filter_button"
+            android:id="@+id/FilterButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/filter" />
             android:layout_marginTop="20dp"
             android:layout_marginStart="120dp"
-            android:text="Filter" />
+            android:text="@string/filter" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

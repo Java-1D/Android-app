@@ -75,6 +75,7 @@ public class ExploreFragment extends Fragment {
 
         firebaseFirestore = FirebaseFirestore.getInstance();
 
+        //TODO: Replace Query object from Filter Activity if there is no null values passed via intent
         // Query
         Query query = firebaseFirestore.collection("Events");
         Log.d(TAG, "Query" + query.toString());
