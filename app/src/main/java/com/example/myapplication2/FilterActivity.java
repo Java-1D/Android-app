@@ -13,9 +13,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.myapplication2.fragments.ExploreFragment;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
@@ -43,11 +45,9 @@ import java.util.Set;
 
 public class FilterActivity extends AppCompatActivity {
 
-    String[] items = {"1", "2", "3", "4", "5", "6"};
-    AutoCompleteTextView autoCompleteTxtCapacity;
-    ArrayAdapter<String> adapterItems2;
 
-    private static final String TAG = "FILTER_ACTIVITY";
+
+    private static final String TAG = "FilterActivity";
 
     //Objects to handle data from Firebase
     FirebaseFirestore db;
@@ -56,9 +56,15 @@ public class FilterActivity extends AppCompatActivity {
     ArrayList<String> moduleItems = new ArrayList<>();
 
     //UI elements
-    AutoCompleteTextView autoCompleteTxt;
-    ArrayAdapter<String> adapterItems;
-    private FirestoreRecyclerAdapter adapter;
+    ImageView backArrow;
+    Button filterButton;
+
+    AutoCompleteTextView autoCompleteTxtCapacity;
+    String[] items = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    ArrayAdapter<String> adapterItemsCapacity;
+
+    AutoCompleteTextView autoCompleteTxtModules;
+    ArrayAdapter<String> adapterItemsModules;
 
 
     @Override
@@ -66,14 +72,16 @@ public class FilterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter_page);
 
-        autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
+        autoCompleteTxtModules = findViewById(R.id.autoCompleteTxt);
         autoCompleteTxtCapacity = findViewById((R.id.autoCompleteTxtCapacity));
 
         db = FirebaseFirestore.getInstance();
         getModulesFromFirestore(); // populate array list with modules
 
-        ImageView goBackArrow = (ImageView) findViewById(R.id.gobackArrow);
-        goBackArrow.setOnClickListener(new ClickListener());
+        backArrow = (ImageView) findViewById(R.id.BackArrow);
+        backArrow.setOnClickListener(new ClickListener());
+        filterButton = findViewById(R.id.FilterButton);
+        filterButton.setOnClickListener(new ClickListener());
     }
 
     //Get Modules from Firestore for Auto Complete Text
@@ -104,15 +112,13 @@ public class FilterActivity extends AppCompatActivity {
 
     //After querying for modules from Firestore, set up the AutoCompleteText Adapter
     protected void setAutoCompleteTxt() {
-        adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
-        autoCompleteTxt.setAdapter(adapterItems);
+        adapterItemsModules = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
+        autoCompleteTxtModules.setAdapter(adapterItemsModules);
 
+        adapterItemsCapacity = new ArrayAdapter<String>(this, R.layout.list_item, items);
+        autoCompleteTxtCapacity.setAdapter(adapterItemsCapacity);
 
-        adapterItems2 = new ArrayAdapter<String>(this, R.layout.list_item, items);
-        autoCompleteTxtCapacity.setAdapter(adapterItems2);
-
-
-        autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        autoCompleteTxtModules.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String item = adapterView.getItemAtPosition(i).toString();
@@ -129,7 +135,24 @@ public class FilterActivity extends AppCompatActivity {
         });
     }
 
+    class ClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (view.getId() == R.id.BackArrow) {
+                startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
+            } else if (view.getId() == R.id.FilterButton) {
+                //FIXME: Pass values such as module selection and capacity selection as an intent for processing in ExploreFragment
+                Intent intent = new Intent(FilterActivity.this, ExploreFragment.class);
+                ArrayList<String> moduleSelection = new ArrayList<>();
+                String capacitySelection = "";
+                intent.putStringArrayListExtra("MODULES_SELECTION", moduleSelection);
+                intent.putExtra("CAPACITY_SELECTION", capacitySelection);
+                startActivity(intent);
+            }
+        }
+    }
 
+    //FIXME: Move Methods to ExploreFragment to perform query based on values passed in Filter Button via intent
     protected Query filterEvents(ArrayList<String> moduleSelection) {
         //Only accepts up to 10 comparisons, i.e. modulesDocRef must have at most 10 elements
         ArrayList<DocumentReference> modulesDocRef = new ArrayList<>();
@@ -142,14 +165,16 @@ public class FilterActivity extends AppCompatActivity {
         return query;
     }
 
-    protected Query filterEvents(int capacitySelection) {
+    protected Query filterEvents(String capacitySelection) {
+        int capacity = Integer.parseInt(capacitySelection);
         //Filter based on Capacity Chosen -> Checks whether an events have at least x slots available for user and his friends to join
-        Query query = db.collection("Events").whereGreaterThanOrEqualTo("capacity", capacitySelection);
+        Query query = db.collection("Events").whereGreaterThanOrEqualTo("capacity", capacity);
         Log.d(TAG, "Query" + query.toString());
         return query;
     }
 
-    protected Query filterEvents(ArrayList<String> moduleSelection, int capacitySelection) {
+    protected Query filterEvents(ArrayList<String> moduleSelection, String capacitySelection) {
+        int capacity = Integer.parseInt(capacitySelection);
         //Only accepts up to 10 comparisons, i.e. modulesDocRef must have at most 10 elements
         ArrayList<DocumentReference> modulesDocRef = new ArrayList<>();
         for (String key: moduleSelection) {
@@ -158,63 +183,9 @@ public class FilterActivity extends AppCompatActivity {
 
         //TODO: Need to check whether compound queries such as the one below works
         //Filter based on Capacity Chosen -> Checks whether an events have at least x slots available for user and his friends to join
-        Query query = db.collection("Events").whereIn("modules", modulesDocRef).whereGreaterThanOrEqualTo("capacity", capacitySelection);
+        Query query = db.collection("Events").whereIn("modules", modulesDocRef).whereGreaterThanOrEqualTo("capacity", capacity);
         Log.d(TAG, "Query" + query.toString());
         return query;
-    }
-
-    protected void buildFirestoreRecyclerView(Query query) {
-        FirestoreRecyclerOptions<EventModel> options = new FirestoreRecyclerOptions.Builder<EventModel>()
-                .setQuery(query, EventModel.class)
-                .build();
-
-        adapter = new FirestoreRecyclerAdapter<EventModel, EventViewHolder>(options) {
-
-            @NonNull
-            @Override
-            public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                // Creates a new instance of View Holder
-                // Uses layout called R.layout.event_row
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_item, parent, false);
-                return new EventViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull EventViewHolder holder, int position, @NonNull EventModel model) {
-                Log.d(TAG, "Query " + model);
-
-                holder.event_title.setText(model.getTitle());
-                holder.event_description.setText(model.getDescription());
-                Utils.loadImage(model.getImagePath(), holder.event_image);
-                holder.status.setText(model.getStatus());
-                holder.location.setText(model.getVenue());
-                holder.capacity.setText(model.getCapacityString());
-                holder.event_start.setText(model.getEventStartTimeString());
-                holder.event_end.setText(model.getEventEndTimeString());
-                holder.event_date.setText(model.getEventStartDate());
-//                String documentId = getSnapshots().getSnapshot(position).getId();
-                String documentId = getSnapshots().getSnapshot(position).getReference().getPath();
-
-                // Bring users to View Event when clicking on viewEventButton
-                holder.viewEventButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view1) {
-                        Intent intent = new Intent(FilterActivity.this, ViewEventActivity.class);
-                        intent.putExtra("DOCUMENT_ID",documentId);
-                        startActivity(intent);
-                    }
-                });
-            }
-        };
-    }
-
-    class ClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            if (view.getId() == R.id.gobackArrow) {
-                startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
-            }
-        }
     }
 }
 
