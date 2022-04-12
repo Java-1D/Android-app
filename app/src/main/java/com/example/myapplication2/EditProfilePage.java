@@ -11,9 +11,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,10 +33,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -52,7 +46,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.io.ByteArrayOutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,11 +59,21 @@ public class EditProfilePage extends AppCompatActivity {
     //Objects to handle data from Firebase
     FirebaseFirestore db;
     FirebaseStorage storage;
-    FirebaseAuth mAuth;
-    FirebaseUser user;
 
+    //String to retrieve Profile Document from Firestore
     String profileDocumentId;
+    //Store Profile Document to set the Image and relevant information of the User
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
+
+    //Store Hashmap of name, DocumentReference to update ArrayList of Modules
+    Map<String, DocumentReference> modulesMap = new HashMap<>();
+    //Update ProfileModel modules with this arraylist if arraylist != null
+    final FirebaseContainer<ArrayList<DocumentReference>> modules = new FirebaseContainer<>(new ArrayList<>());
+
+    //Initialise elements for Modules DropDown
+    boolean[] selectedModule;
+    ArrayList<Integer> moduleList = new ArrayList<>();
+    String[] moduleArray;
 
     //UI elements
     ImageView profilePicture;
@@ -82,35 +85,27 @@ public class EditProfilePage extends AppCompatActivity {
     EditText editBio;
     Button confirmEdit;
 
-    //Initialise elements for Modules DropDown
-    boolean[] selectedModule;
-    ArrayList<Integer> moduleList = new ArrayList<>();
-    String[] moduleArray;
 
-    // Store Hashmap of name, DocumentReference to update ArrayList of Modules
-    Map<String, DocumentReference> modulesMap = new HashMap<>();
-    // Update ProfileModel modules with this arraylist if arraylist != null
-    final FirebaseContainer<ArrayList<DocumentReference>> modules = new FirebaseContainer<>(new ArrayList<>());
+
+
 
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.editProfilePicture:
-                    chooseImage();
-                    break;
-                case R.id.confirmButton:
-                    Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
-                    confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
-                    updateProfileDocument(profileDocumentId, confirmIntent);
-                    break;
-                case R.id.backButton:
-                    Intent backIntent = new Intent(EditProfilePage.this, ProfilePage.class);
-                    backIntent.putExtra(PROFILE_ID, profileDocumentId);
-                    startActivity(backIntent);
-                    break;
-
+            int id = view.getId();
+            if (id == R.id.editProfilePicture) {
+                chooseImage();
+            } else if (id == R.id.confirmButton) {
+                Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
+                confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
+                updateProfileDocument(profileDocumentId, confirmIntent);
+            } else if (id == R.id.backButton) {
+                Intent backIntent = new Intent(EditProfilePage.this, ProfilePage.class);
+                backIntent.putExtra(PROFILE_ID, profileDocumentId);
+                startActivity(backIntent);
+            } else {
+                Log.w(TAG, "Button not Found");
             }
         }
     }
@@ -174,8 +169,50 @@ public class EditProfilePage extends AppCompatActivity {
         getAllModulesFromFirebase();
     }
 
-    public void getAllModulesFromFirebase() {
-        db.collection("Modules").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+    //Firebase-Specific Methods
+    protected DocumentReference getDocumentReference(String collectionId, String documentId) {
+        return db.collection(collectionId).document(documentId);
+    }
+
+    //Get Data from Profiles Collection
+    protected void getProfileData(DocumentReference profileRef) {
+        profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot document) {
+                if (document.exists()) {
+                    Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
+                    EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
+
+                }
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error retrieving document from Firestore", e);
+            }
+        });
+    }
+
+    //Set UI Elements using data from Firebase
+    protected void setUIElements(ProfileModel profile) {
+        //Set Image
+        setImage(profile.getImagePath());
+    }
+
+    //Set Image for ImageView
+    protected void setImage(String imageURL) {
+        Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
+        Log.i(TAG, "Profile Picture set");
+    }
+
+    protected void getAllModulesFromFirebase() {
+        db.collection("Modules").get().addOnCompleteListener(new OnCompleteListener<>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -189,13 +226,13 @@ public class EditProfilePage extends AppCompatActivity {
                     buildModuleDropDown(moduleArray);
                 }
                 else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
+                    Log.e(TAG, "Error getting documents: ", task.getException());
                 }
             }
         });
     }
 
-    public void buildModuleDropDown(String[] moduleArray) {
+    protected void buildModuleDropDown(String[] moduleArray) {
         selectedModule = new boolean[moduleArray.length];
 
         editModules.setOnClickListener(new View.OnClickListener() {
@@ -253,88 +290,7 @@ public class EditProfilePage extends AppCompatActivity {
         });
     }
 
-    public void updateProfileDocument(String Id, Intent intent) {
-        HashMap<String, Object> model = new HashMap<>();
-        Date date = new Date();
-        if (!editName.getText().toString().matches("")) {
-            profile.get().setName(editName.getText().toString());
-        }
-        if (!editPillar.getText().toString().matches("")) {
-            profile.get().setPillar(editPillar.getText().toString());
-        }
-        if (!editTerm.getText().toString().matches("")) {
-            profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
-        }
-        if (!editModules.getText().toString().matches("")){
-            profile.get().setModules(modules.get());
-        }
-        if (!editBio.getText().toString().matches("")) {
-            profile.get().setBio(editBio.getText().toString());
-        }
-        profile.get().setProfileUpdated(date);
-        updateFirestore(Id, profile.get(), intent);
-    }
-
-    public void updateFirestore(String profileDocumentId, ProfileModel model, Intent intent) {
-        db.collection("Profiles").document(profileDocumentId).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d(TAG, "DocumentSnapshot successfully written!");
-                if (intent != null) {
-                    startActivity(intent);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error writing document", e);
-
-            }
-        });
-    }
-
-    //Set UI Elements using data from Firebase
-    public void setUIElements(ProfileModel profile) {
-        //Set Image
-        setImage(profile.getImagePath());
-    }
-
-    //Set Image for ImageView
-    public void setImage(String imageURL) {
-        Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
-        Log.i(TAG, "Profile Picture set");
-    }
-
-    //Firebase-Specific Methods
-    public DocumentReference getDocumentReference(String collectionId, String documentId) {
-        return db.collection(collectionId).document(documentId);
-    }
-
-    //Get Data from Profiles Collection
-    public void getProfileData(DocumentReference profileRef) {
-        profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot document) {
-                if (document.exists()) {
-                    Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
-                    EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                    EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
-
-                }
-                else {
-                    Log.w(TAG, "Document does not exist");
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error retrieving document from Firestore", e);
-            }
-        });
-    }
-
-    void chooseImage() {
+    protected void chooseImage() {
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"};
         Log.i(TAG, "chooseImage: Dialog launched");
         AlertDialog.Builder builder = new AlertDialog.Builder(EditProfilePage.this);
@@ -358,7 +314,7 @@ public class EditProfilePage extends AppCompatActivity {
         builder.show();
     }
 
-    void cameraLaunch() {
+    protected void cameraLaunch() {
         if (ContextCompat.checkSelfPermission(EditProfilePage.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
             options.setAspectRatio(1, 1);
@@ -372,7 +328,7 @@ public class EditProfilePage extends AppCompatActivity {
         }
     }
 
-    void galleryLaunch() {
+    protected void galleryLaunch() {
         if (ContextCompat.checkSelfPermission(EditProfilePage.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
             options.setAspectRatio(1 ,1);
@@ -385,6 +341,37 @@ public class EditProfilePage extends AppCompatActivity {
             Log.i(TAG, "galleryLaunch: Permission for camera requested");
         }
     }
+
+    ActivityResultLauncher<String> requestCameraPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if (Boolean.TRUE.equals(result)) {
+                        // Permission is granted. Continue the action or workflow in your app.
+                        cameraLaunch();
+                    } else {
+                        Toast.makeText(EditProfilePage.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "PermissionRequest: Camera access denied");
+                    }
+                }
+            });
+
+    ActivityResultLauncher<String> requestGalleryPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if (Boolean.TRUE.equals(result)) {
+                        // Permission is granted. Continue the action or workflow in your app.
+                        galleryLaunch();
+                    } else {
+                        Toast.makeText(EditProfilePage.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
+                        Log.i(TAG, "PermissionRequest: Gallery access denied");
+                    }
+
+                }
+            });
 
     ActivityResultLauncher<CropImageContractOptions> cropImage = registerForActivityResult(
             new CropImageContract(),
@@ -400,37 +387,6 @@ public class EditProfilePage extends AppCompatActivity {
                             Log.d(TAG, "onActivityResult: Cropping returned null");
                         }
                     }
-                }
-            });
-
-    ActivityResultLauncher<String> requestCameraPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            new ActivityResultCallback<Boolean>() {
-                @Override
-                public void onActivityResult(Boolean result) {
-                    if (result == true) {
-                        // Permission is granted. Continue the action or workflow in your app.
-                        cameraLaunch();
-                    } else {
-                        Toast.makeText(EditProfilePage.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "PermissionRequest: Camera access denied");
-                    }
-                }
-            });
-
-    ActivityResultLauncher<String> requestGalleryPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            new ActivityResultCallback<Boolean>() {
-                @Override
-                public void onActivityResult(Boolean result) {
-                    if (result == true) {
-                        // Permission is granted. Continue the action or workflow in your app.
-                        galleryLaunch();
-                    } else {
-                        Toast.makeText(EditProfilePage.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "PermissionRequest: Gallery access denied");
-                    }
-
                 }
             });
 
@@ -455,7 +411,46 @@ public class EditProfilePage extends AppCompatActivity {
                 Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
             } else {
                 // Handle failures
-                Log.i(TAG, "Unable to obtain URI from Cloud Storage");
+                Log.w(TAG, "Unable to obtain URI from Cloud Storage");
+            }
+        });
+    }
+
+    protected void updateProfileDocument(String profileDocumentId, Intent intent) {
+        Date date = new Date();
+        if (!editName.getText().toString().matches("")) {
+            profile.get().setName(editName.getText().toString());
+        }
+        if (!editPillar.getText().toString().matches("")) {
+            profile.get().setPillar(editPillar.getText().toString());
+        }
+        if (!editTerm.getText().toString().matches("")) {
+            profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
+        }
+        if (!editModules.getText().toString().matches("")){
+            profile.get().setModules(modules.get());
+        }
+        if (!editBio.getText().toString().matches("")) {
+            profile.get().setBio(editBio.getText().toString());
+        }
+        profile.get().setProfileUpdated(date);
+        updateFirestore(profileDocumentId, profile.get(), intent);
+    }
+
+    protected void updateFirestore(String profileDocumentId, ProfileModel model, Intent intent) {
+        db.collection("Profiles").document(profileDocumentId).set(model).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "DocumentSnapshot successfully written!");
+                if (intent != null) {
+                    startActivity(intent);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(TAG, "Error writing document", e);
+
             }
         });
     }

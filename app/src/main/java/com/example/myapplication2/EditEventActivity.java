@@ -104,7 +104,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     DocumentReference selectedModuleReference;
     String documentName;
 
-    static final String TAG = "CreateEvents";
+    static final String TAG = "EditEvents";
 
 
 

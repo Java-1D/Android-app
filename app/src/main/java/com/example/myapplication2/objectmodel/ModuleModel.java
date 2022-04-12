@@ -79,9 +79,7 @@ public class ModuleModel implements ObjectModel {
 
     public String getModuleName(){
         // get the element before the spacing
-        String[] split = name.split(" ");
-        String moduleName = split[0];
-        return moduleName;
+        return name.split(" ")[0];
     }
 
     @Override

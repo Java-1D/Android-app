@@ -52,6 +52,8 @@
     <string name="confirm">Confirm</string>
     <string name="pillar">Pillar</string>
 
+    <!--    Filter Activity Page -->
+    <string name="filter">Filter</string>
 
     <!-- Create Event & Edit Event -->
     <string name="create_event_title">Create an event</string>
