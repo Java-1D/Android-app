@@ -45,6 +45,8 @@ public class MainPageActivity extends AppCompatActivity implements NavigationBar
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()) {
+
+
             case R.id.explore:
                 getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, exploreFragment).commit();
                 return true;

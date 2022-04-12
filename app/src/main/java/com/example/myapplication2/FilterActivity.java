@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.myapplication2.objectmodel.EventModel;
@@ -22,7 +24,6 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -39,9 +40,14 @@ import java.util.Set;
  * Filter Activity returns a page that allows user to filter the type of events
  * they want to join
  */
+
 public class FilterActivity extends AppCompatActivity {
-  
-    private static final String TAG = "FilterActivity";
+
+    String[] items = {"1", "2", "3", "4", "5", "6"};
+    AutoCompleteTextView autoCompleteTxtCapacity;
+    ArrayAdapter<String> adapterItems2;
+
+    private static final String TAG = "FILTER_ACTIVITY";
 
     //Objects to handle data from Firebase
     FirebaseFirestore db;
@@ -61,9 +67,13 @@ public class FilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_filter_page);
 
         autoCompleteTxt = findViewById(R.id.autoCompleteTxt);
+        autoCompleteTxtCapacity = findViewById((R.id.autoCompleteTxtCapacity));
 
         db = FirebaseFirestore.getInstance();
         getModulesFromFirestore(); // populate array list with modules
+
+        ImageView goBackArrow = (ImageView) findViewById(R.id.gobackArrow);
+        goBackArrow.setOnClickListener(new ClickListener());
     }
 
     //Get Modules from Firestore for Auto Complete Text
@@ -97,11 +107,24 @@ public class FilterActivity extends AppCompatActivity {
         adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
         autoCompleteTxt.setAdapter(adapterItems);
 
+
+        adapterItems2 = new ArrayAdapter<String>(this, R.layout.list_item, items);
+        autoCompleteTxtCapacity.setAdapter(adapterItems2);
+
+
         autoCompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String item = adapterView.getItemAtPosition(i).toString();
                 Log.i(TAG, item);
+            }
+        });
+
+        autoCompleteTxtCapacity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String item2 = parent.getItemAtPosition(position).toString();
+                Toast.makeText(getApplicationContext(), "Item: " + item2, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -185,5 +208,13 @@ public class FilterActivity extends AppCompatActivity {
         };
     }
 
+    class ClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (view.getId() == R.id.gobackArrow) {
+                startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
+            }
+        }
+    }
 }
 
