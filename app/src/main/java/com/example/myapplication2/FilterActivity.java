@@ -13,8 +13,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.myapplication2.fragments.ExploreFragment;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.Utils;
@@ -71,6 +73,9 @@ public class FilterActivity extends AppCompatActivity implements View.OnClickLis
 
         db = FirebaseFirestore.getInstance();
         getModulesFromFirestore(); // populate array list with modules
+
+        ImageView gobackArrow = (ImageView) findViewById(R.id.gobackArrow);
+        gobackArrow.setOnClickListener(this);
     }
 
     //Get Modules from Firestore for Auto Complete Text
@@ -208,8 +213,9 @@ public class FilterActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.backArrow:
+            case R.id.gobackArrow:
                 startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
+                break;
         }
     }
 }

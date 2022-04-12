@@ -13,12 +13,13 @@
         android:text="Filter"
         android:textSize="35sp"
         android:textStyle="bold"
-        android:layout_marginStart="150dp">
+        android:layout_marginStart="150dp"
+        android:layout_marginTop="7dp">
     </TextView>
 
 
     <ImageView
-        android:id="@+id/backArrow"
+        android:id="@+id/gobackArrow"
         android:layout_width="36dp"
         android:layout_height="30dp"
         android:layout_margin="15dp"
