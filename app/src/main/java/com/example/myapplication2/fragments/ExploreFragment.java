@@ -106,11 +106,14 @@ public class ExploreFragment extends Fragment {
                 holder.event_end.setText(model.getEventEndTimeString());
                 holder.event_date.setText(model.getEventStartDate());
 
+                String documentId = getSnapshots().getSnapshot(position).getReference().getPath();
+
                 // Bring users to View Event when clicking on viewEventButton
                 holder.viewEventButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view1) {
                         Intent intent = new Intent(getActivity(), ViewEventActivity.class);
+                        intent.putExtra("DOCUMENT_ID",documentId);
                         ((MainPageActivity) getActivity()).startActivity(intent);
                     }
                 });
