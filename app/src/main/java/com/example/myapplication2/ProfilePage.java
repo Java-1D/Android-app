@@ -110,20 +110,19 @@ public class ProfilePage extends AppCompatActivity {
         //TODO: Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
         Intent intent = getIntent();
         profileDocumentId = intent.getStringExtra(PROFILE_ID);
-        profileDocumentId = "Test";
-//        if (profileDocumentId == null) {
-//            Log.w(TAG, "Profile Document ID is null");
-//            finish();
-//        }
-//        else {
-//            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-//        }
-//        //Check whether user is not checking his own profile
-//        LoggedInUser user = LoggedInUser.getInstance();
-//        if (profileDocumentId != user.getUserString()) {
-//            editButton.setVisibility(View.GONE);
-//            logOutButton.setVisibility(View.GONE);
-//        }
+//        profileDocumentId = "Test";
+        if (profileDocumentId == null) {
+            Log.w(TAG, "Profile Document ID is null. Using value from User Singleton");
+            profileDocumentId = user.getUserString();
+        }
+        else {
+            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+        }
+        //Check whether user is not checking his own profile
+        if (!profileDocumentId.equals(user.getUserString())) {
+            editButton.setVisibility(View.GONE);
+            logOutButton.setVisibility(View.GONE);
+        }
 
         //Get Profile Data from Firestore
         DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
