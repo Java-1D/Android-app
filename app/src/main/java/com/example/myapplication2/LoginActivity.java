@@ -48,9 +48,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.register:
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                 break;
-            case R.id.textView:
-                startActivity(new Intent(LoginActivity.this, ProfilePage.class));
-                break;
             case R.id.loginbtn:
                 TextView email = (TextView) findViewById(R.id.username);
                 String emailString = email.getText().toString();
