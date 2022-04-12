@@ -2,6 +2,7 @@ package com.example.myapplication2;
 
 import static com.example.myapplication2.utils.Utils.getCurrentUser;
 import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
+import static com.example.myapplication2.utils.Utils.getProfileID;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -60,7 +61,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     TextView information;
     ImageView emoji;
     TextView no_of_ppl;
-//    ShapeableImageView person1;
+    //    ShapeableImageView person1;
 //    ShapeableImageView person2;
 //    ShapeableImageView person3;
 //    TextView name1;
@@ -113,13 +114,15 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         usersList = findViewById(R.id.users_list);
         edit_event_button = findViewById(R.id.edit_event_button);
         backButton = (ImageView) findViewById(R.id.backButton);
-
+        backButton.setOnClickListener(this);
 
         join_button.setOnClickListener(this);
+        join_button.setEnabled(true);
+
         edit_event_button.setVisibility(View.GONE);
         edit_event_button.setOnClickListener(this);
+        edit_event_button.setEnabled(false);
 
-        backButton.setOnClickListener(this);
 
 
 
@@ -139,15 +142,29 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 EventModel eventModel = documentSnapshot.toObject(EventModel.class);
                 setEventDetails(eventModel);
                 DocumentReference userCreated = eventModel.getUserCreated();
-                if ( userCreated!= null && userCreated == user) {
-                    Log.d(TAG, "getUserCreated : " + eventModel.getUserCreated() + "\n \n currentuser : " + user );
-                    join_button.setVisibility(View.GONE);
-                    edit_event_button.setVisibility(View.VISIBLE);
+                Log.d(TAG, "getUserCreated : " + userCreated + "\n currentuser : " + user);
+
+                // logic to change join event to edit event
+                if (user != null && userCreated != null) {
+                    if (userCreated.getPath().equals(user.getPath())) {
+                        Log.d(TAG, "works : ");
+                        join_button.setEnabled(false);
+                        join_button.setClickable(false); // Bug here
+                        join_button.setVisibility(View.GONE);
+                        join_button.invalidate();
+//                        join_button.refreshDrawableState();
+                        Log.i(TAG, "check for join button" + join_button.isEnabled());
+
+                        edit_event_button.setVisibility(View.VISIBLE);
+                        edit_event_button.setEnabled(true);
+                        edit_event_button.setClickable(true); // Bug here
+                    }
                 }
+
 
                 adapter.startListening();
 
-//                usersList.setHasFixedSize(true); //TODO : Enable this when we are with UI
+                usersList.setHasFixedSize(true); //TODO : Enable this when we are with UI
                 usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 usersList.setAdapter(adapter);
 
@@ -223,50 +240,54 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View view) {
-        adapter.startListening();
-
         switch (view.getId()) {
             case R.id.edit_event_button:
-                Intent intent = new Intent(ViewEventActivity.this, EditEventActivity.class);
-                intent.putExtra("DOCUMENT_ID", docRef.getPath());
+                backButton.setEnabled(false);
+                Intent editIntent = new Intent(ViewEventActivity.this, EditEventActivity.class);
+                editIntent.putExtra("DOCUMENT_ID", getDocumentFromPath(docRef.getPath()));
                 Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
-                ViewEventActivity.this.startActivity(intent);
+                ViewEventActivity.this.startActivity(editIntent);
 
             case R.id.join_button:
-//                DocumentReference docRef = db.collection("Events").document(documentName);
-                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                        ArrayList<DocumentReference> usersJoined = eventModel.getUserJoined();
-                        int current = usersJoined.size();
-                        if (current == eventModel.getCapacity()) {
-                            Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
-                        }
-                        ;
+                if (join_button.isEnabled()) {
+                    DocumentReference docRef = db.collection("Events").document(documentName);
+                    docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            EventModel eventModel = documentSnapshot.toObject(EventModel.class);
+                            usersJoined = eventModel.getUserJoined();
+                            int current = usersJoined.size();
+                            if (current == eventModel.getCapacity()) {
+                                Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
+                            }
+                            ;
 //                        DocumentReference user = db.document("/Users/Test4"); // Test code. TODO : Delete after use
 
-                        // check if user is already in the list
-                        if (usersJoined.contains(user)) {
-                            Toast.makeText(ViewEventActivity.this, "You have already joined the event", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // append the array list of usersJoined with your Profile
-                            usersJoined.add(user);
-                            docRef.update("userJoined", FieldValue.arrayUnion(user));
+                            // check if user is already in the list
+                            if (usersJoined.contains(user)) {
+                                Toast.makeText(ViewEventActivity.this, "You have already joined the event", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // append the array list of usersJoined with your Profile
+                                usersJoined.add(user);
+                                docRef.update("userJoined", FieldValue.arrayUnion(user));
 
-                            // update the firebase with usersJoined
-                            Toast.makeText(ViewEventActivity.this, "You have successfully joined the event", Toast.LENGTH_SHORT).show();
+                                // update the firebase with usersJoined
+                                Toast.makeText(ViewEventActivity.this, "You have successfully joined the event", Toast.LENGTH_SHORT).show();
+
+                            }
 
                         }
+                    });
+                }
 
-                    }
-                });
 
             case R.id.backButton:
-                // Create explicit intent to go into MainPage
-                Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
-                startActivity(mainActivityIntent);
-
+                if (backButton.isEnabled()) {
+                    // Create explicit intent to go into MainPage
+                    Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
+                    Toast.makeText(ViewEventActivity.this, "Home Page", Toast.LENGTH_SHORT).show();
+                    startActivity(mainActivityIntent);
+                }
 
 //            case R.id.search1:
 //                DocumentReference docRef1 = db.collection("Events").document("Test Event");
@@ -324,22 +345,24 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 holder.username.setText(model.getName());
                 Utils.loadImage(model.getImagePath(), holder.user_image);
                 // Bring users to View Event when clicking on viewEventButton
-                String profileId = getSnapshots().getSnapshot(position).getReference().getPath();
+                String profileId = getProfileID(getSnapshots().getSnapshot(position).getReference().getPath());
                 holder.user_profile.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view1) {
                         Toast.makeText(ViewEventActivity.this, "UserProfile Clicked : " + profileId, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(ViewEventActivity.this, ProfilePage.class);
-                        intent.putExtra("PROFILE_ID",profileId);
+                        intent.putExtra("PROFILE_ID", profileId);
                         ViewEventActivity.this.startActivity(intent);
                     }
                 });
 
             }
-            };
-
-
         };
+
+
+    }
+
+    ;
 
     @Override
     protected void onStart() {

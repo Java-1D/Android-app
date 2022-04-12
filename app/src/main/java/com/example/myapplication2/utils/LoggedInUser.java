@@ -1,5 +1,7 @@
 package com.example.myapplication2.utils;
 
+import static com.example.myapplication2.utils.Utils.getProfileID;
+
 import com.google.firebase.firestore.DocumentReference;
 
 public class LoggedInUser {
@@ -25,6 +27,10 @@ public class LoggedInUser {
     public DocumentReference getUserDocRef() {
         return this.documentReference;
     }
+
+    public String getUserId() {
+      return getProfileID(this.documentReference.getPath());
+    };
 
     public String getUserString() {
         return this.username;
