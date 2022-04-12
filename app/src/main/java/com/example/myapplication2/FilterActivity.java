@@ -139,10 +139,12 @@ public class FilterActivity extends AppCompatActivity {
                 startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
             } else if (view.getId() == R.id.FilterButton) {
                 //FIXME: Pass values such as module selection and capacity selection as an intent for processing in ExploreFragment
-                Intent intent = new Intent(FilterActivity.this, ExploreFragment.class);
-                intent.putExtra("MODULE_SELECTION", moduleSelection);
-                intent.putExtra("CAPACITY_SELECTION", capacitySelection);
-                startActivity(intent);
+                Bundle bundle = new Bundle();
+                bundle.putString("MODULE_SELECTION", moduleSelection);
+                bundle.putInt("CAPACITY_SELECTION", capacitySelection);
+                ExploreFragment exploreFragment = new ExploreFragment();
+                exploreFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, exploreFragment).commit();
             }
         }
     }
