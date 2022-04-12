@@ -42,6 +42,9 @@ public class ProfilePage extends AppCompatActivity {
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
     final FirebaseContainer<ModuleModel> module = new FirebaseContainer<>(new ModuleModel());
 
+    //User Singleton
+    LoggedInUser user;
+
     //View UI elements
     ImageView profilePicture;
     TextView profileName;
@@ -91,6 +94,9 @@ public class ProfilePage extends AppCompatActivity {
         //initialise Firestore db
         db = FirebaseFirestore.getInstance();
 
+        //Get value from Singleton
+        user = LoggedInUser.getInstance();
+
         //initialise UI elements
         backArrow = findViewById(R.id.backArrow);
         logOutButton = findViewById(R.id.logOutButton);
@@ -104,20 +110,19 @@ public class ProfilePage extends AppCompatActivity {
         //TODO: Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
         Intent intent = getIntent();
         profileDocumentId = intent.getStringExtra(PROFILE_ID);
-        profileDocumentId = "Test";
-//        if (profileDocumentId == null) {
-//            Log.w(TAG, "Profile Document ID is null");
-//            finish();
-//        }
-//        else {
-//            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
-//        }
+//        profileDocumentId = "Test";
+        if (profileDocumentId == null) {
+            Log.w(TAG, "Profile Document ID is null. Using value from User Singleton");
+            profileDocumentId = user.getUserString();
+        }
+        else {
+            Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
+        }
         //Check whether user is not checking his own profile
-//        LoggedInUser user = LoggedInUser.getInstance();
-//        if (!profileDocumentId.equals(user.getUserString())) {
-//            editButton.setVisibility(View.GONE);
-//            logOutButton.setVisibility(View.GONE);
-//        }
+        if (!profileDocumentId.equals(user.getUserString())) {
+            editButton.setVisibility(View.GONE);
+            logOutButton.setVisibility(View.GONE);
+        }
 
         //Get Profile Data from Firestore
         DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);

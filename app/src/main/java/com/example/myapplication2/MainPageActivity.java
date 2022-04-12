@@ -3,6 +3,7 @@ package com.example.myapplication2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -52,9 +53,10 @@ public class MainPageActivity extends AppCompatActivity implements NavigationBar
                 return true;
 
             case R.id.profile:
-                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, profileFragment).commit();
+                Intent profileIntent = new Intent(this, ProfilePage.class);
+                profileIntent.putExtra("PROFILE_ID","Test");
+                startActivity(profileIntent);
                 return true;
-
         }
 
         return false;
