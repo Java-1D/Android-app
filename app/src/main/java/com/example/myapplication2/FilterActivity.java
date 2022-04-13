@@ -154,7 +154,7 @@ public class FilterActivity extends AppCompatActivity {
 
                 Log.i(TAG, "Filter Selection applied to shared Preferences");
 
-                Toast.makeText(FilterActivity.this, "Filters Applied!", Toast.LENGTH_SHORT);
+                Toast.makeText(FilterActivity.this, "Filters Applied!", Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
