@@ -1,13 +1,15 @@
 package com.example.myapplication2;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,12 +19,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.myapplication2.fragments.ExploreFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -42,6 +42,9 @@ public class FilterActivity extends AppCompatActivity {
 
 
     private static final String TAG = "FilterActivity";
+//    public static final String PREFERENCE_NAME = "FILTER_SELECTION";
+    public static final String CAPACITY_SELECTION = "CAPACITY_SELECTION";
+    public static final String MODULE_SELECTION = "MODULE_SELECTION";
 
     //Objects to handle data from Firebase
     FirebaseFirestore db;
@@ -54,7 +57,7 @@ public class FilterActivity extends AppCompatActivity {
     Button filterButton;
 
     AutoCompleteTextView autoCompleteTxtCapacity;
-    String[] items = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    String[] items = {"0", "1", "2", "3", "4", "5", "6", "7", "8"};
     ArrayAdapter<String> adapterItemsCapacity;
 
     AutoCompleteTextView autoCompleteTxtModules;
@@ -130,7 +133,6 @@ public class FilterActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 capacitySelection = Integer.parseInt(parent.getItemAtPosition(position).toString());
                 Log.i(TAG, String.valueOf(capacitySelection));
-//                Toast.makeText(getApplicationContext(), "Capacity: " + capacitySelection, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -142,23 +144,20 @@ public class FilterActivity extends AppCompatActivity {
                 startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
             } else if (view.getId() == R.id.FilterButton) {
                 //FIXME: Pass values such as module selection and capacity selection as an intent for processing in ExploreFragment
-                Bundle bundle = new Bundle();
-                bundle.putString("MODULE_SELECTION", moduleSelection);
-                bundle.putInt("CAPACITY_SELECTION", capacitySelection);
-                Log.d(TAG,moduleSelection + "");
-                Fragment exploreFragment = new ExploreFragment();
-                exploreFragment.setArguments(bundle);
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.flFragment, exploreFragment).commit();
-//                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, exploreFragment).commit();
+                //shared preferences for previous selection
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(FilterActivity.this);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                editor.putString(MODULE_SELECTION, moduleSelection);
+                editor.putInt(CAPACITY_SELECTION, capacitySelection);
+                editor.apply();
+
+                Log.i(TAG, "Filter Selection applied to shared Preferences");
+
+                Toast.makeText(FilterActivity.this, "Filters Applied!", Toast.LENGTH_SHORT);
+                finish();
             }
         }
-    }
-    public String getFilterModuleSelection() {
-        return moduleSelection;
-    }
-    public int getCapacitySelection(){
-        return capacitySelection;
     }
 }
 
