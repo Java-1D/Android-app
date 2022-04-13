@@ -159,5 +159,11 @@ public class FilterActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
+    }
 }
 
