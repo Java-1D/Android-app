@@ -178,7 +178,7 @@ public class ExploreFragment extends Fragment {
         DocumentReference moduleDocRef = db.document(moduleSelection);
         Log.i(TAG, "DocumentReference: " + moduleDocRef);
 
-        Query queryMod = db.collection(EVENTS).whereEqualTo("modules", moduleDocRef);
+        Query queryMod = db.collection(EVENTS).whereEqualTo("module", moduleDocRef);
         Log.i(TAG, "Query: " + queryMod);
         return queryMod;
     }
@@ -196,7 +196,7 @@ public class ExploreFragment extends Fragment {
 
         //TODO: Need to check whether compound queries such as the one below works
         //Filter based on Capacity Chosen -> Checks whether an events have at least x slots available for user and his friends to join
-        Query queryModCap = db.collection(EVENTS).whereEqualTo("modules", moduleDocRef).whereGreaterThanOrEqualTo("capacity", capacitySelection);
+        Query queryModCap = db.collection(EVENTS).whereEqualTo("module", moduleDocRef).whereGreaterThanOrEqualTo("capacity", capacitySelection);
         Log.i(TAG, "Query: " + queryModCap);
         return queryModCap;
     }
