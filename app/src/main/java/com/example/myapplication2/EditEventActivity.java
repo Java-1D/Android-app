@@ -570,6 +570,5 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
                 }
             });
-    //</editor-fold>
 
 }

@@ -127,7 +127,6 @@ public class FilterActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 capacitySelection = Integer.parseInt(parent.getItemAtPosition(position).toString());
                 Log.i(TAG, String.valueOf(capacitySelection));
-//                Toast.makeText(getApplicationContext(), "Capacity: " + capacitySelection, Toast.LENGTH_SHORT).show();
             }
         });
     }

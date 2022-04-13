@@ -61,15 +61,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     TextView information;
     ImageView emoji;
     TextView no_of_ppl;
-    //    ShapeableImageView person1;
-//    ShapeableImageView person2;
-//    ShapeableImageView person3;
-//    TextView name1;
-//    TextView name2;
-//    TextView name3;
-//    ImageView search1;
-//    ImageView search2;
-//    ImageView search3;
+
     MaterialButton join_button;
     MaterialButton edit_event_button;
     String documentName = "";
@@ -281,7 +273,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 if (backButton.isEnabled()) {
                     // Create explicit intent to go into MainPage
                     Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
-                    Toast.makeText(ViewEventActivity.this, "Home Page", Toast.LENGTH_SHORT).show();
                     startActivity(mainActivityIntent);
                 }
 
