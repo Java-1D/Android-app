@@ -68,7 +68,8 @@ public class ProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.backArrow) {
-                startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
+//                startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
+                finish();
             } else if (id == R.id.logOutButton) {
                 Intent logOutIntent = new Intent(ProfilePage.this, LoginActivity.class);
                 logOutIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
