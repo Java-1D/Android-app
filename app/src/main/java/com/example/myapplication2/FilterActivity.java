@@ -4,12 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -18,12 +15,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.myapplication2.fragments.ExploreFragment;
-import com.example.myapplication2.objectmodel.EventModel;
-import com.example.myapplication2.utils.FirebaseContainer;
-import com.example.myapplication2.utils.Utils;
-import com.example.myapplication2.viewholder.EventViewHolder;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -65,6 +56,10 @@ public class FilterActivity extends AppCompatActivity {
 
     AutoCompleteTextView autoCompleteTxtModules;
     ArrayAdapter<String> adapterItemsModules;
+
+    //User-selected values
+    String moduleSelection;
+    int capacitySelection;
 
 
     @Override
@@ -121,16 +116,18 @@ public class FilterActivity extends AppCompatActivity {
         autoCompleteTxtModules.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String item = adapterView.getItemAtPosition(i).toString();
-                Log.i(TAG, item);
+                String module = adapterView.getItemAtPosition(i).toString();
+                moduleSelection = modulesMap.get(module).getPath();
+                Log.i(TAG, moduleSelection);
             }
         });
 
         autoCompleteTxtCapacity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String item2 = parent.getItemAtPosition(position).toString();
-                Toast.makeText(getApplicationContext(), "Item: " + item2, Toast.LENGTH_SHORT).show();
+                capacitySelection = Integer.parseInt(parent.getItemAtPosition(position).toString());
+                Log.i(TAG, String.valueOf(capacitySelection));
+//                Toast.makeText(getApplicationContext(), "Capacity: " + capacitySelection, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -143,49 +140,11 @@ public class FilterActivity extends AppCompatActivity {
             } else if (view.getId() == R.id.FilterButton) {
                 //FIXME: Pass values such as module selection and capacity selection as an intent for processing in ExploreFragment
                 Intent intent = new Intent(FilterActivity.this, ExploreFragment.class);
-                ArrayList<String> moduleSelection = new ArrayList<>();
-                String capacitySelection = "";
-                intent.putStringArrayListExtra("MODULES_SELECTION", moduleSelection);
+                intent.putExtra("MODULE_SELECTION", moduleSelection);
                 intent.putExtra("CAPACITY_SELECTION", capacitySelection);
                 startActivity(intent);
             }
         }
-    }
-
-    //FIXME: Move Methods to ExploreFragment to perform query based on values passed in Filter Button via intent
-    protected Query filterEvents(ArrayList<String> moduleSelection) {
-        //Only accepts up to 10 comparisons, i.e. modulesDocRef must have at most 10 elements
-        ArrayList<DocumentReference> modulesDocRef = new ArrayList<>();
-        for (String key: moduleSelection) {
-            modulesDocRef.add(modulesMap.get(key));
-        }
-
-        Query query = db.collection("Events").whereIn("modules", modulesDocRef);
-        Log.d(TAG, "Query" + query.toString());
-        return query;
-    }
-
-    protected Query filterEvents(String capacitySelection) {
-        int capacity = Integer.parseInt(capacitySelection);
-        //Filter based on Capacity Chosen -> Checks whether an events have at least x slots available for user and his friends to join
-        Query query = db.collection("Events").whereGreaterThanOrEqualTo("capacity", capacity);
-        Log.d(TAG, "Query" + query.toString());
-        return query;
-    }
-
-    protected Query filterEvents(ArrayList<String> moduleSelection, String capacitySelection) {
-        int capacity = Integer.parseInt(capacitySelection);
-        //Only accepts up to 10 comparisons, i.e. modulesDocRef must have at most 10 elements
-        ArrayList<DocumentReference> modulesDocRef = new ArrayList<>();
-        for (String key: moduleSelection) {
-            modulesDocRef.add(modulesMap.get(key));
-        }
-
-        //TODO: Need to check whether compound queries such as the one below works
-        //Filter based on Capacity Chosen -> Checks whether an events have at least x slots available for user and his friends to join
-        Query query = db.collection("Events").whereIn("modules", modulesDocRef).whereGreaterThanOrEqualTo("capacity", capacity);
-        Log.d(TAG, "Query" + query.toString());
-        return query;
     }
 }
 
