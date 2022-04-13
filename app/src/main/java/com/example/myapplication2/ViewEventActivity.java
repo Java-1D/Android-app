@@ -141,7 +141,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                         join_button.setClickable(false); // Bug here
                         join_button.setVisibility(View.GONE);
                         join_button.invalidate();
-//                        join_button.refreshDrawableState();
                         Log.i(TAG, "check for join button" + join_button.isEnabled());
 
                         edit_event_button.setVisibility(View.VISIBLE);
@@ -338,5 +337,11 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         if (adapter != null) {
             adapter.stopListening();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        startActivity(new Intent(ViewEventActivity.this, MainPageActivity.class));
     }
 }
