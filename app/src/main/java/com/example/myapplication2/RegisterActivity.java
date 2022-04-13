@@ -21,31 +21,20 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Date;
-import java.util.Locale;
-
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText username, password, name, email;
-    private ProgressBar progressBar;
-
-    private FirebaseAuth mAuth;
-    private View v;
 
     static final String TAG = "CreateEvents";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
-
-        mAuth = FirebaseAuth.getInstance();
+        setContentView(R.layout.activity_register);
 
         TextView haveAnAccount = (TextView) findViewById(R.id.alreadyhaveAccount);
         haveAnAccount.setOnClickListener(this);
@@ -57,7 +46,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         name = (EditText) findViewById(R.id.inputName);
         email = (EditText) findViewById(R.id.inputEmail);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -135,11 +124,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                                     DocumentSnapshot document = task.getResult();
                                                     if (document.exists()) {
                                                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+
                                                         // add user to firestore
                                                         UserModel newUserModel = new UserModel(
                                                                 enteredEmail,
                                                                 enteredPassword,
-//                                                                document.getDocumentReference("Profiles" + enteredName),
                                                                 profileRef,
                                                                 enteredName
                                                         );
@@ -175,7 +164,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 emptyProfileModel.setImagePath("https://lh3.googleusercontent.com/FvbhxldyJyNdgPmJHBs-iYSIAwIzWTnUkk9GCMegaaNgMQJVpFCHzamZP9AcFX8HdaHUy7qLUNAsVBQN_wH_si1WIgdrWzVNrLNz3Q=w600");
                 emptyProfileModel.setUserId(docIdRef);
                 emptyProfileModel.setName(enteredName);
-                emptyProfileModel.setBio("A rabbit jumped over my grave");
+                emptyProfileModel.setBio("CSD Rocks");
                 emptyProfileModel.setPillar("CSD");
                 emptyProfileModel.setTerm(5);
             }

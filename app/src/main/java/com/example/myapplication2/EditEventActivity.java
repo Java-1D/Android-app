@@ -75,7 +75,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public class EditEventActivity extends AppCompatActivity implements View.OnClickListener{
+public class EditEventActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView editImage;
     Button setImageButton;
 
@@ -105,7 +105,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     String documentName;
 
     static final String TAG = "EditEvents";
-
 
 
     @Override
@@ -177,7 +176,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 editVenue.setText(eventModel.getVenue());
 
                 DocumentReference moduleReference = eventModel.getModule();
-                if (moduleReference != null){
+                if (moduleReference != null) {
                     moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -215,7 +214,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.editEventButton:
                 if (!Utils.isNetworkAvailable(this)) {
                     Toast.makeText(EditEventActivity.this, R.string.internet_required, Toast.LENGTH_SHORT).show();
@@ -254,57 +253,57 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
-                                // https://firebase.google.com/docs/storage/android/upload-files
-                                // Uploading image into Firebase Storage
-                                // Randomizing id for file name
-                                StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
+                            // https://firebase.google.com/docs/storage/android/upload-files
+                            // Uploading image into Firebase Storage
+                            // Randomizing id for file name
+                            StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
 
-                                // Get the data from an ImageView as bytes
-                                editImage.setDrawingCacheEnabled(true);
-                                editImage.buildDrawingCache();
-                                Bitmap bitmap = ((BitmapDrawable) editImage.getDrawable()).getBitmap();
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                byte[] data = baos.toByteArray();
+                            // Get the data from an ImageView as bytes
+                            editImage.setDrawingCacheEnabled(true);
+                            editImage.buildDrawingCache();
+                            Bitmap bitmap = ((BitmapDrawable) editImage.getDrawable()).getBitmap();
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                            byte[] data = baos.toByteArray();
 
-                                UploadTask uploadTask = eventImageRef.putBytes(data);
-                                uploadTask.addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
-                                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                                    }
-                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        Log.i(TAG, "uploadTask: Image successfully uploaded");
-                                        taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Uri> task) {
-                                                String eventImage = task.getResult().toString();
+                            UploadTask uploadTask = eventImageRef.putBytes(data);
+                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                                }
+                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Log.i(TAG, "uploadTask: Image successfully uploaded");
+                                    taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Uri> task) {
+                                            String eventImage = task.getResult().toString();
 
-                                                EventModel eventModel = new EventModel(
-                                                        eventName,
-                                                        eventDescription,
-                                                        eventVenue,
-                                                        selectedModuleReference,
-                                                        eventCapacity,
-                                                        startDateTime.getTime(),
-                                                        endDateTime.getTime(),
-                                                        eventImage,
-                                                        userCreated
-                                                );
+                                            EventModel eventModel = new EventModel(
+                                                    eventName,
+                                                    eventDescription,
+                                                    eventVenue,
+                                                    selectedModuleReference,
+                                                    eventCapacity,
+                                                    startDateTime.getTime(),
+                                                    endDateTime.getTime(),
+                                                    eventImage,
+                                                    userCreated
+                                            );
 
-                                                db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
-                                                Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                            db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
+                                            Log.i(TAG, "createEvent: Successful. Event added to Firebase");
 
-                                                // Create explicit intent to go into MainPage
-                                                Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
-                                                startActivity(intent);
-                                            }
-                                        });
+                                            // Create explicit intent to go into MainPage
+                                            Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    });
 
-                                    }
-                                });
+                                }
+                            });
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                             editButton.setEnabled(true);
@@ -456,7 +455,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         // Creating AlertDialog for user action
         // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
         // Edited the part where user can still click and request individually
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // edit a menuOption Array
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"}; // edit a menuOption Array
         Log.i(TAG, "chooseImage: Dialog launched");
         // edit a dialog for showing the optionsMenu
         AlertDialog.Builder builder = new AlertDialog.Builder(EditEventActivity.this);
@@ -464,15 +463,13 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(optionsMenu[i].equals("Take Photo")){
+                if (optionsMenu[i].equals("Take Photo")) {
                     cameraLaunch();
                     Log.i(TAG, "chooseImage: Camera chosen");
-                }
-                else if(optionsMenu[i].equals("Choose from Gallery")){
+                } else if (optionsMenu[i].equals("Choose from Gallery")) {
                     galleryLaunch();
                     Log.i(TAG, "chooseImage: Gallery chosen");
-                }
-                else if (optionsMenu[i].equals("Exit")) {
+                } else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
                     Log.i(TAG, "chooseImage: Dialog dismissed");
                 }
@@ -487,7 +484,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
+            options.setAspectRatio(1, 1);
             options.setImageSource(false, true);
             cropImage.launch(options);
             Log.i(TAG, "cameraLaunch: Permission allowed, camera launched");
@@ -505,7 +502,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
+            options.setAspectRatio(1, 1);
             options.setImageSource(true, false);
             cropImage.launch(options);
             Log.i(TAG, "galleryLaunch: Permission allowed, camera launched");
@@ -526,7 +523,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
             new ActivityResultCallback<CropImageView.CropResult>() {
                 @Override
                 public void onActivityResult(CropImageView.CropResult result) {
-                    if (result!=null ) {
+                    if (result != null) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
                             editImage.setImageURI(selectedImageUri);

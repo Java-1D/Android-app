@@ -60,7 +60,7 @@ public class ProfilePage extends AppCompatActivity {
 
     //RecyclerView components
     ProfileRecyclerAdapter adapter;
-    ArrayList<ProfileViewModel> arrModules  = new ArrayList<>();
+    ArrayList<ProfileViewModel> arrModules = new ArrayList<>();
 
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
@@ -107,15 +107,12 @@ public class ProfilePage extends AppCompatActivity {
         bioText = findViewById(R.id.bioText);
         editButton = findViewById(R.id.editButton);
 
-        //TODO: Fetch ProfileDocumentId from Intent, Return to previous activity if String is null
         Intent intent = getIntent();
         profileDocumentId = intent.getStringExtra(PROFILE_ID);
-//        profileDocumentId = "Test";
         if (profileDocumentId == null) {
             Log.w(TAG, "Profile Document ID is null. Using value from User Singleton");
             profileDocumentId = user.getUserString();
-        }
-        else {
+        } else {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
         }
         //Check whether user is not checking his own profile
@@ -138,11 +135,6 @@ public class ProfilePage extends AppCompatActivity {
         backArrow.setOnClickListener(new ClickListener());
         logOutButton.setOnClickListener(new ClickListener());
         editButton.setOnClickListener(new ClickListener());
-    }
-    @Override
-    public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
-        startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
     }
 
 
@@ -169,14 +161,13 @@ public class ProfilePage extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot document) {
                 if (document.exists()) {
                     Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
                     ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
                     if (ProfilePage.this.profile.get().getModules() != null) {
                         addModuleToRecyclerView();
                     }
-                }
-                else {
+                } else {
                     Log.w(TAG, "Document does not exist");
                 }
             }
@@ -208,20 +199,19 @@ public class ProfilePage extends AppCompatActivity {
 
     //Add Module Data Retrieved
     protected void addModuleToRecyclerView() {
-        for (DocumentReference moduleRef: profile.get().getModules()) {
+        for (DocumentReference moduleRef : profile.get().getModules()) {
             moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot document) {
                     if (document.exists()) {
                         Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
-                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
                         ProfilePage.this.module.set(document.toObject(ModuleModel.class));
 
                         //Add modules from Firestore DocumentReference to Recycler View
                         arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
                         ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
-                    }
-                    else {
+                    } else {
                         Log.w(TAG, "Document does not exist");
                     }
                 }
@@ -233,4 +223,11 @@ public class ProfilePage extends AppCompatActivity {
             });
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
+    }
+
 }

@@ -76,7 +76,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
+public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView createImage;
     Button setImageButton;
 
@@ -164,7 +164,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.createEventButton:
                 if (!Utils.isNetworkAvailable(this)) {
                     Toast.makeText(CreateEventActivity.this, R.string.internet_required, Toast.LENGTH_SHORT).show();
@@ -405,7 +405,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         // Creating AlertDialog for user action
         // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
         // Edited the part where user can still click and request individually
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
+        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"}; // create a menuOption Array
         Log.i(TAG, "chooseImage: Dialog launched");
         // create a dialog for showing the optionsMenu
         AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
@@ -413,15 +413,13 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(optionsMenu[i].equals("Take Photo")){
+                if (optionsMenu[i].equals("Take Photo")) {
                     cameraLaunch();
                     Log.i(TAG, "chooseImage: Camera chosen");
-                }
-                else if(optionsMenu[i].equals("Choose from Gallery")){
+                } else if (optionsMenu[i].equals("Choose from Gallery")) {
                     galleryLaunch();
                     Log.i(TAG, "chooseImage: Gallery chosen");
-                }
-                else if (optionsMenu[i].equals("Exit")) {
+                } else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
                     Log.i(TAG, "chooseImage: Dialog dismissed");
                 }
@@ -436,7 +434,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
+            options.setAspectRatio(1, 1);
             options.setImageSource(false, true);
             cropImage.launch(options);
             Log.i(TAG, "cameraLaunch: Permission allowed, camera launched");
@@ -454,7 +452,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
+            options.setAspectRatio(1, 1);
             options.setImageSource(true, false);
             cropImage.launch(options);
             Log.i(TAG, "galleryLaunch: Permission allowed, camera launched");
@@ -475,7 +473,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
             new ActivityResultCallback<CropImageView.CropResult>() {
                 @Override
                 public void onActivityResult(CropImageView.CropResult result) {
-                    if (result!=null ) {
+                    if (result != null) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
                             createImage.setImageURI(selectedImageUri);
@@ -519,6 +517,5 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 }
             });
-    //</editor-fold>
 
 }

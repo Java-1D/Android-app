@@ -23,8 +23,6 @@ import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
-import com.example.myapplication2.utils.FirebaseContainer;
-import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -80,7 +78,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.view_events_users);
+        setContentView(R.layout.activity_view_events);
 
         db = FirebaseFirestore.getInstance();
 
@@ -151,7 +149,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
 
                 adapter.startListening();
-
                 usersList.setHasFixedSize(true);
                 usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 usersList.setAdapter(adapter);
@@ -219,7 +216,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 ProfileModel model = documentSnapshot.toObject(ProfileModel.class);
                 Utils.loadImage(model.getImagePath(), image_name);
                 creatorName.setText(model.getName());
-
 
             }
         });
@@ -296,7 +292,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             @Override
             public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 // Creates a new instance of View Holder
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_users_item, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_events_user, parent, false);
                 return new ProfileViewHolder(view);
             }
 
@@ -310,7 +306,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 holder.user_profile.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view1) {
-                        Toast.makeText(ViewEventActivity.this, "UserProfile Clicked : " + profileId, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(ViewEventActivity.this, ProfilePage.class);
                         intent.putExtra("PROFILE_ID", profileId);
                         ViewEventActivity.this.startActivity(intent);

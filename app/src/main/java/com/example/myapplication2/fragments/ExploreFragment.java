@@ -61,7 +61,7 @@ public class ExploreFragment extends Fragment {
         Log.i(TAG, "OnCreateView is called");
 
         // Inflate the layout for this fragment
-        View fragmentView = inflater.inflate(R.layout.fragment_view_events, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_explore, container, false);
         eventsList = fragmentView.findViewById(R.id.recyclerViewEvents);
 
 
