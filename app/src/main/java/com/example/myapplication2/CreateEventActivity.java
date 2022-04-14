@@ -37,6 +37,7 @@ import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.ImageHandler;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -76,8 +77,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
-    ImageView createImage;
+public class CreateEventActivity extends ImageHandler implements View.OnClickListener{
     Button setImageButton;
 
     EditText createName;
@@ -112,7 +112,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_create_events);
 
         // Casting to ensure that the types are correct
-        createImage = findViewById(R.id.createEventImage);
+        image = findViewById(R.id.createEventImage);
         setImageButton = findViewById(R.id.setImageButton);
 
         createName = (EditText) findViewById(R.id.createEventName);
@@ -214,9 +214,9 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                                 StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
 
                                 // Get the data from an ImageView as bytes
-                                createImage.setDrawingCacheEnabled(true);
-                                createImage.buildDrawingCache();
-                                Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
+                                image.setDrawingCacheEnabled(true);
+                                image.buildDrawingCache();
+                                Bitmap bitmap = ((BitmapDrawable) image.getDrawable()).getBitmap();
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                                 byte[] data = baos.toByteArray();
@@ -392,133 +392,4 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         datePickerDialog.show();
         Log.i(TAG, "dateTimePicker: Dialog launched");
     }
-
-    /**
-     * CropImage helper functions
-     * Call function: chooseImage()
-     */
-    //<editor-fold desc="CropImage helper functions">
-    // Creating AlertDialog for user action
-    // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
-    // Edited the part where user can still click and request individually
-    void chooseImage() {
-        // Creating AlertDialog for user action
-        // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
-        // Edited the part where user can still click and request individually
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
-        Log.i(TAG, "chooseImage: Dialog launched");
-        // create a dialog for showing the optionsMenu
-        AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
-        // set the items in builder
-        builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(optionsMenu[i].equals("Take Photo")){
-                    cameraLaunch();
-                    Log.i(TAG, "chooseImage: Camera chosen");
-                }
-                else if(optionsMenu[i].equals("Choose from Gallery")){
-                    galleryLaunch();
-                    Log.i(TAG, "chooseImage: Gallery chosen");
-                }
-                else if (optionsMenu[i].equals("Exit")) {
-                    dialogInterface.dismiss();
-                    Log.i(TAG, "chooseImage: Dialog dismissed");
-                }
-            }
-        });
-        builder.show();
-    }
-
-    void cameraLaunch() {
-        // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            // Start new CropActivity provided by library
-            // https://github.com/CanHub/Android-Image-Cropper
-            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
-            options.setImageSource(false, true);
-            cropImage.launch(options);
-            Log.i(TAG, "cameraLaunch: Permission allowed, camera launched");
-        } else {
-            // You can directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-            Log.i(TAG, "cameraLaunch: Permission for camera requested");
-        }
-    }
-
-    void galleryLaunch() {
-        // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(CreateEventActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            // Start new CropActivity provided by library
-            // https://github.com/CanHub/Android-Image-Cropper
-            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1,1);
-            options.setImageSource(true, false);
-            cropImage.launch(options);
-            Log.i(TAG, "galleryLaunch: Permission allowed, camera launched");
-        } else {
-            // You can directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestGalleryPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            Log.i(TAG, "galleryLaunch: Permission for camera requested");
-        }
-    }
-
-    // Used for receiving activity result from CropImage
-    // Read on Android contract options
-    // https://developer.android.com/training/basics/intents/result
-    // https://www.youtube.com/watch?v=DfDj9EadOLk
-    ActivityResultLauncher<CropImageContractOptions> cropImage = registerForActivityResult(
-            new CropImageContract(),
-            new ActivityResultCallback<CropImageView.CropResult>() {
-                @Override
-                public void onActivityResult(CropImageView.CropResult result) {
-                    if (result!=null ) {
-                        if (result.isSuccessful() && result.getUriContent() != null) {
-                            Uri selectedImageUri = result.getUriContent();
-                            createImage.setImageURI(selectedImageUri);
-                            Log.i(TAG, "onActivityResult: Cropped image set");
-                        } else {
-                            Log.d(TAG, "onActivityResult: Cropping returned null");
-                        }
-                    }
-                }
-            });
-
-    // Using launchers to request for permission
-    // https://developer.android.com/training/permissions/requesting
-    ActivityResultLauncher<String> requestCameraPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            new ActivityResultCallback<Boolean>() {
-                @Override
-                public void onActivityResult(Boolean result) {
-                    if (result == true) {
-                        // Permission is granted. Continue the action or workflow in your app.
-                        cameraLaunch();
-                    } else {
-                        Toast.makeText(CreateEventActivity.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "PermissionRequest: Camera access denied");
-                    }
-                }
-            });
-
-    ActivityResultLauncher<String> requestGalleryPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            new ActivityResultCallback<Boolean>() {
-                @Override
-                public void onActivityResult(Boolean result) {
-                    if (result == true) {
-                        // Permission is granted. Continue the action or workflow in your app.
-                        galleryLaunch();
-                    } else {
-                        Toast.makeText(CreateEventActivity.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "PermissionRequest: Gallery access denied");
-                    }
-
-                }
-            });
-    //</editor-fold>
-
 }

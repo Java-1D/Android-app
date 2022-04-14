@@ -38,6 +38,7 @@ import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.ImageHandler;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.datatransport.runtime.dagger.Module;
