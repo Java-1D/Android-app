@@ -1,18 +1,11 @@
 package com.example.myapplication2;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,19 +14,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.canhub.cropper.CropImageContract;
-import com.canhub.cropper.CropImageContractOptions;
-import com.canhub.cropper.CropImageOptions;
-import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
+import com.example.myapplication2.utils.FirebaseDocument;
+import com.example.myapplication2.utils.FirebaseQuery;
 import com.example.myapplication2.utils.Utils;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -115,13 +103,13 @@ public class EditProfilePage extends AppCompatActivity {
         if (requestCode == ImageHandlerActivity.IMAGECROP) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImageUri = data.getParcelableExtra("croppedImage");
-                profilePicture.setImageURI(selectedImageUri);
+                uploadImageToCloudStorage(selectedImageUri);
             } else if (resultCode == RESULT_CANCELED) {
-                ;
+                Log.i(TAG, "PermissionRequest: Result cancelled");
             } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                ;
+                Log.i(TAG, "PermissionRequest: Camera access denied");
             } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                ;
+                Log.i(TAG, "PermissionRequest: Gallery access denied");
             }
         }
     }
@@ -149,8 +137,7 @@ public class EditProfilePage extends AppCompatActivity {
         }
 
         //Get Profile Data from Firestore
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-        getProfileData(profileRef);
+        getProfileData(profileDocumentId);
 
         //initialise UI elements
         profilePicture = findViewById(R.id.editProfilePicture);
@@ -184,37 +171,29 @@ public class EditProfilePage extends AppCompatActivity {
         getAllModulesFromFirebase();
     }
 
-
-    //Firebase-Specific Methods
-    protected DocumentReference getDocumentReference(String collectionId, String documentId) {
-        return db.collection(collectionId).document(documentId);
-    }
-
     //Get Data from Profiles Collection
-    protected void getProfileData(DocumentReference profileRef) {
-        profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+    protected void getProfileData(String profileDocumentId) {
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
-            public void onSuccess(DocumentSnapshot document) {
-                if (document.exists()) {
-                    Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
-                    EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                    EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
+            }
+        };
 
-                } else {
-                    Log.w(TAG, "Document does not exist");
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error retrieving document from Firestore", e);
-            }
-        });
+        firebaseDocument.run(ProfileModel.getCollectionId(), profileDocumentId);
     }
 
     //Set UI Elements using data from Firebase
     protected void setUIElements(ProfileModel profile) {
+        //Set Text
+        editName.setText(profile.getName());
+        editPillar.setText(profile.getPillar());
+        editTerm.setText(String.valueOf(profile.getTerm()));
+        editBio.setText(profile.getBio());
+
         //Set Image
         setImage(profile.getImagePath());
     }
@@ -226,23 +205,39 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     protected void getAllModulesFromFirebase() {
-        db.collection("Modules").get().addOnCompleteListener(new OnCompleteListener<>() {
+        String collectionId = "Modules";
+        FirebaseQuery firebaseQuery = new FirebaseQuery() {
+
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
-                        modulesMap.put(document.getString("name"), document.getReference());
-                    }
-                    Log.i(TAG, String.valueOf(modulesMap.keySet()));
-                    Set<String> keys = modulesMap.keySet();
-                    moduleArray = keys.toArray(new String[keys.size()]);
-                    buildModuleDropDown(moduleArray);
-                } else {
-                    Log.e(TAG, "Error getting documents: ", task.getException());
+            public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
+                    modulesMap.put(document.getString("name"), document.getReference());
                 }
+
+                Log.i(TAG, String.valueOf(modulesMap.keySet()));
+                Set<String> keys = modulesMap.keySet();
+                moduleArray = keys.toArray(new String[keys.size()]);
+
+                //Build String to set Text to editModules
+                Arrays.sort(moduleArray);
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int j = 0; j < moduleArray.length; j++) {
+                    String key = moduleArray[j];
+                    stringBuilder.append(key);
+                    if (j != moduleList.size() - 1) {
+                        stringBuilder.append(", ");
+                    }
+                }
+
+                //Set Dropdown Text
+                editModules.setText(stringBuilder.toString());
+
+                //Build Dropdown list
+                buildModuleDropDown(moduleArray);
             }
-        });
+        };
+        firebaseQuery.run(collectionId);
     }
 
     protected void buildModuleDropDown(String[] moduleArray) {
@@ -252,7 +247,8 @@ public class EditProfilePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(EditProfilePage.this);
-                builder.setTitle("Select Modules").setCancelable(false).setMultiChoiceItems(moduleArray, selectedModule,
+                builder.setTitle("Select Modules").setCancelable(false)
+                        .setMultiChoiceItems(moduleArray, selectedModule,
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i, boolean b) {
@@ -263,42 +259,38 @@ public class EditProfilePage extends AppCompatActivity {
                                     moduleList.remove(Integer.valueOf(i));
                                 }
                             }
-                        });
-
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (int j = 0; j < moduleList.size(); j++) {
-                            String key = moduleArray[moduleList.get(j)];
-                            stringBuilder.append(key);
-                            if (j != moduleList.size() - 1) {
-                                stringBuilder.append(", ");
+                        }).setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                StringBuilder stringBuilder = new StringBuilder();
+                                for (int j = 0; j < moduleList.size(); j++) {
+                                    String key = moduleArray[moduleList.get(j)];
+                                    stringBuilder.append(key);
+                                    if (j != moduleList.size() - 1) {
+                                        stringBuilder.append(", ");
+                                    }
+                                    Log.i(TAG, "Modules Key: " + modulesMap.get(key));
+                                    modules.get().add(modulesMap.get(key));
+                                }
+                                Log.i(TAG, "Modules Array: " + modules.get().toString());
+                                editModules.setText(stringBuilder.toString());
                             }
-                            Log.i(TAG, "Modules Key: " + modulesMap.get(key));
-                            modules.get().add(modulesMap.get(key));
-                        }
-                        Log.i(TAG, "Modules Array: " + modules.get().toString());
-                        editModules.setText(stringBuilder.toString());
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Arrays.fill(selectedModule, false);
-                        moduleList.clear();
-                        editModules.setText("");
-                        modules.get().clear();
-                        Log.i(TAG, "Modules Array: " + modules.get().toString());
-                    }
-                });
-                builder.show();
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        }).setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Arrays.fill(selectedModule, false);
+                                moduleList.clear();
+                                editModules.setText("");
+                                modules.get().clear();
+                                Log.i(TAG, "Modules Array: " + modules.get().toString());
+                            }
+                        }).show();
             }
         });
     }
@@ -306,7 +298,7 @@ public class EditProfilePage extends AppCompatActivity {
     //Upload image from Gallery/Camera to Firebase Cloud Storage
     private void uploadImageToCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
-        StorageReference imageRef = storageRef.child("Profiles/" + profileDocumentId);
+        StorageReference imageRef = storageRef.child("Profiles" + "/" + profileDocumentId);
         UploadTask uploadTask = imageRef.putFile(imageUri);
 
         // Register observers to listen for when the download is done or if it fails
@@ -340,7 +332,7 @@ public class EditProfilePage extends AppCompatActivity {
         if (!editTerm.getText().toString().matches("")) {
             profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
         }
-        if (!editModules.getText().toString().matches("")) {
+        if (!modules.get().isEmpty()) {
             profile.get().setModules(modules.get());
         }
         if (!editBio.getText().toString().matches("")) {

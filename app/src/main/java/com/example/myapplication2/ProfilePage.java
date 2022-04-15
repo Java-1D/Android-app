@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.FirebaseContainer;
+import com.example.myapplication2.utils.FirebaseDocument;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileRecyclerAdapter;
@@ -39,7 +40,6 @@ public class ProfilePage extends AppCompatActivity {
     private static final String PROFILE_ID = "PROFILE_ID";
 
     //Objects to handle data from Firebase
-    FirebaseFirestore db;
     String profileDocumentId;
     final FirebaseContainer<ProfileModel> profile = new FirebaseContainer<>(new ProfileModel());
     final FirebaseContainer<ModuleModel> module = new FirebaseContainer<>(new ModuleModel());
@@ -93,9 +93,6 @@ public class ProfilePage extends AppCompatActivity {
         setContentView(R.layout.activity_profile_page);
         Log.i(TAG, "onCreate is called");
 
-        //initialise Firestore db
-        db = FirebaseFirestore.getInstance();
-
         //Get value from Singleton
         user = LoggedInUser.getInstance();
 
@@ -118,14 +115,15 @@ public class ProfilePage extends AppCompatActivity {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
         }
         //Check whether user is not checking his own profile
-        if (!profileDocumentId.equals(user.getUserString())) {
-            disableButton(editButton);
-            disableButton(logOutButton);
-        }
+        //TODO: Remove Test profileID
+        profileDocumentId = "Test2";
+//        if (!profileDocumentId.equals(user.getUserString())) {
+//            disableButton(editButton);
+//            disableButton(logOutButton);
+//        }
 
         //Get Profile Data from Firestore
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-        getProfileData(profileRef);
+        getProfileData(profileDocumentId);
 
         //initialise RecyclerView elements for Modules Section
         recyclerView = findViewById(R.id.recyclerProfile);
@@ -144,45 +142,57 @@ public class ProfilePage extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         Log.i(TAG, "onRestart is called");
-        arrModules.clear();
 
-        DocumentReference profileRef = getDocumentReference(ProfileModel.getCollectionId(), profileDocumentId);
-        getProfileData(profileRef);
+        arrModules.clear();
+        getProfileData(profileDocumentId);
     }
 
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
 
-    //Firebase-Specific Methods
-    protected DocumentReference getDocumentReference(String collectionId, String documentId) {
-        return db.collection(collectionId).document(documentId);
+        startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
     }
 
     //Get Data from Profiles Collection
-    protected void getProfileData(DocumentReference profileRef) {
-        profileRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+    private void getProfileData(String profileDocumentId) {
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
-            public void onSuccess(DocumentSnapshot document) {
-                if (document.exists()) {
-                    Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                    ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                    ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
-                    if (ProfilePage.this.profile.get().getModules() != null) {
-                        addModuleToRecyclerView();
-                    }
-                } else {
-                    Log.w(TAG, "Document does not exist");
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
+                if (ProfilePage.this.profile.get().getModules() != null) {
+                    ProfilePage.this.addModuleToRecyclerView();
                 }
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error retrieving document from Firestore", e);
-            }
-        });
+        };
+
+        firebaseDocument.run(ProfileModel.getCollectionId(), profileDocumentId);
     }
 
-    //Set UI Elements using data from Firebase
-    protected void setUIElements(ProfileModel profile) {
+    //Add Module Data Retrieved
+    private void addModuleToRecyclerView() {
+        for (DocumentReference moduleRef : profile.get().getModules()) {
+            Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
+            FirebaseDocument firebaseDocument = new FirebaseDocument() {
+                @Override
+                public void callbackOnSuccess(DocumentSnapshot document) {
+                    Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                    ProfilePage.this.module.set(document.toObject(ModuleModel.class));
+
+                    //Add modules from Firestore DocumentReference to Recycler View
+                    arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
+                    ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                }
+            };
+
+            firebaseDocument.run(moduleRef);
+        }
+    }
+
+    //Set UI Elements for ProfilePage Activity
+    private void setUIElements(ProfileModel profile) {
         //Set Text
         profileName.setText(profile.getName());
         pillarValue.setText(profile.getPillar());
@@ -194,42 +204,8 @@ public class ProfilePage extends AppCompatActivity {
     }
 
     //Set Image for ImageView
-    protected void setImage(String imageURL) {
+    private void setImage(String imageURL) {
         Picasso.get().load(imageURL).resize(120, 120).centerCrop().transform(new Utils.CircleTransform()).into(profilePicture);
         Log.i(TAG, "Profile Picture set");
     }
-
-    //Add Module Data Retrieved
-    protected void addModuleToRecyclerView() {
-        for (DocumentReference moduleRef : profile.get().getModules()) {
-            moduleRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot document) {
-                    if (document.exists()) {
-                        Log.i(TAG, "File Path in Firebase: " + moduleRef.getPath());
-                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
-                        ProfilePage.this.module.set(document.toObject(ModuleModel.class));
-
-                        //Add modules from Firestore DocumentReference to Recycler View
-                        arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
-                        ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
-                    } else {
-                        Log.w(TAG, "Document does not exist");
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG, "Error retrieving document from Firestore", e);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
-        startActivity((new Intent(ProfilePage.this, MainPageActivity.class)));
-    }
-
 }

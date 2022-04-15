@@ -1,15 +1,12 @@
 package com.example.myapplication2;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,8 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.myapplication2.utils.FirebaseQuery;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -29,20 +25,17 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Filter Activity is used instead of Filter Fragment due to bugs - yk
  * Filter Activity returns a page that allows user to filter the type of events
  * they want to join
  */
 
 public class FilterActivity extends AppCompatActivity {
-
-
-
+    
     private static final String TAG = "FilterActivity";
-//    public static final String PREFERENCE_NAME = "FILTER_SELECTION";
     public static final String CAPACITY_SELECTION = "CAPACITY_SELECTION";
     public static final String MODULE_SELECTION = "MODULE_SELECTION";
 
@@ -79,7 +72,7 @@ public class FilterActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         getModulesFromFirestore(); // populate array list with modules
 
-        backArrow = (ImageView) findViewById(R.id.BackArrow);
+        backArrow = findViewById(R.id.BackArrow);
         backArrow.setOnClickListener(new ClickListener());
         filterButton = findViewById(R.id.FilterButton);
         filterButton.setOnClickListener(new ClickListener());
@@ -87,43 +80,38 @@ public class FilterActivity extends AppCompatActivity {
 
     //Get Modules from Firestore for Auto Complete Text
     protected void getModulesFromFirestore() {
-        db.collection("Modules")
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(@NonNull QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
-                            modulesMap.put(document.getString("name"), document.getReference());
-                        }
-                        Log.i(TAG, "HashMap Keys: " + modulesMap.keySet());
-                        Set<String> keys = modulesMap.keySet();
-                        moduleItems = new ArrayList<>(keys);
-                        Log.i(TAG, "ArrayList: moduleItems: " + moduleItems);
-                        setAutoCompleteTxt();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Error getting documents: ", e);
-                    }
-                });
+        String collectionId = "Modules";
+        FirebaseQuery firebaseQuery = new FirebaseQuery() {
 
+            @Override
+            public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
+                    modulesMap.put(document.getString("name"), document.getReference());
+                }
+                Log.i(TAG, "HashMap Keys: " + modulesMap.keySet());
+                Set<String> keys = modulesMap.keySet();
+                moduleItems = new ArrayList<>(keys);
+                Log.i(TAG, "ArrayList: moduleItems: " + moduleItems);
+                setAutoCompleteTxt();
+            }
+        };
+        firebaseQuery.run(collectionId);
     }
 
     //After querying for modules from Firestore, set up the AutoCompleteText Adapter
     protected void setAutoCompleteTxt() {
-        adapterItemsModules = new ArrayAdapter<String>(this, R.layout.list_item, moduleItems);
+        adapterItemsModules = new ArrayAdapter<>(this, R.layout.list_item, moduleItems);
         autoCompleteTxtModules.setAdapter(adapterItemsModules);
 
-        adapterItemsCapacity = new ArrayAdapter<String>(this, R.layout.list_item, items);
+        adapterItemsCapacity = new ArrayAdapter<>(this, R.layout.list_item, items);
         autoCompleteTxtCapacity.setAdapter(adapterItemsCapacity);
 
         autoCompleteTxtModules.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String module = adapterView.getItemAtPosition(i).toString();
-                moduleSelection = modulesMap.get(module).getPath();
+                moduleSelection = Objects.requireNonNull(modulesMap.get(module)).getPath();
                 Log.i(TAG, moduleSelection);
             }
         });

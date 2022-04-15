@@ -89,7 +89,9 @@ public class ProfileModel implements ObjectModel {
     }
 
     public void setBio(String bio) {
-        this.bio = bio;
+        if (!bio.equals(this.bio)) {
+            this.bio = bio;
+        }
     }
 
     public ArrayList<DocumentReference> getEventsCreated() {
@@ -129,7 +131,9 @@ public class ProfileModel implements ObjectModel {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (!name.equals(this.name)) {
+            this.name = name;
+        }
     }
 
     public String getPillar() {
@@ -137,7 +141,9 @@ public class ProfileModel implements ObjectModel {
     }
 
     public void setPillar(String pillar) {
-        this.pillar = pillar;
+        if (!pillar.equals(this.pillar)) {
+            this.pillar = pillar;
+        }
     }
 
     public Date getProfileCreated() {
@@ -161,7 +167,9 @@ public class ProfileModel implements ObjectModel {
     }
 
     public void setTerm(int term) {
-        this.term = term;
+        if (term != this.term) {
+            this.term = term;
+        }
     }
 
     public DocumentReference getUserId() {
