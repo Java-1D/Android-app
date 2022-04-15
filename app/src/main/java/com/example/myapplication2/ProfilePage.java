@@ -114,13 +114,12 @@ public class ProfilePage extends AppCompatActivity {
         } else {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
         }
+
         //Check whether user is not checking his own profile
-        //TODO: Remove Test profileID
-        profileDocumentId = "Test2";
-//        if (!profileDocumentId.equals(user.getUserString())) {
-//            disableButton(editButton);
-//            disableButton(logOutButton);
-//        }
+        if (!profileDocumentId.equals(user.getUserString())) {
+            disableButton(editButton);
+            disableButton(logOutButton);
+        }
 
         //Get Profile Data from Firestore
         getProfileData(profileDocumentId);

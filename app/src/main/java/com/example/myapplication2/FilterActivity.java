@@ -34,7 +34,7 @@ import java.util.Set;
  */
 
 public class FilterActivity extends AppCompatActivity {
-    
+
     private static final String TAG = "FilterActivity";
     public static final String CAPACITY_SELECTION = "CAPACITY_SELECTION";
     public static final String MODULE_SELECTION = "MODULE_SELECTION";
@@ -131,7 +131,7 @@ public class FilterActivity extends AppCompatActivity {
             if (view.getId() == R.id.BackArrow) {
                 startActivity(new Intent(FilterActivity.this, MainPageActivity.class));
             } else if (view.getId() == R.id.FilterButton) {
-                //FIXME: Pass values such as module selection and capacity selection as an intent for processing in ExploreFragment
+
                 //shared preferences for previous selection
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(FilterActivity.this);
                 SharedPreferences.Editor editor = sharedPreferences.edit();

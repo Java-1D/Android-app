@@ -102,7 +102,7 @@ public class EditProfilePage extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ImageHandlerActivity.IMAGECROP) {
             if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getParcelableExtra("croppedImage");
+                Uri selectedImageUri = Objects.requireNonNull(data).getParcelableExtra("croppedImage");
                 uploadImageToCloudStorage(selectedImageUri);
             } else if (resultCode == RESULT_CANCELED) {
                 Log.i(TAG, "PermissionRequest: Result cancelled");

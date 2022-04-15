@@ -7,10 +7,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.preference.PreferenceManager;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,8 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+
+import java.util.Objects;
 
 
 public class ExploreFragment extends Fragment {
@@ -63,8 +66,6 @@ public class ExploreFragment extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_explore, container, false);
         eventsList = fragmentView.findViewById(R.id.recyclerViewEvents);
-
-
 
         // Button to create new event
         fragmentView.findViewById(R.id.create_event).setOnClickListener(new View.OnClickListener() {
@@ -173,7 +174,6 @@ public class ExploreFragment extends Fragment {
         adapter.stopListening();
     }
 
-    //FIXME: Move Methods to ExploreFragment to perform query based on values passed in Filter Button via intent
     protected Query filterEvents(String moduleSelection) {
         DocumentReference moduleDocRef = db.document(moduleSelection);
         Log.i(TAG, "DocumentReference: " + moduleDocRef);
@@ -194,7 +194,6 @@ public class ExploreFragment extends Fragment {
         DocumentReference moduleDocRef = db.document(moduleSelection);
         Log.i(TAG, "DocumentReference: " + moduleDocRef);
 
-        //TODO: Need to check whether compound queries such as the one below works
         //Filter based on Capacity Chosen -> Checks whether an events have at least x slots available for user and his friends to join
         Query queryModCap = db.collection(EVENTS).whereEqualTo("module", moduleDocRef).whereGreaterThanOrEqualTo("capacity", capacitySelection);
         Log.i(TAG, "Query: " + queryModCap);
