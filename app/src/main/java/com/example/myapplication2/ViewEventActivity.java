@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication2.db.EventsDb;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
@@ -41,8 +42,10 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 
 public class ViewEventActivity extends AppCompatActivity implements View.OnClickListener {
-    static final String TAG = "ViewEvents";
-    FirebaseFirestore db;
+    /*
+        ViewEventActivity allows user to view a single event from the MainPageActivity
+     */
+    private final String TAG = "VIEWEVENTS";
 
     TextView event_name;
     TextView event_desc;
@@ -64,10 +67,13 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     MaterialButton join_button;
     MaterialButton edit_event_button;
+    MaterialButton leave_button;
+
     String documentName = "";
     DocumentReference user; //singleton User
     DocumentReference docRef;
     ImageView backButton;
+    EventsDb db;
 
 
     // Recycler View
@@ -82,7 +88,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_events);
 
-        db = FirebaseFirestore.getInstance();
+        db = new EventsDb();
 
         event_name = findViewById(R.id.event_name); // DONE
         event_desc = findViewById(R.id.event_desc); // DONE
@@ -101,30 +107,32 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         information = findViewById(R.id.information); // Need to retrieve
         emoji = findViewById((R.id.emoji));
         no_of_ppl = findViewById(R.id.no_of_ppl); // Need to retrieve
+        usersList = findViewById(R.id.users_list);
 
         join_button = findViewById(R.id.join_button);
-        usersList = findViewById(R.id.users_list);
         edit_event_button = findViewById(R.id.edit_event_button);
-        backButton = (ImageView) findViewById(R.id.backButton);
+        leave_button = findViewById(R.id.leave_button);
+
+        backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(this);
 
         join_button.setOnClickListener(this);
         join_button.setEnabled(true);
 
-        edit_event_button.setVisibility(View.GONE);
         edit_event_button.setOnClickListener(this);
-        edit_event_button.setEnabled(false);
+        disableButton(edit_event_button);
 
+        leave_button.setOnClickListener(this);
+        disableButton(leave_button);
 
-        usersJoined.add(db.document("/Users/Test"));
+        usersJoined.add(db.getDb().document("/Users/Test"));
 
-        user = getCurrentUser(db);
-
+        user = getCurrentUser(db.getDb());
         String documentId = getIntent().getStringExtra("DOCUMENT_ID");
         documentName = getDocumentFromPath(documentId);
-        Log.i(TAG, "Document Name" + documentName);
 
-        docRef = db.collection("Events").document(documentName);
+        // Getting information for the current event
+        docRef = db.getDocument(documentName);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -133,13 +141,18 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 DocumentReference userCreated = eventModel.getUserCreated();
                 Log.d(TAG, "getUserCreated : " + userCreated + "\n currentuser : " + user);
 
-                // logic to change join event to edit event
-                if (user != null && userCreated != null) {
-                    if (userCreated.getPath().equals(user.getPath())) {
-                        disableButton(join_button);
-                        Log.i(TAG, "check for join button" + join_button.isEnabled());
+                if (user != null & userCreated != null) {
+                    Log.i(TAG, "User Created : " + userCreated + "user : " + user);
+                    usersJoined = eventModel.getUserJoined();
 
+                    // logic to change join event to edit event
+                    if (userCreated.toString().equals(user.toString())) {
+                        disableButton(join_button);
+                        Log.i(TAG, "Enabling EditButton. Join Button is: " + join_button.isEnabled());
                         enableButton(edit_event_button);
+                    } else if (usersJoined.contains(user)) {
+                        disableButton(join_button);
+                        enableButton(leave_button);
                     }
                 }
 
@@ -222,45 +235,25 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.edit_event_button:
-                backButton.setEnabled(false);
-                Intent editIntent = new Intent(ViewEventActivity.this, EditEventActivity.class);
-                editIntent.putExtra("DOCUMENT_ID", getDocumentFromPath(docRef.getPath()));
-                Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
-                ViewEventActivity.this.startActivity(editIntent);
+                if (edit_event_button.isEnabled()) {
+                    backButton.setEnabled(false);
+                    Intent editIntent = new Intent(ViewEventActivity.this, EditEventActivity.class);
+                    editIntent.putExtra("DOCUMENT_ID", getDocumentFromPath(docRef.getPath()));
+                    Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
+                    ViewEventActivity.this.startActivity(editIntent);
+                }
+
 
             case R.id.join_button:
                 if (join_button.isEnabled()) {
-                    DocumentReference docRef = db.collection("Events").document(documentName);
-                    docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                            usersJoined = eventModel.getUserJoined();
-                            int current = usersJoined.size();
-                            if (current == eventModel.getCapacity()) {
-                                Toast.makeText(ViewEventActivity.this, "The event is full! So sorry!", Toast.LENGTH_SHORT).show();
-                            }
-                            ;
-
-                            // check if user is already in the list
-                            if (usersJoined.contains(user)) {
-                                Toast.makeText(ViewEventActivity.this, "You have already joined the event", Toast.LENGTH_SHORT).show();
-                            } else {
-                                // append the array list of usersJoined with your Profile
-                                usersJoined.add(user);
-                                docRef.update("userJoined", FieldValue.arrayUnion(user));
-
-                                // update the firebase with usersJoined
-                                Toast.makeText(ViewEventActivity.this, "You have successfully joined the event", Toast.LENGTH_SHORT).show();
-
-                            }
-
-                        }
-                    });
+                    db.updateUserList(ViewEventActivity.this,documentName,user,true);
                 }
 
                 // case of leave button
-
+            case R.id.leave_button:
+                if (leave_button.isEnabled()) {
+                    db.updateUserList(ViewEventActivity.this,documentName,user,false);
+                }
 
 
             case R.id.backButton:
@@ -278,7 +271,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
          * This functions set users joined in the recycler view layout using Firebase Recycler
          */
 
-        Query query = db.collection("Profiles")
+        Query query = db.getCollection("Profiles")
                 .whereIn("userId", usersJoined);
 
         FirestoreRecyclerOptions<ProfileModel> options = new FirestoreRecyclerOptions.Builder<ProfileModel>()
