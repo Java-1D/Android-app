@@ -1,5 +1,7 @@
 package com.example.myapplication2;
 
+import static com.example.myapplication2.utils.Utils.disableButton;
+import static com.example.myapplication2.utils.Utils.enableButton;
 import static com.example.myapplication2.utils.Utils.getCurrentUser;
 import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
 import static com.example.myapplication2.utils.Utils.getProfileID;
@@ -134,16 +136,10 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 // logic to change join event to edit event
                 if (user != null && userCreated != null) {
                     if (userCreated.getPath().equals(user.getPath())) {
-                        Log.d(TAG, "works : ");
-                        join_button.setEnabled(false);
-                        join_button.setClickable(false); // Bug here
-                        join_button.setVisibility(View.GONE);
-                        join_button.invalidate();
+                        disableButton(join_button);
                         Log.i(TAG, "check for join button" + join_button.isEnabled());
 
-                        edit_event_button.setVisibility(View.VISIBLE);
-                        edit_event_button.setEnabled(true);
-                        edit_event_button.setClickable(true); // Bug here
+                        enableButton(edit_event_button);
                     }
                 }
 
@@ -263,6 +259,9 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     });
                 }
 
+                // case of leave button
+
+
 
             case R.id.backButton:
                 if (backButton.isEnabled()) {
@@ -316,7 +315,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
         };
     }
 
-    ;
 
     @Override
     protected void onStart() {
