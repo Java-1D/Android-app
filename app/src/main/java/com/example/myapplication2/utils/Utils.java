@@ -10,6 +10,7 @@ import android.graphics.Shader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -111,4 +112,19 @@ public class Utils {
         Log.i(TAG, "STRING" + path.substring(path.lastIndexOf('/') + 1));
         return path.substring(path.lastIndexOf('/') + 1);
     }
+
+    /**
+     * Entry validation
+     * https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
+     */
+    public static boolean invalidData(EditText editText) {
+        if (editText.getText().toString().length() == 0) {
+            editText.requestFocus();
+            editText.setError("Field cannot be empty");
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -95,7 +96,8 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.editProfilePicture) {
-                chooseImage();
+                Intent intent = new Intent(EditProfilePage.this, ImageHandlerActivity.class);
+                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
             } else if (id == R.id.confirmButton) {
                 Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
                 confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
@@ -106,6 +108,23 @@ public class EditProfilePage extends AppCompatActivity {
                 startActivity(backIntent);
             } else {
                 Log.w(TAG, "Button not Found");
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ImageHandlerActivity.IMAGECROP) {
+            if (resultCode == RESULT_OK) {
+                Uri selectedImageUri = data.getParcelableExtra("croppedImage");
+                profilePicture.setImageURI(selectedImageUri);
+            } else if (resultCode == RESULT_CANCELED) {
+                ;
+            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
+                ;
+            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
+                ;
             }
         }
     }
@@ -289,106 +308,6 @@ public class EditProfilePage extends AppCompatActivity {
             }
         });
     }
-
-    protected void chooseImage() {
-        final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"};
-        Log.i(TAG, "chooseImage: Dialog launched");
-        AlertDialog.Builder builder = new AlertDialog.Builder(EditProfilePage.this);
-        builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if(optionsMenu[i].equals("Take Photo")) {
-                    cameraLaunch();
-                    Log.i(TAG, "chooseImage: Camera chosen");
-                }
-                else if(optionsMenu[i].equals("Choose from Gallery")){
-                    galleryLaunch();
-                    Log.i(TAG, "chooseImage: Gallery chosen");
-                }
-                else if (optionsMenu[i].equals("Exit")){
-                    dialogInterface.dismiss();
-                    Log.i(TAG, "chooseImage: Dialog dismissed");
-                }
-            }
-        });
-        builder.show();
-    }
-
-    protected void cameraLaunch() {
-        if (ContextCompat.checkSelfPermission(EditProfilePage.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1, 1);
-            options.setImageSource(false, true);
-            cropImage.launch(options);
-            Log.i(TAG, "cameraLaunch: Permission allowed, camera launched");
-        }
-        else {
-            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-            Log.i(TAG, "cameraLaunch: Permission for camera requested");
-        }
-    }
-
-    protected void galleryLaunch() {
-        if (ContextCompat.checkSelfPermission(EditProfilePage.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
-            options.setAspectRatio(1 ,1);
-            options.setImageSource(true, false);
-            cropImage.launch(options);
-            Log.i(TAG, "galleryLaunch: Permission allowed, camera launched");
-        }
-        else {
-            requestGalleryPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            Log.i(TAG, "galleryLaunch: Permission for camera requested");
-        }
-    }
-
-    ActivityResultLauncher<String> requestCameraPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            new ActivityResultCallback<Boolean>() {
-                @Override
-                public void onActivityResult(Boolean result) {
-                    if (Boolean.TRUE.equals(result)) {
-                        // Permission is granted. Continue the action or workflow in your app.
-                        cameraLaunch();
-                    } else {
-                        Toast.makeText(EditProfilePage.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "PermissionRequest: Camera access denied");
-                    }
-                }
-            });
-
-    ActivityResultLauncher<String> requestGalleryPermissionLauncher = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            new ActivityResultCallback<Boolean>() {
-                @Override
-                public void onActivityResult(Boolean result) {
-                    if (Boolean.TRUE.equals(result)) {
-                        // Permission is granted. Continue the action or workflow in your app.
-                        galleryLaunch();
-                    } else {
-                        Toast.makeText(EditProfilePage.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "PermissionRequest: Gallery access denied");
-                    }
-
-                }
-            });
-
-    ActivityResultLauncher<CropImageContractOptions> cropImage = registerForActivityResult(
-            new CropImageContract(),
-            new ActivityResultCallback<CropImageView.CropResult>() {
-                @Override
-                public void onActivityResult(CropImageView.CropResult result) {
-                    if (result!=null ) {
-                        if (result.isSuccessful() && result.getUriContent() != null) {
-                            Uri selectedImageUri = result.getUriContent();
-                            uploadImageToCloudStorage(selectedImageUri);
-                            Log.i(TAG, "onActivityResult: Cropped image set");
-                        } else {
-                            Log.d(TAG, "onActivityResult: Cropping returned null");
-                        }
-                    }
-                }
-            });
 
     //Upload image from Gallery/Camera to Firebase Cloud Storage
     private void uploadImageToCloudStorage(Uri imageUri) {
