@@ -87,9 +87,6 @@ public class EditProfilePage extends AppCompatActivity {
     Button confirmEdit;
 
 
-
-
-
     //Button interactions in Profile Page Activity
     class ClickListener implements View.OnClickListener {
         @Override
@@ -147,8 +144,7 @@ public class EditProfilePage extends AppCompatActivity {
         if (profileDocumentId == null) {
             Log.w(TAG, "Profile Document ID is null");
             finish();
-        }
-        else {
+        } else {
             Log.i(TAG, "Profile Document ID Retrieved: " + profileDocumentId);
         }
 
@@ -202,11 +198,10 @@ public class EditProfilePage extends AppCompatActivity {
                 if (document.exists()) {
                     Log.i(TAG, "File Path in Firebase: " + profileRef.getPath());
                     EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: "+ Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
                     EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
 
-                }
-                else {
+                } else {
                     Log.w(TAG, "Document does not exist");
                 }
             }
@@ -235,7 +230,7 @@ public class EditProfilePage extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document: task.getResult()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
                         modulesMap.put(document.getString("name"), document.getReference());
                     }
@@ -243,8 +238,7 @@ public class EditProfilePage extends AppCompatActivity {
                     Set<String> keys = modulesMap.keySet();
                     moduleArray = keys.toArray(new String[keys.size()]);
                     buildModuleDropDown(moduleArray);
-                }
-                else {
+                } else {
                     Log.e(TAG, "Error getting documents: ", task.getException());
                 }
             }
@@ -265,7 +259,7 @@ public class EditProfilePage extends AppCompatActivity {
                                 if (b) {
                                     moduleList.add(i);
                                     Collections.sort(moduleList);
-                                }else {
+                                } else {
                                     moduleList.remove(Integer.valueOf(i));
                                 }
                             }
@@ -275,7 +269,7 @@ public class EditProfilePage extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         StringBuilder stringBuilder = new StringBuilder();
-                        for (int j = 0; j < moduleList.size(); j ++) {
+                        for (int j = 0; j < moduleList.size(); j++) {
                             String key = moduleArray[moduleList.get(j)];
                             stringBuilder.append(key);
                             if (j != moduleList.size() - 1) {
@@ -312,7 +306,7 @@ public class EditProfilePage extends AppCompatActivity {
     //Upload image from Gallery/Camera to Firebase Cloud Storage
     private void uploadImageToCloudStorage(Uri imageUri) {
         StorageReference storageRef = storage.getReference();
-        StorageReference imageRef = storageRef.child("Profiles/"+ profileDocumentId);
+        StorageReference imageRef = storageRef.child("Profiles/" + profileDocumentId);
         UploadTask uploadTask = imageRef.putFile(imageUri);
 
         // Register observers to listen for when the download is done or if it fails
@@ -346,7 +340,7 @@ public class EditProfilePage extends AppCompatActivity {
         if (!editTerm.getText().toString().matches("")) {
             profile.get().setTerm(Integer.parseInt(editTerm.getText().toString()));
         }
-        if (!editModules.getText().toString().matches("")){
+        if (!editModules.getText().toString().matches("")) {
             profile.get().setModules(modules.get());
         }
         if (!editBio.getText().toString().matches("")) {

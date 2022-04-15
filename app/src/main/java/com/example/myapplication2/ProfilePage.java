@@ -1,5 +1,7 @@
 package com.example.myapplication2;
 
+import static com.example.myapplication2.utils.Utils.disableButton;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -117,8 +119,8 @@ public class ProfilePage extends AppCompatActivity {
         }
         //Check whether user is not checking his own profile
         if (!profileDocumentId.equals(user.getUserString())) {
-            editButton.setVisibility(View.GONE);
-            logOutButton.setVisibility(View.GONE);
+            disableButton(editButton);
+            disableButton(logOutButton);
         }
 
         //Get Profile Data from Firestore

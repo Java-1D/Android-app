@@ -11,8 +11,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.EditText;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
@@ -127,4 +130,24 @@ public class Utils {
         }
     }
 
+
+    public static void disableButton(MaterialButton button){
+        button.setEnabled(false);
+        button.setClickable(false);
+        button.setVisibility(View.GONE);
+        Log.d(TAG, "button : " + button + " disabled");
+    }
+
+    public static void disableButton(Button button){
+        button.setEnabled(false);
+        button.setClickable(false);
+        button.setVisibility(View.GONE);
+        Log.d(TAG, "button : " + button + " disabled");
+    }
+
+    public static void enableButton(MaterialButton button){
+        button.setEnabled(true);
+        button.setClickable(true);
+        button.setVisibility(View.VISIBLE);
+    }
 }
