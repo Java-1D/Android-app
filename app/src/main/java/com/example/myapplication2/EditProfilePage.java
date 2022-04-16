@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.FirebaseDocument;
@@ -205,7 +206,7 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     protected void getAllModulesFromFirebase() {
-        String collectionId = "Modules";
+        String collectionId = ModuleModel.getCollectionId();
         FirebaseQuery firebaseQuery = new FirebaseQuery() {
 
             @Override

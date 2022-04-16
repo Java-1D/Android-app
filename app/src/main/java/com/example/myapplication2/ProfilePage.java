@@ -2,7 +2,6 @@ package com.example.myapplication2;
 
 import static com.example.myapplication2.utils.Utils.disableButton;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,11 +23,8 @@ import com.example.myapplication2.viewholder.ProfileRecyclerAdapter;
 import com.example.myapplication2.viewholder.ProfileViewModel;
 
 import com.example.myapplication2.objectmodel.ProfileModel;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

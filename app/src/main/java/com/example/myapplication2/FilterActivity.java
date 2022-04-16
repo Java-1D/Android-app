@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.FirebaseQuery;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -80,7 +81,7 @@ public class FilterActivity extends AppCompatActivity {
 
     //Get Modules from Firestore for Auto Complete Text
     protected void getModulesFromFirestore() {
-        String collectionId = "Modules";
+        String collectionId = ModuleModel.getCollectionId();
         FirebaseQuery firebaseQuery = new FirebaseQuery() {
 
             @Override
