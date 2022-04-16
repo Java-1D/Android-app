@@ -1,7 +1,6 @@
 package com.example.myapplication2;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
@@ -16,7 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
-import com.example.myapplication2.interfaces.CropDialogInterface;
+import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.FirebaseDocument;
@@ -83,9 +82,9 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.editProfilePicture) {
-                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogInterface() {
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new URIDialogInterface() {
                     @Override
-                    public void onDialogResult(Uri uri) {
+                    public void onResult(Uri uri) {
                         uploadImageToCloudStorage(uri);
                     }
                 });

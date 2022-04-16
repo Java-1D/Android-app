@@ -162,32 +162,4 @@ public class Utils {
         button.setClickable(true);
         button.setVisibility(View.VISIBLE);
     }
-
-    public static void chooseSingleModule(ArrayList<String> moduleStringList, final Container<Integer> integerContainer, Context context) {
-        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(
-                context
-        );
-        builder.setTitle("Select Module");
-        builder.setCancelable(false);
-        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, moduleStringList.get(i) + " selected.");
-            }
-        });
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == -1) {
-                    i = 0;
-                    integerContainer.set(i);
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.show();
-    }
 }

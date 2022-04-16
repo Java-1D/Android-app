@@ -24,22 +24,23 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.R;
-import com.example.myapplication2.interfaces.CropDialogInterface;
+import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
 
 // https://developer.android.com/guide/fragments/dialogs
 public class CropDialogFragment extends DialogFragment {
-    final public static String TAG = "SingleModuleDialog";
-    CropDialogInterface cropDialogInterface;
+    final public static String TAG = "CropDialog";
+    URIDialogInterface uriDialogInterface;
     AlertDialog dialog;
-    public CropDialogFragment(CropDialogInterface cropDialogInterface){
-        this.cropDialogInterface = cropDialogInterface;
+
+    public CropDialogFragment(URIDialogInterface uriDialogInterface){
+        this.uriDialogInterface = uriDialogInterface;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"}; // create a menuOption Array
-        Log.i(TAG, "chooseImage: CropDialog launched");
+        Log.i(TAG, "onCreateDialog: CropDialog launched");
 
         // Not dismiss dialog upon selection for Activity to run
         // https://stackoverflow.com/questions/38949624/prevent-dialog-containing-a-list-from-dismissing-upon-selection
@@ -53,14 +54,14 @@ public class CropDialogFragment extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (optionsMenu[position].equals("Take Photo")) {
-                    Log.i(TAG, "chooseImage: Camera chosen");
+                    Log.i(TAG, "onItemClick: Camera chosen");
                     cameraLaunch();
                 } else if (optionsMenu[position].equals("Choose from Gallery")) {
-                    Log.i(TAG, "chooseImage: Gallery chosen");
+                    Log.i(TAG, "onItemClick: Gallery chosen");
                     galleryLaunch();
                 } else if (optionsMenu[position].equals("Exit")) {
                     dialog.dismiss();
-                    Log.i(TAG, "chooseImage: Dialog dismissed");
+                    Log.i(TAG, "onItemClick: Dialog dismissed");
                 }
             }
         };
@@ -116,7 +117,7 @@ public class CropDialogFragment extends DialogFragment {
                     if (result != null) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
-                            cropDialogInterface.onDialogResult(selectedImageUri);
+                            uriDialogInterface.onResult(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                             dialog.dismiss();
                         } else {

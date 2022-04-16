@@ -62,17 +62,24 @@
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_create_events.xml" value="0.1" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_edit_events.xml" value="0.33378016085790885" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_edit_profile_page.xml" value="0.22826086956521738" />
-        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_filter_page.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_filter_page.xml" value="0.264" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_main2.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_mainpage.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_profile_page.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/activity_register.xml" value="0.1953125" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/add_picture_alert.xml" value="0.1953125" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/event_item.xml" value="0.346875" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_explore.xml" value="0.1953125" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_first.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_home.xml" value="0.1953125" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_second.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/fragment_third.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/list_item.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/main_listing.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/module_item.xml" value="0.1953125" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/recyclerview_profile_page.xml" value="0.1953125" />
+        <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/layout/view_events_user.xml" value="0.1953125" />
         <entry key="..\:/Users/chuanshaof/GitHub/Android-app/app/src/main/res/xml/file_paths.xml" value="0.2015625" />
         <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/drawable/gradient_bg.xml" value="0.28" />
         <entry key="..\:/Users/issac/Documents/GitHub/Android-app/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.28" />

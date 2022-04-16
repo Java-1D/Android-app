@@ -22,7 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
-import com.example.myapplication2.interfaces.CropDialogInterface;
+import com.example.myapplication2.fragments.ModuleDialogFragment;
+import com.example.myapplication2.interfaces.DialogInterfaces.IntegerDialogInterface;
+import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.Container;
@@ -251,17 +253,21 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 startActivity(intent);
 
             case R.id.createEventModule:
-                final Container<Integer> modulesContainer = new Container<>();
-                Utils.chooseSingleModule(moduleStringList, modulesContainer, CreateEventActivity.this);
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new IntegerDialogInterface() {
+                    @Override
+                    public void onResult(Integer i) {
+                        selectedModuleReference = moduleReferences.get(i);
+                        createModule.setText(moduleStringList.get(i));
+                    }
+                }, moduleStringList);
+                moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
 
-                selectedModuleReference = moduleReferences.get(modulesContainer.get());
-                createModule.setText(moduleStringList.get(modulesContainer.get()));
                 break;
 
             case R.id.setImageButton:
-                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogInterface() {
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new URIDialogInterface() {
                     @Override
-                    public void onDialogResult(Uri uri) {
+                    public void onResult(Uri uri) {
                         createImage.setImageURI(uri);
                     }
                 });
