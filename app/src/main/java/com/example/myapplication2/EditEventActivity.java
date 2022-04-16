@@ -37,6 +37,8 @@ import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.fragments.CropDialogFragment;
+import com.example.myapplication2.interfaces.CropDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.LoggedInUser;
@@ -69,6 +71,7 @@ import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -222,17 +225,16 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     return;
                 }
 
-                editButton.setEnabled(false);
-                editButton.setText("Editing event...");
+                ArrayList<EditText> editTextArrayList = new ArrayList<>(
+                        Arrays.asList(editName,
+                                editDescription,
+                                editVenue,
+                                editModule,
+                                editCapacity,
+                                editStart,
+                                editEnd));
 
-                // Check if data are all filled and valid
-                if (invalidData(editName) |
-                        invalidData(editDescription) |
-                        invalidData(editVenue) |
-                        invalidData(editModule) |
-                        invalidData(editCapacity) |
-                        invalidData(editStart) |
-                        invalidData(editEnd)) {
+                if (Utils.invalidData(editTextArrayList)) {
                     editButton.setEnabled(true);
                     editButton.setText(R.string.edit_event);
                     return;
@@ -295,7 +297,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                                             );
 
                                             db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
-                                            Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                            Log.i(TAG, "editEvent: Successful. Event pushed to Firebase");
 
                                             // Create explicit intent to go into MainPage
                                             Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
@@ -308,7 +310,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                             editButton.setEnabled(true);
-                            editButton.setText(R.string.create_event);
+                            editButton.setText(R.string.edit_event);
                         }
                     }
                 });
@@ -330,33 +332,20 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.setImageButton:
-                intent = new Intent(EditEventActivity.this, ImageHandlerActivity.class);
-                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogInterface() {
+                    @Override
+                    public void onDialogResult(Uri uri) {
+                        editImage.setImageURI(uri);
+                    }
+                });
+                cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
                 break;
-
             case R.id.editEventStartDateTime:
                 dateTimePicker(editStart);
                 break;
 
             case R.id.editEventEndDateTime:
                 dateTimePicker(editEnd);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ImageHandlerActivity.IMAGECROP) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getParcelableExtra("croppedImage");
-                editImage.setImageURI(selectedImageUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                ;
-            }
         }
     }
 
@@ -388,20 +377,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         });
 
         builder.show();
-    }
-
-    /**
-     * Entry validation
-     * https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
-     */
-    boolean invalidData(TextView editText) {
-        if (editText.getText().toString().length() == 0) {
-            editText.requestFocus();
-            editText.setError("Field cannot be empty");
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**

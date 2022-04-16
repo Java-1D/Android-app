@@ -1,12 +1,10 @@
 package com.example.myapplication2;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -20,20 +18,14 @@ import android.widget.ImageView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import com.canhub.cropper.CropImageContract;
-import com.canhub.cropper.CropImageContractOptions;
-import com.canhub.cropper.CropImageOptions;
-import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.fragments.CropDialogFragment;
+import com.example.myapplication2.interfaces.CropDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.Container;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -53,10 +45,11 @@ import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 
-public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
+public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView createImage;
     Button setImageButton;
 
@@ -154,14 +147,16 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 createButton.setEnabled(false);
                 createButton.setText("Creating event...");
 
-                // Check if data are all filled and valid
-                if (Utils.invalidData(createName) |
-                        Utils.invalidData(createDescription) |
-                        Utils.invalidData(createVenue) |
-                        Utils.invalidData(createModule) |
-                        Utils.invalidData(createCapacity) |
-                        Utils.invalidData(createStart) |
-                        Utils.invalidData(createEnd)) {
+                ArrayList<EditText> editTextArrayList = new ArrayList<>(
+                        Arrays.asList(createName,
+                                createDescription,
+                                createVenue,
+                                createModule,
+                                createCapacity,
+                                createStart,
+                                createEnd));
+
+                if (Utils.invalidData(editTextArrayList)) {
                     createButton.setEnabled(true);
                     createButton.setText(R.string.create_event);
                     return;
@@ -256,12 +251,21 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 startActivity(intent);
 
             case R.id.createEventModule:
-                chooseModule();
+                final Container<Integer> modulesContainer = new Container<>();
+                Utils.chooseSingleModule(moduleStringList, modulesContainer, CreateEventActivity.this);
+
+                selectedModuleReference = moduleReferences.get(modulesContainer.get());
+                createModule.setText(moduleStringList.get(modulesContainer.get()));
                 break;
 
             case R.id.setImageButton:
-                intent = new Intent(CreateEventActivity.this, ImageHandlerActivity.class);
-                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogInterface() {
+                    @Override
+                    public void onDialogResult(Uri uri) {
+                        createImage.setImageURI(uri);
+                    }
+                });
+                cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
                 break;
 
             case R.id.createEventStartDateTime:
@@ -270,23 +274,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.createEventEndDateTime:
                 dateTimePicker(createEnd);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ImageHandlerActivity.IMAGECROP) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getParcelableExtra("croppedImage");
-                createImage.setImageURI(selectedImageUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                ;
-            }
         }
     }
 

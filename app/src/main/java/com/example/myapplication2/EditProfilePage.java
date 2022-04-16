@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.myapplication2.fragments.CropDialogFragment;
+import com.example.myapplication2.interfaces.CropDialogInterface;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.FirebaseDocument;
@@ -81,8 +83,13 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.editProfilePicture) {
-                Intent intent = new Intent(EditProfilePage.this, ImageHandlerActivity.class);
-                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogInterface() {
+                    @Override
+                    public void onDialogResult(Uri uri) {
+                        uploadImageToCloudStorage(uri);
+                    }
+                });
+                cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
             } else if (id == R.id.confirmButton) {
                 Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
                 confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
@@ -93,23 +100,6 @@ public class EditProfilePage extends AppCompatActivity {
                 startActivity(backIntent);
             } else {
                 Log.w(TAG, "Button not Found");
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ImageHandlerActivity.IMAGECROP) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = Objects.requireNonNull(data).getParcelableExtra("croppedImage");
-                uploadImageToCloudStorage(selectedImageUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                Log.i(TAG, "PermissionRequest: Result cancelled");
-            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                Log.i(TAG, "PermissionRequest: Camera access denied");
-            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                Log.i(TAG, "PermissionRequest: Gallery access denied");
             }
         }
     }

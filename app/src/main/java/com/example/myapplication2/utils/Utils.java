@@ -1,6 +1,8 @@
 package com.example.myapplication2.utils;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.example.myapplication2.CreateEventActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,8 +27,10 @@ import com.squareup.picasso.Transformation;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 public class Utils {
 
@@ -120,6 +125,14 @@ public class Utils {
      * Entry validation
      * https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
      */
+    public static boolean invalidData(ArrayList<EditText> editTextArrayList){
+        boolean invalid = false;
+        for (EditText editText : editTextArrayList) {
+            invalid = invalid | invalidData(editText);
+        }
+        return invalid;
+    }
+
     public static boolean invalidData(EditText editText) {
         if (editText.getText().toString().length() == 0) {
             editText.requestFocus();
@@ -129,7 +142,6 @@ public class Utils {
             return false;
         }
     }
-
 
     public static void disableButton(MaterialButton button){
         button.setEnabled(false);
@@ -149,5 +161,33 @@ public class Utils {
         button.setEnabled(true);
         button.setClickable(true);
         button.setVisibility(View.VISIBLE);
+    }
+
+    public static void chooseSingleModule(ArrayList<String> moduleStringList, final Container<Integer> integerContainer, Context context) {
+        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                context
+        );
+        builder.setTitle("Select Module");
+        builder.setCancelable(false);
+        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.i(TAG, moduleStringList.get(i) + " selected.");
+            }
+        });
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (i == -1) {
+                    i = 0;
+                    integerContainer.set(i);
+                }
+                dialogInterface.dismiss();
+            }
+        });
+
+        builder.show();
     }
 }

@@ -1,84 +1,76 @@
-package com.example.myapplication2;
+package com.example.myapplication2.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.R;
+import com.example.myapplication2.interfaces.CropDialogInterface;
 
-public class ImageHandlerActivity extends AppCompatActivity {
-
-    final String TAG = "ImageHandlerActivity";
-
-    final public static int IMAGECROP = 0;
-    final public static int CAMERADENIED = 1;
-    final public static int GALLERYDENIED = 2;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        chooseImage();
+// https://developer.android.com/guide/fragments/dialogs
+public class CropDialogFragment extends DialogFragment {
+    final public static String TAG = "SingleModuleDialog";
+    CropDialogInterface cropDialogInterface;
+    AlertDialog dialog;
+    public CropDialogFragment(CropDialogInterface cropDialogInterface){
+        this.cropDialogInterface = cropDialogInterface;
     }
 
-    /**
-     * CropImage helper functions
-     * Call function: chooseImage()
-     */
-    // Creating AlertDialog for user action
-    // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
-    // Edited the part where user can still click and request individually
-    void chooseImage() {
-        // Creating AlertDialog for user action
-        // Adapted from https://medium.com/analytics-vidhya/how-to-take-photos-from-the-camera-and-gallery-on-android-87afe11dfe41
-        // Edited the part where user can still click and request individually
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit"}; // create a menuOption Array
-        Log.i(TAG, "chooseImage: Dialog launched");
-        // create a dialog for showing the optionsMenu
-        AlertDialog.Builder builder = new AlertDialog.Builder(ImageHandlerActivity.this);
-        // set the items in builder
-        builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
+        Log.i(TAG, "chooseImage: CropDialog launched");
+
+        // Not dismiss dialog upon selection for Activity to run
+        // https://stackoverflow.com/questions/38949624/prevent-dialog-containing-a-list-from-dismissing-upon-selection
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        dialog = builder.setTitle("Choose an app")
+                .setItems(optionsMenu,null)
+                .create();
+
+        // Add this listener after dialog creation to stop auto dismiss on selection
+        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (optionsMenu[i].equals("Take Photo")) {
-                    cameraLaunch();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (optionsMenu[position].equals("Take Photo")) {
                     Log.i(TAG, "chooseImage: Camera chosen");
-                } else if (optionsMenu[i].equals("Choose from Gallery")) {
-                    galleryLaunch();
+                    cameraLaunch();
+                } else if (optionsMenu[position].equals("Choose from Gallery")) {
                     Log.i(TAG, "chooseImage: Gallery chosen");
-                } else if (optionsMenu[i].equals("Exit")) {
-                    dialogInterface.dismiss();
+                    galleryLaunch();
+                } else if (optionsMenu[position].equals("Exit")) {
+                    dialog.dismiss();
                     Log.i(TAG, "chooseImage: Dialog dismissed");
-                    Intent intent = getIntent();
-                    setResult(RESULT_CANCELED, intent);
-                    finish();
                 }
             }
-        });
-        builder.show();
+        };
+        dialog.getListView().setOnItemClickListener(listener);
+        return dialog;
     }
 
-    void cameraLaunch() {
+    public void cameraLaunch() {
         // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(ImageHandlerActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
@@ -94,9 +86,9 @@ public class ImageHandlerActivity extends AppCompatActivity {
         }
     }
 
-    void galleryLaunch() {
+    public void galleryLaunch() {
         // https://developer.android.com/training/permissions/requesting
-        if (ContextCompat.checkSelfPermission(ImageHandlerActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             // Start new CropActivity provided by library
             // https://github.com/CanHub/Android-Image-Cropper
             CropImageContractOptions options = new CropImageContractOptions(null, new CropImageOptions());
@@ -124,12 +116,9 @@ public class ImageHandlerActivity extends AppCompatActivity {
                     if (result != null) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
-
-                            Intent intent = getIntent();
-                            intent.putExtra("croppedImage", selectedImageUri);
-                            setResult(RESULT_OK, intent);
-                            finish();
+                            cropDialogInterface.onDialogResult(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
+                            dialog.dismiss();
                         } else {
                             Log.d(TAG, "onActivityResult: Cropping returned null");
                         }
@@ -148,11 +137,9 @@ public class ImageHandlerActivity extends AppCompatActivity {
                         // Permission is granted. Continue the action or workflow in your app.
                         cameraLaunch();
                     } else {
-                        Toast.makeText(ImageHandlerActivity.this, R.string.camera_access, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.camera_access, Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "PermissionRequest: Camera access denied");
-                        Intent intent = getIntent();
-                        setResult(CAMERADENIED, intent);
-                        finish();
+                        dialog.dismiss();
                     }
                 }
             });
@@ -166,14 +153,19 @@ public class ImageHandlerActivity extends AppCompatActivity {
                         // Permission is granted. Continue the action or workflow in your app.
                         galleryLaunch();
                     } else {
-                        Toast.makeText(ImageHandlerActivity.this, R.string.storage_access, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.storage_access, Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "PermissionRequest: Gallery access denied");
-                        Intent intent = getIntent();
-                        setResult(GALLERYDENIED, intent);
-                        finish();
+                        dialog.dismiss();
                     }
 
                 }
             });
 
 }
+
+
+
+
+
+
+
