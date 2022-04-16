@@ -3,7 +3,6 @@ package com.example.myapplication2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
-import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
+import com.example.myapplication2.fragments.ModuleDialogFragment;
+import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
+import com.example.myapplication2.interfaces.DialogInterfaces.IntegerListDialogInterface;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.FirebaseDocument;
@@ -35,7 +36,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,10 +82,10 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.editProfilePicture) {
-                CropDialogFragment cropDialogFragment = new CropDialogFragment(new URIDialogInterface() {
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CustomDialogInterface() {
                     @Override
-                    public void onResult(Uri uri) {
-                        uploadImageToCloudStorage(uri);
+                    public void onResult(Object o) {
+                        uploadImageToCloudStorage((Uri) o);
                     }
                 });
                 cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
@@ -235,51 +235,24 @@ public class EditProfilePage extends AppCompatActivity {
         editModules.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(EditProfilePage.this);
-                builder.setTitle("Select Modules").setCancelable(false)
-                        .setMultiChoiceItems(moduleArray, selectedModule,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                                if (b) {
-                                    moduleList.add(i);
-                                    Collections.sort(moduleList);
-                                } else {
-                                    moduleList.remove(Integer.valueOf(i));
-                                }
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new IntegerListDialogInterface() {
+                    @Override
+                    public void onResult(ArrayList<Integer> integerArrayList) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (int j = 0; j < integerArrayList.size(); j++) {
+                            String key = moduleArray[integerArrayList.get(j)];
+                            stringBuilder.append(key);
+                            if (j != integerArrayList.size() - 1) {
+                                stringBuilder.append(", ");
                             }
-                        }).setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                StringBuilder stringBuilder = new StringBuilder();
-                                for (int j = 0; j < moduleList.size(); j++) {
-                                    String key = moduleArray[moduleList.get(j)];
-                                    stringBuilder.append(key);
-                                    if (j != moduleList.size() - 1) {
-                                        stringBuilder.append(", ");
-                                    }
-                                    Log.i(TAG, "Modules Key: " + modulesMap.get(key));
-                                    modules.get().add(modulesMap.get(key));
-                                }
-                                Log.i(TAG, "Modules Array: " + modules.get().toString());
-                                editModules.setText(stringBuilder.toString());
-                            }
-                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        }).setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Arrays.fill(selectedModule, false);
-                                moduleList.clear();
-                                editModules.setText("");
-                                modules.get().clear();
-                                Log.i(TAG, "Modules Array: " + modules.get().toString());
-                            }
-                        }).show();
+                            Log.i(TAG, "Modules Key: " + modulesMap.get(key));
+                            modules.get().add(modulesMap.get(key));
+                        }
+                        Log.i(TAG, "Modules Array: " + modules.get().toString());
+                        editModules.setText(stringBuilder.toString());
+                    }
+                }, new ArrayList<String>(modulesMap.keySet()));
+                moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
             }
         });
     }

@@ -5,27 +5,26 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.myapplication2.CreateEventActivity;
-import com.example.myapplication2.interfaces.DialogInterfaces.IntegerDialogInterface;
+import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
 import com.example.myapplication2.interfaces.DialogInterfaces.IntegerListDialogInterface;
-import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 // https://developer.android.com/guide/fragments/dialogs
 public class ModuleDialogFragment extends DialogFragment {
     final public static String TAG = "ModuleDialog";
     IntegerListDialogInterface integerListDialogInterface;
-    IntegerDialogInterface integerDialogInterface;
+    CustomDialogInterface customDialogInterface;
     ArrayList<String> moduleStringList;
+    boolean[] selectedModule;
+    ArrayList<Integer> moduleList = new ArrayList<>();
 
 
     public ModuleDialogFragment(IntegerListDialogInterface integerListDialogInterface, ArrayList<String> moduleStringList){
@@ -33,48 +32,79 @@ public class ModuleDialogFragment extends DialogFragment {
         this.moduleStringList = moduleStringList;
     }
 
-    public ModuleDialogFragment(IntegerDialogInterface integerDialogInterface, ArrayList<String> moduleStringList) {
-        this.integerDialogInterface = integerDialogInterface;
-        this.moduleStringList = moduleStringList;
-    }
-
-    public void setModuleStringList(ArrayList<String> moduleStringList) {
+    public ModuleDialogFragment(CustomDialogInterface customDialogInterface, ArrayList<String> moduleStringList) {
+        this.customDialogInterface = customDialogInterface;
         this.moduleStringList = moduleStringList;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        try {
-            String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setMessage("No modules available!")
+                .create();
 
-            if (integerDialogInterface != null) {
-                return new AlertDialog.Builder(requireContext())
-                        .setTitle("Select Module")
-                        .setItems(moduleArray, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                integerDialogInterface.onResult(i);
-                            }
-                        })
-                        .create();
-            }
+        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
 
-            if (integerListDialogInterface != null) {
-                return new AlertDialog.Builder(requireContext())
-                        .setTitle("Select Module")
-                        .create();
-            }
+        if (moduleArray.length == 0) {
+            return dialog;
+        }
 
-        } catch (Exception e) {
+        if (customDialogInterface != null) {
             return new AlertDialog.Builder(requireContext())
-                    .setMessage("No modules avaliable!")
+                    .setTitle("Select Module")
+                    .setItems(moduleArray, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            customDialogInterface.onResult(i);
+                            Log.i(TAG, "onClick: module " + moduleStringList.get(i) + " chosen.");
+                        }
+                    })
                     .create();
         }
 
-        return new AlertDialog.Builder(requireContext())
-                .setMessage("No modules avaliable!")
-                .create();
+        if (integerListDialogInterface != null) {
+
+            selectedModule = new boolean[moduleArray.length];
+
+            return new AlertDialog.Builder(requireContext())
+                    .setTitle("Select Modules")
+                    .setCancelable(false)
+                    .setMultiChoiceItems(moduleArray, selectedModule, new DialogInterface.OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                            if (b) {
+                                moduleList.add(i);
+                                Collections.sort(moduleList);
+                                Log.i(TAG, "onClick: module " + moduleStringList.get(i) + " chosen.");
+                            } else {
+                                moduleList.remove(Integer.valueOf(i));
+                            }
+                        }
+                    })
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            integerListDialogInterface.onResult(moduleList);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Arrays.fill(selectedModule, false);
+                            moduleList.clear();
+                        }
+                    })
+                    .create();
+        }
+
+        return dialog;
     }
 }
 

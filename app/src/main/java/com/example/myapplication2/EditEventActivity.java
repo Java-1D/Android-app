@@ -2,10 +2,8 @@ package com.example.myapplication2;
 
 import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,7 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
-import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
+import com.example.myapplication2.fragments.ModuleDialogFragment;
+import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.LoggedInUser;
@@ -106,15 +105,12 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
 
-//         getting ID from intent
+        // Getting ID from intent
         String documentId = getIntent().getStringExtra("DOCUMENT_ID");
         documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
-        /**
-         * @see #chooseModule()
-         */
-        // For module dropdown initalization purposes
+        // For module dropdown initialization purposes
         moduleReferences = new ArrayList<>();
         moduleStringList = new ArrayList<>();
 
@@ -299,14 +295,21 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.editEventModule:
-                chooseModule();
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new CustomDialogInterface() {
+                    @Override
+                    public void onResult(Object o) {
+                        selectedModuleReference = moduleReferences.get((int) o);
+                        editModule.setText(moduleStringList.get((int) o));
+                    }
+                }, moduleStringList);
+                moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
                 break;
 
             case R.id.setImageButton:
-                CropDialogFragment cropDialogFragment = new CropDialogFragment(new URIDialogInterface() {
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CustomDialogInterface() {
                     @Override
-                    public void onResult(Uri uri) {
-                        editImage.setImageURI(uri);
+                    public void onResult(Object o) {
+                        editImage.setImageURI((Uri) o);
                     }
                 });
                 cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
@@ -317,37 +320,8 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
             case R.id.editEventEndDateTime:
                 dateTimePicker(editEnd);
+                break;
         }
-    }
-
-    /**
-     * Module dialog picker
-     */
-    void chooseModule() {
-        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(EditEventActivity.this);
-        builder.setTitle("Select Module");
-        builder.setCancelable(false);
-        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, moduleStringList.get(i) + " selected.");
-            }
-        });
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == -1) {
-                    i = 0;
-                    selectedModuleReference = moduleReferences.get(i);
-                    editModule.setText(moduleStringList.get(i));
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.show();
     }
 
     /**

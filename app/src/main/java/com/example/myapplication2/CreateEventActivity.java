@@ -1,9 +1,7 @@
 package com.example.myapplication2;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -23,11 +21,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
 import com.example.myapplication2.fragments.ModuleDialogFragment;
-import com.example.myapplication2.interfaces.DialogInterfaces.IntegerDialogInterface;
-import com.example.myapplication2.interfaces.DialogInterfaces.URIDialogInterface;
+import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
-import com.example.myapplication2.utils.Container;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -106,10 +102,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
 
-        /**
-         * @see #chooseModule()
-         */
-        // For module dropdown initalization purposes
+        // For module dropdown initialization purposes
         moduleReferences = new ArrayList<>();
         moduleStringList = new ArrayList<>();
 
@@ -253,22 +246,21 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 startActivity(intent);
 
             case R.id.createEventModule:
-                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new IntegerDialogInterface() {
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new CustomDialogInterface() {
                     @Override
-                    public void onResult(Integer i) {
-                        selectedModuleReference = moduleReferences.get(i);
-                        createModule.setText(moduleStringList.get(i));
+                    public void onResult(Object o) {
+                        selectedModuleReference = moduleReferences.get((int) o);
+                        createModule.setText(moduleStringList.get((int) o));
                     }
                 }, moduleStringList);
                 moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
-
                 break;
 
             case R.id.setImageButton:
-                CropDialogFragment cropDialogFragment = new CropDialogFragment(new URIDialogInterface() {
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CustomDialogInterface() {
                     @Override
-                    public void onResult(Uri uri) {
-                        createImage.setImageURI(uri);
+                    public void onResult(Object o) {
+                        createImage.setImageURI((Uri) o);
                     }
                 });
                 cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
@@ -280,36 +272,8 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
             case R.id.createEventEndDateTime:
                 dateTimePicker(createEnd);
+                break;
         }
-    }
-
-    void chooseModule() {
-        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(
-                CreateEventActivity.this
-        );
-        builder.setTitle("Select Module");
-        builder.setCancelable(false);
-        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, moduleStringList.get(i) + " selected.");
-            }
-        });
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == -1) {
-                    i = 0;
-                    selectedModuleReference = moduleReferences.get(i);
-                    createModule.setText(moduleStringList.get(i));
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.show();
     }
 
     /**
