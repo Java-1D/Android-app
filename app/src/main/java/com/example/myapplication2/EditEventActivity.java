@@ -129,45 +129,55 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
-        DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(documentId);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                editName.setText(eventModel.getTitle());
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                if (document.exists()) {
+                    EventModel eventModel = document.toObject(EventModel.class);
+                    editName.setText(eventModel.getTitle());
 
-                Utils.loadImage(eventModel.getImagePath(), editImage);
+                    Utils.loadImage(eventModel.getImagePath(), editImage);
 
-                editDescription.setText(eventModel.getDescription());
-                editVenue.setText(eventModel.getVenue());
+                    editDescription.setText(eventModel.getDescription());
+                    editVenue.setText(eventModel.getVenue());
 
-                DocumentReference moduleReference = eventModel.getModule();
-                if (moduleReference != null) {
-                    moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
-                            editModule.setText(moduleModel.getName());
-                            selectedModuleReference = eventModel.getModule();
-                        }
-                    });
+                    DocumentReference moduleReference = eventModel.getModule();
+                    if (moduleReference != null) {
+                        FirebaseDocument moduleDocument = new FirebaseDocument() {
+                            @Override
+                            public void callbackOnSuccess(DocumentSnapshot document) {
+                                if (document.exists()) {
+                                    ModuleModel moduleModel = document.toObject(ModuleModel.class);
+                                    editModule.setText(moduleModel.getName());
+                                    selectedModuleReference = eventModel.getModule();
+                                }
+                                else {
+                                    Log.w(TAG, "Document does not exist");
+                                }
+                            }
+                        };
+                        moduleDocument.run(moduleReference);
+                    }
+
+                    editCapacity.setText(String.valueOf(eventModel.getCapacity()));
+
+                    // Setting date and syncing global calendar variable
+                    startDateTime = Calendar.getInstance();
+                    startDateTime.setTime(eventModel.getEventStart());
+
+                    endDateTime = Calendar.getInstance();
+                    endDateTime.setTime(eventModel.getEventEnd());
+
+                    DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
+                    editStart.setText(dateFormat.format(startDateTime.getTime()));
+                    editEnd.setText(dateFormat.format(endDateTime.getTime()));
                 }
-
-
-                editCapacity.setText(String.valueOf(eventModel.getCapacity()));
-
-                // Setting date and syncing global calendar variable
-                startDateTime = Calendar.getInstance();
-                startDateTime.setTime(eventModel.getEventStart());
-
-                endDateTime = Calendar.getInstance();
-                endDateTime.setTime(eventModel.getEventEnd());
-
-                DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
-                editStart.setText(dateFormat.format(startDateTime.getTime()));
-                editEnd.setText(dateFormat.format(endDateTime.getTime()));
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
             }
-        });
+        };
+        firebaseDocument.run(EventModel.getCollectionId(), documentId);
 
         editModule.setOnClickListener(this);
         editButton.setOnClickListener(this);
@@ -214,7 +224,6 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 // https://firebase.google.com/docs/firestore/quickstart#java
                 // Checking that the data does not exist in Firebase
                 FirebaseDocument firebaseDocument = new FirebaseDocument() {
-
                     @Override
                     public void callbackOnSuccess(DocumentSnapshot document) {
                         if (document.exists()) {

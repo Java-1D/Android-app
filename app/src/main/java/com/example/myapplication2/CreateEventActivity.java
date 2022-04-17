@@ -158,7 +158,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
 
                 // Checking that the data does not exist in Firebase
                 FirebaseDocument firebaseDocument = new FirebaseDocument() {
-
                     @Override
                     public void callbackOnSuccess(DocumentSnapshot document) {
                         if (document.exists()) {
