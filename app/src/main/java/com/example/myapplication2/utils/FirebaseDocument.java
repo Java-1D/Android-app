@@ -23,21 +23,21 @@ public abstract class FirebaseDocument {
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot document) {
-                if (document.exists()) {
                     callbackOnSuccess(document);
-                } else {
-                    Log.w(TAG, "Document does not exist");
-                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.w(TAG, "Error retrieving document from Firestore", e);
+                callbackOnFailure(e);
             }
         });
     }
 
     public abstract void callbackOnSuccess(DocumentSnapshot document);
+
+    public void callbackOnFailure(@NonNull Exception e) {
+        Log.w(TAG, "Error retrieving document from Firestore", e);
+    }
 
     public void run(String collectionId, String documentId) {
         DocumentReference docRef = getDocumentReference(collectionId, documentId);

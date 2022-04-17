@@ -34,8 +34,8 @@ Home Fragment contains the Fragment for the Homepage. I.e View All Events
  */
 
 public class HomeFragment extends Fragment {
-    private static final String TAG = "HOMEFRAGMENT";
-    private FirestoreRecyclerAdapter adapter;
+    private static final String TAG = "HomeFragment";
+    private FirestoreRecyclerAdapter<EventModel, EventViewHolder> adapter;
 
     public HomeFragment() {
         // Required empty public constructor

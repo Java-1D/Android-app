@@ -16,11 +16,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
-import com.example.myapplication2.fragments.DatePickerDialogFragment;
 import com.example.myapplication2.fragments.ModuleDialogFragment;
 import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.FirebaseDocument;
+import com.example.myapplication2.utils.FirebaseQuery;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -65,7 +66,6 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
     Calendar endDateTime;
-    DatePickerDialogFragment datePickerDialogFragment;
 
     ArrayList<DocumentReference> moduleReferences;
     ArrayList<String> moduleStringList;
@@ -103,20 +103,17 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         moduleStringList = new ArrayList<>();
 
         // https://stackoverflow.com/questions/50035752/how-to-get-list-of-documents-from-a-collection-in-firestore-android
-        db.collection(ModuleModel.COLLECTION_ID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        FirebaseQuery firebaseQuery = new FirebaseQuery() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        moduleReferences.add(documentSnapshot.getReference());
-                        moduleStringList.add(documentSnapshot.getString("name"));
-                        Log.i(TAG, "Module documentReferences loaded.");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting module documents: ", task.getException());
+            public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    moduleReferences.add(documentSnapshot.getReference());
+                    moduleStringList.add(documentSnapshot.getString("name"));
+                    Log.i(TAG, "Module documentReferences loaded.");
                 }
             }
-        });
+        };
+        firebaseQuery.run(ModuleModel.getCollectionId());
 
         createModule.setOnClickListener(this);
         createButton.setOnClickListener(this);
@@ -160,80 +157,78 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 Integer eventCapacity = Integer.parseInt(createCapacity.getText().toString());
 
                 // Checking that the data does not exist in Firebase
-                DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(eventName);
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                FirebaseDocument firebaseDocument = new FirebaseDocument() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                createName.requestFocus();
-                                createName.setError("Please use a different event name.");
-                                createButton.setEnabled(true);
-                                createButton.setText(R.string.create_event);
-                            } else {
-
-                                // Happens when eventName is not taken
-                                // https://firebase.google.com/docs/storage/android/upload-files
-                                // Uploading image into Firebase Storage
-                                // Randomizing id for file name
-                                StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
-
-                                // Get the data from an ImageView as bytes
-                                createImage.setDrawingCacheEnabled(true);
-                                createImage.buildDrawingCache();
-                                Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                byte[] data = baos.toByteArray();
-
-                                UploadTask uploadTask = eventImageRef.putBytes(data);
-                                uploadTask.addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
-                                        Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                                    }
-                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        Log.i(TAG, "uploadTask: Image successfully uploaded");
-                                        taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Uri> task) {
-                                                String eventImage = task.getResult().toString();
-
-                                                EventModel eventModel = new EventModel(
-                                                        eventName,
-                                                        eventDescription,
-                                                        eventVenue,
-                                                        selectedModuleReference,
-                                                        eventCapacity,
-                                                        startDateTime.getTime(),
-                                                        endDateTime.getTime(),
-                                                        eventImage,
-                                                        userCreated
-                                                );
-
-                                                db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
-                                                Log.i(TAG, "createEvent: Successful. Event added to Firebase");
-
-                                                // Create explicit intent to go into MainPage
-                                                Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-                                                startActivity(intent);
-                                            }
-                                        });
-
-                                    }
-                                });
-                            }
-                        } else {
-                            Log.d(TAG, "get failed with ", task.getException());
+                    public void callbackOnSuccess(DocumentSnapshot document) {
+                        if (document.exists()) {
+                            createName.requestFocus();
+                            createName.setError("Please use a different event name.");
                             createButton.setEnabled(true);
                             createButton.setText(R.string.create_event);
+                        } else {
+                            // Happens when eventName is not taken
+                            // https://firebase.google.com/docs/storage/android/upload-files
+                            // Uploading image into Firebase Storage
+                            // Randomizing id for file name
+                            StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
+
+                            // Get the data from an ImageView as bytes
+                            createImage.setDrawingCacheEnabled(true);
+                            createImage.buildDrawingCache();
+                            Bitmap bitmap = ((BitmapDrawable) createImage.getDrawable()).getBitmap();
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                            byte[] data = baos.toByteArray();
+
+                            UploadTask uploadTask = eventImageRef.putBytes(data);
+                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                                }
+                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Log.i(TAG, "uploadTask: Image successfully uploaded");
+                                    taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Uri> task) {
+                                            String eventImage = task.getResult().toString();
+
+                                            EventModel eventModel = new EventModel(
+                                                    eventName,
+                                                    eventDescription,
+                                                    eventVenue,
+                                                    selectedModuleReference,
+                                                    eventCapacity,
+                                                    startDateTime.getTime(),
+                                                    endDateTime.getTime(),
+                                                    eventImage,
+                                                    userCreated
+                                            );
+
+                                            db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
+                                            Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+
+                                            // Create explicit intent to go into MainPage
+                                            Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    });
+
+                                }
+                            });
                         }
                     }
-                });
 
+                    @Override
+                    public void callbackOnFailure(Exception e) {
+                        Log.d(TAG, "get failed with ", e);
+                        createButton.setEnabled(true);
+                        createButton.setText(R.string.create_event);
+                    }
+                };
+                firebaseDocument.run(EventModel.getCollectionId(), eventName);
                 break;
 
             case R.id.backButton:

@@ -26,6 +26,7 @@ import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
+import com.example.myapplication2.utils.FirebaseDocument;
 import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -35,8 +36,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     /*
         ViewEventActivity allows user to view a single event from the MainPageActivity
      */
-    private final String TAG = "VIEWEVENTS";
+    private static final String TAG = "ViewEvents";
 
     TextView event_name;
     TextView event_desc;
@@ -77,7 +76,7 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
 
     // Recycler View
-    private FirestoreRecyclerAdapter adapter;
+    private FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder> adapter;
     private RecyclerView usersList; // providing views that represent items in a data set.
 
     ArrayList<DocumentReference> usersJoined = new ArrayList<>();
@@ -133,39 +132,43 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
         // Getting information for the current event
         docRef = db.getDocument(documentName);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
+
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                setEventDetails(eventModel);
-                DocumentReference userCreated = eventModel.getUserCreated();
-                Log.d(TAG, "getUserCreated : " + userCreated + "\n currentuser : " + user);
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                if (document.exists()) {
+                    EventModel eventModel = document.toObject(EventModel.class);
+                    setEventDetails(eventModel);
+                    DocumentReference userCreated = eventModel.getUserCreated();
+                    Log.d(TAG, "getUserCreated : " + userCreated + "\n current user : " + user);
 
-                if (user != null & userCreated != null) {
-                    Log.i(TAG, "User Created : " + userCreated + "user : " + user);
-                    usersJoined = eventModel.getUserJoined();
+                    if (user != null && userCreated != null) {
+                        Log.i(TAG, "User Created : " + userCreated + "user : " + user);
+                        usersJoined = eventModel.getUserJoined();
 
-                    // logic to change join event to edit event
-                    if (userCreated.toString().equals(user.toString())) {
-                        disableButton(join_button);
-                        Log.i(TAG, "Enabling EditButton. Join Button is: " + join_button.isEnabled());
-                        enableButton(edit_event_button);
-                    } else if (usersJoined.contains(user)) {
-                        disableButton(join_button);
-                        enableButton(leave_button);
+                        // logic to change join event to edit event
+                        if (userCreated.toString().equals(user.toString())) {
+                            disableButton(join_button);
+                            Log.i(TAG, "Enabling EditButton. Join Button is: " + join_button.isEnabled());
+                            enableButton(edit_event_button);
+                        } else if (usersJoined.contains(user)) {
+                            disableButton(join_button);
+                            enableButton(leave_button);
+                        }
                     }
+
+
+                    adapter.startListening();
+                    usersList.setHasFixedSize(true);
+                    usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                    usersList.setAdapter(adapter);
                 }
-
-
-                adapter.startListening();
-                usersList.setHasFixedSize(true);
-                usersList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                usersList.setAdapter(adapter);
-
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
             }
-        });
-
-
+        };
+        firebaseDocument.run(docRef);
     }
 
     private void setEventDetails(EventModel eventModel) {
@@ -189,13 +192,19 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     private void setModuleDetails(DocumentReference moduleReference, TextView text_name) {
         if (moduleReference != null) {
-            moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            FirebaseDocument firebaseDocument = new FirebaseDocument() {
                 @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    ModuleModel model = documentSnapshot.toObject(ModuleModel.class);
-                    text_name.setText(model.getModuleName());
+                public void callbackOnSuccess(DocumentSnapshot document) {
+                    if (document.exists()) {
+                        ModuleModel model = document.toObject(ModuleModel.class);
+                        text_name.setText(model.getModuleName());
+                    }
+                    else {
+                        Log.w(TAG, "Document does not exist");
+                    }
                 }
-            });
+            };
+            firebaseDocument.run(moduleReference);
 
         } else {
             Log.d(TAG, "No module reference");
@@ -205,13 +214,20 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
 
     private void setCreatorDetails(DocumentReference userReference, ImageView creatorProfilePic, TextView creatorName) {
         if (userReference != null) {
-            userReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            FirebaseDocument firebaseDocument = new FirebaseDocument() {
                 @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    UserModel model = documentSnapshot.toObject(UserModel.class);
-                    setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
+                public void callbackOnSuccess(DocumentSnapshot document) {
+                    if (document.exists()) {
+                        UserModel model = document.toObject(UserModel.class);
+                        setCreatorProfileDetails(model.getProfile(), creatorProfilePic, creatorName);
+                    }
+                    else {
+                        Log.w(TAG, "Document does not exist");
+                    }
                 }
-            });
+            };
+            firebaseDocument.run(userReference);
+
         } else {
             Log.d(TAG, "User Reference is Null");
         }
@@ -219,15 +235,20 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void setCreatorProfileDetails(DocumentReference profileReference, ImageView image_name, TextView creatorName) {
-        profileReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ProfileModel model = documentSnapshot.toObject(ProfileModel.class);
-                Utils.loadImage(model.getImagePath(), image_name);
-                creatorName.setText(model.getName());
-
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                if (document.exists()) {
+                    ProfileModel model = document.toObject(ProfileModel.class);
+                    Utils.loadImage(model.getImagePath(), image_name);
+                    creatorName.setText(model.getName());
+                }
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
             }
-        });
+        };
+        firebaseDocument.run(profileReference);
     }
 
 
@@ -242,32 +263,34 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                     Toast.makeText(ViewEventActivity.this, "Editing Event", Toast.LENGTH_SHORT).show();
                     ViewEventActivity.this.startActivity(editIntent);
                 }
-
+                break;
 
             case R.id.join_button:
                 if (join_button.isEnabled()) {
                     db.updateUserList(ViewEventActivity.this,documentName,user,true);
                 }
+                break;
 
                 // case of leave button
             case R.id.leave_button:
                 if (leave_button.isEnabled()) {
                     db.updateUserList(ViewEventActivity.this,documentName,user,false);
                 }
-
+                break;
 
             case R.id.backButton:
                 if (backButton.isEnabled()) {
                     // Create explicit intent to go into MainPage
-                    Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
-                    startActivity(mainActivityIntent);
+//                    Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
+//                    startActivity(mainActivityIntent);
+                    finish();
                 }
-
+                break;
         }
     }
 
     private void setUserJoinedRecyclerView() {
-        /**
+        /*
          * This functions set users joined in the recycler view layout using Firebase Recycler
          */
 
@@ -307,7 +330,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             }
         };
     }
-
 
     @Override
     protected void onStart() {

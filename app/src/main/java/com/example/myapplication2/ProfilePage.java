@@ -2,7 +2,6 @@ package com.example.myapplication2;
 
 import static com.example.myapplication2.utils.Utils.disableButton;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,11 +23,8 @@ import com.example.myapplication2.viewholder.ProfileRecyclerAdapter;
 import com.example.myapplication2.viewholder.ProfileViewModel;
 
 import com.example.myapplication2.objectmodel.ProfileModel;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -158,11 +154,15 @@ public class ProfilePage extends AppCompatActivity {
         FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
             public void callbackOnSuccess(DocumentSnapshot document) {
-                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
-                if (ProfilePage.this.profile.get().getModules() != null) {
-                    ProfilePage.this.addModuleToRecyclerView();
+                if (document.exists()) {
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                    ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
+                    if (ProfilePage.this.profile.get().getModules() != null) {
+                        ProfilePage.this.addModuleToRecyclerView();
+                    }
+                } else {
+                    Log.w(TAG, "Document does not exist");
                 }
             }
         };
@@ -177,12 +177,16 @@ public class ProfilePage extends AppCompatActivity {
             FirebaseDocument firebaseDocument = new FirebaseDocument() {
                 @Override
                 public void callbackOnSuccess(DocumentSnapshot document) {
-                    Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
-                    ProfilePage.this.module.set(document.toObject(ModuleModel.class));
+                    if (document.exists()) {
+                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                        ProfilePage.this.module.set(document.toObject(ModuleModel.class));
 
-                    //Add modules from Firestore DocumentReference to Recycler View
-                    arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
-                    ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                        //Add modules from Firestore DocumentReference to Recycler View
+                        arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
+                        ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                    } else {
+                        Log.w(TAG, "Document does not exist");
+                    }
                 }
             };
 

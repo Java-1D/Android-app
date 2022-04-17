@@ -2,7 +2,6 @@ package com.example.myapplication2.viewholder;
 
 // View Holder Class for Events in MainPageActivity
 
-import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,7 +23,6 @@ public class EventViewHolder extends RecyclerView.ViewHolder {
    public ImageView event_image;
    public TextView event_start;
    public TextView event_end;
-   public Activity mActivity;
    public Button viewEventButton;
    public TextView event_date;
 

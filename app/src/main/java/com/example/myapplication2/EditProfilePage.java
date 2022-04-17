@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
 import com.example.myapplication2.fragments.ModuleDialogFragment;
+import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.FirebaseDocument;
@@ -86,7 +87,6 @@ public class EditProfilePage extends AppCompatActivity {
                         uploadImageToCloudStorage(uri);
                     }
                 });
-
                 cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
             } else if (id == R.id.confirmButton) {
                 Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
@@ -164,10 +164,14 @@ public class EditProfilePage extends AppCompatActivity {
         FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
             public void callbackOnSuccess(DocumentSnapshot document) {
-                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
+                if (document.exists()) {
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    EditProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    EditProfilePage.this.setUIElements(EditProfilePage.this.profile.get());
+                } else {
+                    Log.w(TAG, "Document does not exist");
+                }
             }
         };
 
@@ -193,7 +197,7 @@ public class EditProfilePage extends AppCompatActivity {
     }
 
     protected void getAllModulesFromFirebase() {
-        String collectionId = "Modules";
+        String collectionId = ModuleModel.getCollectionId();
         FirebaseQuery firebaseQuery = new FirebaseQuery() {
 
             @Override
@@ -317,7 +321,6 @@ public class EditProfilePage extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG, "Error writing document", e);
-
             }
         });
     }

@@ -24,6 +24,8 @@ import com.example.myapplication2.fragments.YesNoDialogFragment;
 import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.FirebaseDocument;
+import com.example.myapplication2.utils.FirebaseQuery;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -110,65 +112,72 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         moduleStringList = new ArrayList<>();
 
         // https://stackoverflow.com/questions/50035752/how-to-get-list-of-documents-from-a-collection-in-firestore-android
-        db.collection(ModuleModel.COLLECTION_ID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        FirebaseQuery firebaseQuery = new FirebaseQuery() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        moduleReferences.add(documentSnapshot.getReference());
-                        moduleStringList.add(documentSnapshot.getString("name"));
-                        Log.i(TAG, "Module documentReferences loaded.");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting module documents: ", task.getException());
+            public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    moduleReferences.add(documentSnapshot.getReference());
+                    moduleStringList.add(documentSnapshot.getString("name"));
+                    Log.i(TAG, "Module documentReferences loaded.");
                 }
             }
-        });
+        };
+        firebaseQuery.run(ModuleModel.getCollectionId());
 
         // Getting ID from intent
         String documentId = getIntent().getStringExtra("DOCUMENT_ID");
         documentName = getDocumentFromPath(documentId);
         Log.i(TAG, "Document Name" + documentName);
 
-        DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(documentId);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                EventModel eventModel = documentSnapshot.toObject(EventModel.class);
-                editName.setText(eventModel.getTitle());
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                if (document.exists()) {
+                    EventModel eventModel = document.toObject(EventModel.class);
+                    editName.setText(eventModel.getTitle());
 
-                Utils.loadImage(eventModel.getImagePath(), editImage);
+                    Utils.loadImage(eventModel.getImagePath(), editImage);
 
-                editDescription.setText(eventModel.getDescription());
-                editVenue.setText(eventModel.getVenue());
+                    editDescription.setText(eventModel.getDescription());
+                    editVenue.setText(eventModel.getVenue());
 
-                DocumentReference moduleReference = eventModel.getModule();
-                if (moduleReference != null) {
-                    moduleReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            ModuleModel moduleModel = documentSnapshot.toObject(ModuleModel.class);
-                            editModule.setText(moduleModel.getName());
-                            selectedModuleReference = eventModel.getModule();
-                        }
-                    });
+                    DocumentReference moduleReference = eventModel.getModule();
+                    if (moduleReference != null) {
+                        FirebaseDocument moduleDocument = new FirebaseDocument() {
+                            @Override
+                            public void callbackOnSuccess(DocumentSnapshot document) {
+                                if (document.exists()) {
+                                    ModuleModel moduleModel = document.toObject(ModuleModel.class);
+                                    editModule.setText(moduleModel.getName());
+                                    selectedModuleReference = eventModel.getModule();
+                                }
+                                else {
+                                    Log.w(TAG, "Document does not exist");
+                                }
+                            }
+                        };
+                        moduleDocument.run(moduleReference);
+                    }
+
+                    editCapacity.setText(String.valueOf(eventModel.getCapacity()));
+
+                    // Setting date and syncing global calendar variable
+                    startDateTime = Calendar.getInstance();
+                    startDateTime.setTime(eventModel.getEventStart());
+
+                    endDateTime = Calendar.getInstance();
+                    endDateTime.setTime(eventModel.getEventEnd());
+
+                    DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
+                    editStart.setText(dateFormat.format(startDateTime.getTime()));
+                    editEnd.setText(dateFormat.format(endDateTime.getTime()));
                 }
-
-
-                editCapacity.setText(String.valueOf(eventModel.getCapacity()));
-
-                // Setting date and syncing global calendar variable
-                startDateTime = Calendar.getInstance();
-                startDateTime.setTime(eventModel.getEventStart());
-
-                endDateTime = Calendar.getInstance();
-                endDateTime.setTime(eventModel.getEventEnd());
-
-                DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
-                editStart.setText(dateFormat.format(startDateTime.getTime()));
-                editEnd.setText(dateFormat.format(endDateTime.getTime()));
+                else {
+                    Log.w(TAG, "Document does not exist");
+                }
             }
-        });
+        };
+        firebaseDocument.run(EventModel.getCollectionId(), documentId);
 
         editModule.setOnClickListener(this);
         editButton.setOnClickListener(this);
@@ -214,12 +223,10 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
                 // https://firebase.google.com/docs/firestore/quickstart#java
                 // Checking that the data does not exist in Firebase
-                DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(eventName);
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                FirebaseDocument firebaseDocument = new FirebaseDocument() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
+                    public void callbackOnSuccess(DocumentSnapshot document) {
+                        if (document.exists()) {
                             // https://firebase.google.com/docs/storage/android/upload-files
                             // Uploading image into Firebase Storage
                             // Randomizing id for file name
@@ -271,14 +278,17 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
                                 }
                             });
-                        } else {
-                            Log.d(TAG, "get failed with ", task.getException());
-                            editButton.setEnabled(true);
-                            editButton.setText(R.string.edit_event);
                         }
                     }
-                });
 
+                    @Override
+                    public void callbackOnFailure(Exception e) {
+                        Log.d(TAG, "get failed with ", e);
+                        editButton.setEnabled(true);
+                        editButton.setText(R.string.edit_event);
+                    }
+                };
+                firebaseDocument.run(EventModel.getCollectionId(), eventName);
                 break;
 
             case R.id.backButton:
