@@ -1,12 +1,6 @@
 package com.example.myapplication2;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -14,24 +8,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import com.canhub.cropper.CropImageContract;
-import com.canhub.cropper.CropImageContractOptions;
-import com.canhub.cropper.CropImageOptions;
-import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.fragments.CropDialogFragment;
+import com.example.myapplication2.fragments.DatePickerDialogFragment;
+import com.example.myapplication2.fragments.ModuleDialogFragment;
+import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.LoggedInUser;
@@ -50,13 +37,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 
-public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener {
+public class CreateEventActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView createImage;
     Button setImageButton;
 
@@ -79,6 +65,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
     // Used because it cannot be stored in EditText or any other type of texts
     Calendar startDateTime;
     Calendar endDateTime;
+    DatePickerDialogFragment datePickerDialogFragment;
 
     ArrayList<DocumentReference> moduleReferences;
     ArrayList<String> moduleStringList;
@@ -111,10 +98,7 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
 
-        /**
-         * @see #chooseModule()
-         */
-        // For module dropdown initalization purposes
+        // For module dropdown initialization purposes
         moduleReferences = new ArrayList<>();
         moduleStringList = new ArrayList<>();
 
@@ -154,14 +138,16 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 createButton.setEnabled(false);
                 createButton.setText("Creating event...");
 
-                // Check if data are all filled and valid
-                if (Utils.invalidData(createName) |
-                        Utils.invalidData(createDescription) |
-                        Utils.invalidData(createVenue) |
-                        Utils.invalidData(createModule) |
-                        Utils.invalidData(createCapacity) |
-                        Utils.invalidData(createStart) |
-                        Utils.invalidData(createEnd)) {
+                ArrayList<EditText> editTextArrayList = new ArrayList<>(
+                        Arrays.asList(createName,
+                                createDescription,
+                                createVenue,
+                                createModule,
+                                createCapacity,
+                                createStart,
+                                createEnd));
+
+                if (Utils.invalidData(editTextArrayList)) {
                     createButton.setEnabled(true);
                     createButton.setText(R.string.create_event);
                     return;
@@ -256,124 +242,51 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                 startActivity(intent);
 
             case R.id.createEventModule:
-                chooseModule();
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(moduleStringList,
+                        new ModuleDialogFragment.OnSingleSelectListener() {
+                            @Override
+                            public void onResult(Integer i) {
+                                selectedModuleReference = moduleReferences.get(i);
+                                createModule.setText(moduleStringList.get(i));
+                            }
+                        });
+                moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
                 break;
 
             case R.id.setImageButton:
-                intent = new Intent(CreateEventActivity.this, ImageHandlerActivity.class);
-                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogFragment.OnCropListener() {
+                    @Override
+                    public void onResult(Uri uri) {
+                        createImage.setImageURI(uri);
+                    }
+                });
+                cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
                 break;
 
             case R.id.createEventStartDateTime:
-                dateTimePicker(createStart);
+                Utils.dateTimePicker(getSupportFragmentManager(), Calendar.getInstance(), endDateTime,
+                        new CustomDialogInterface() {
+                            @Override
+                            public void onResult(Object o) {
+                                startDateTime = (Calendar) o;
+                                String stringDateTime = Utils.dateFormat.format(startDateTime.getTime());
+                                createStart.setText(stringDateTime);
+                            }
+                        }
+                );
                 break;
 
             case R.id.createEventEndDateTime:
-                dateTimePicker(createEnd);
+                Utils.dateTimePicker(getSupportFragmentManager(), startDateTime, null,
+                        new CustomDialogInterface() {
+                            @Override
+                            public void onResult(Object o) {
+                                endDateTime = (Calendar) o;
+                                String stringDateTime = Utils.dateFormat.format(startDateTime.getTime());
+                                createEnd.setText(stringDateTime);
+                            }
+                        }
+                );
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ImageHandlerActivity.IMAGECROP) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getParcelableExtra("croppedImage");
-                createImage.setImageURI(selectedImageUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                ;
-            }
-        }
-    }
-
-    void chooseModule() {
-        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(
-                CreateEventActivity.this
-        );
-        builder.setTitle("Select Module");
-        builder.setCancelable(false);
-        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, moduleStringList.get(i) + " selected.");
-            }
-        });
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == -1) {
-                    i = 0;
-                    selectedModuleReference = moduleReferences.get(i);
-                    createModule.setText(moduleStringList.get(i));
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.show();
-    }
-
-    /**
-     * DateTimePicker
-     * Adapted to take in inputs and set date/time for different texts
-     * https://stackoverflow.com/questions/2055509/how-to-create-a-date-and-time-picker-in-android
-     */
-    public void dateTimePicker(EditText editText) {
-        final Calendar currentDate = Calendar.getInstance();
-        Calendar dateTime;
-
-        // Assign for different widgets
-        if (editText == createStart) {
-            if (startDateTime == null) {
-                startDateTime = Calendar.getInstance();
-            }
-            dateTime = startDateTime;
-        } else {
-            if (endDateTime == null) {
-                endDateTime = Calendar.getInstance();
-            }
-            dateTime = endDateTime;
-        }
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(CreateEventActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                dateTime.set(year, monthOfYear, dayOfMonth);
-                new TimePickerDialog(CreateEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        dateTime.set(Calendar.MINUTE, minute);
-
-                        // Adapted and allowed setting of text
-                        DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
-                        String stringDateTime = dateFormat.format(dateTime.getTime());
-
-                        editText.setText(stringDateTime);
-                        Log.i(TAG, "dateTimePicker: Success for " + getResources().getResourceEntryName(editText.getId()));
-                    }
-                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
-            }
-        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE));
-
-        // Limiting input to valid time frame
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
-        if (editText == createStart) {
-            if (endDateTime != null) {
-                datePickerDialog.getDatePicker().setMaxDate(endDateTime.getTimeInMillis());
-            }
-        } else {
-            if (startDateTime != null) {
-                datePickerDialog.getDatePicker().setMinDate(startDateTime.getTimeInMillis());
-            }
-        }
-        datePickerDialog.show();
-        Log.i(TAG, "dateTimePicker: Dialog launched");
     }
 }

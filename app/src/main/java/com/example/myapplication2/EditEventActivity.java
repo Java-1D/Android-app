@@ -2,79 +2,50 @@ package com.example.myapplication2;
 
 import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.metrics.Event;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import com.canhub.cropper.CropImageContract;
-import com.canhub.cropper.CropImageContractOptions;
-import com.canhub.cropper.CropImageOptions;
-import com.canhub.cropper.CropImageView;
+import com.example.myapplication2.fragments.CropDialogFragment;
+import com.example.myapplication2.fragments.ModuleDialogFragment;
+import com.example.myapplication2.fragments.YesNoDialogFragment;
+import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
-import com.google.android.datatransport.runtime.dagger.Module;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.api.LogDescriptor;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 public class EditEventActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView editImage;
@@ -88,6 +59,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     EditText editStart;
     EditText editEnd;
 
+    Button deleteButton;
     Button editButton;
 
     ImageView backButton;
@@ -126,21 +98,14 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editEnd = (EditText) findViewById(R.id.editEventEndDateTime);
 
         editButton = (Button) findViewById(R.id.editEventButton);
+        deleteButton = (Button) findViewById(R.id.deleteEventButton);
 
         backButton = (ImageView) findViewById(R.id.backButton);
 
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
 
-//         getting ID from intent
-        String documentId = getIntent().getStringExtra("DOCUMENT_ID");
-        documentName = getDocumentFromPath(documentId);
-        Log.i(TAG, "Document Name" + documentName);
-
-        /**
-         * @see #chooseModule()
-         */
-        // For module dropdown initalization purposes
+        // For module dropdown initialization purposes
         moduleReferences = new ArrayList<>();
         moduleStringList = new ArrayList<>();
 
@@ -160,10 +125,11 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        // Get edit documentID from previous intent
-        documentId = getIntent().getStringExtra("DOCUMENT_ID");
+        // Getting ID from intent
+        String documentId = getIntent().getStringExtra("DOCUMENT_ID");
+        documentName = getDocumentFromPath(documentId);
+        Log.i(TAG, "Document Name" + documentName);
 
-        // Checking that data exists in Firestore and can be retrieved and initializing values
         DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(documentId);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -211,6 +177,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editEnd.setOnClickListener(this);
         editName.setOnClickListener(this);
         backButton.setOnClickListener(this);
+        deleteButton.setOnClickListener(this);
     }
 
     @Override
@@ -222,17 +189,16 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     return;
                 }
 
-                editButton.setEnabled(false);
-                editButton.setText("Editing event...");
+                ArrayList<EditText> editTextArrayList = new ArrayList<>(
+                        Arrays.asList(editName,
+                                editDescription,
+                                editVenue,
+                                editModule,
+                                editCapacity,
+                                editStart,
+                                editEnd));
 
-                // Check if data are all filled and valid
-                if (invalidData(editName) |
-                        invalidData(editDescription) |
-                        invalidData(editVenue) |
-                        invalidData(editModule) |
-                        invalidData(editCapacity) |
-                        invalidData(editStart) |
-                        invalidData(editEnd)) {
+                if (Utils.invalidData(editTextArrayList)) {
                     editButton.setEnabled(true);
                     editButton.setText(R.string.edit_event);
                     return;
@@ -295,7 +261,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                                             );
 
                                             db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
-                                            Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                            Log.i(TAG, "editEvent: Successful. Event pushed to Firebase");
 
                                             // Create explicit intent to go into MainPage
                                             Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
@@ -308,7 +274,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                             editButton.setEnabled(true);
-                            editButton.setText(R.string.create_event);
+                            editButton.setText(R.string.edit_event);
                         }
                     }
                 });
@@ -326,139 +292,84 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.editEventModule:
-                chooseModule();
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(moduleStringList,
+                        new ModuleDialogFragment.OnSingleSelectListener() {
+                            @Override
+                            public void onResult(Integer i) {
+                                selectedModuleReference = moduleReferences.get(i);
+                                editModule.setText(moduleStringList.get(i));
+                            }
+                        });
+                moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
                 break;
 
             case R.id.setImageButton:
-                intent = new Intent(EditEventActivity.this, ImageHandlerActivity.class);
-                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogFragment.OnCropListener() {
+                    @Override
+                    public void onResult(Uri uri) {
+                        editImage.setImageURI(uri);
+                    }
+                });
+                cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
                 break;
 
             case R.id.editEventStartDateTime:
-                dateTimePicker(editStart);
+                Utils.dateTimePicker(getSupportFragmentManager(), Calendar.getInstance(), endDateTime,
+                        new CustomDialogInterface() {
+                            @Override
+                            public void onResult(Object o) {
+                                startDateTime = (Calendar) o;
+                                String stringDateTime = Utils.dateFormat.format(startDateTime.getTime());
+                                editStart.setText(stringDateTime);
+                            }
+                        }
+                );
                 break;
 
             case R.id.editEventEndDateTime:
-                dateTimePicker(editEnd);
+                Utils.dateTimePicker(getSupportFragmentManager(), startDateTime, null,
+                        new CustomDialogInterface() {
+                            @Override
+                            public void onResult(Object o) {
+                                endDateTime = (Calendar) o;
+                                String stringDateTime = Utils.dateFormat.format(startDateTime.getTime());
+                                editEnd.setText(stringDateTime);
+                            }
+                        }
+                );
+                break;
+                
+            case R.id.deleteEventButton:
+                String message = "Are you sure you want to delete this event? \n" +
+                        "THIS IS NON-REVERSIBLE.";
+                YesNoDialogFragment yesNoDialogFragment = new YesNoDialogFragment(message,
+                        new YesNoDialogFragment.OnClickListener() {
+                            @Override
+                            public void onResult(boolean bool) {
+                                if (bool == true) {
+                                    String documentId = getIntent().getStringExtra("DOCUMENT_ID");
+                                    db.collection(EventModel.COLLECTION_ID).document(documentId)
+                                            .delete()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d(TAG, "Event successfully deleted!");
+                                                    // Create explicit intent to go into MainPage
+                                                    Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                                                    startActivity(intent);
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error deleting event", e);
+                                                }
+                                            });
+                                }
+                            }
+                        });
+                yesNoDialogFragment.show(getSupportFragmentManager(), YesNoDialogFragment.TAG);
+                break;
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ImageHandlerActivity.IMAGECROP) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getParcelableExtra("croppedImage");
-                editImage.setImageURI(selectedImageUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                ;
-            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                ;
-            }
-        }
-    }
-
-    /**
-     * Module dialog picker
-     */
-    void chooseModule() {
-        String[] moduleArray = moduleStringList.toArray(new String[moduleStringList.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(EditEventActivity.this);
-        builder.setTitle("Select Module");
-        builder.setCancelable(false);
-        builder.setSingleChoiceItems(moduleArray, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.i(TAG, moduleStringList.get(i) + " selected.");
-            }
-        });
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == -1) {
-                    i = 0;
-                    selectedModuleReference = moduleReferences.get(i);
-                    editModule.setText(moduleStringList.get(i));
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.show();
-    }
-
-    /**
-     * Entry validation
-     * https://www.c-sharpcorner.com/UploadFile/1e5156/validation/
-     */
-    boolean invalidData(TextView editText) {
-        if (editText.getText().toString().length() == 0) {
-            editText.requestFocus();
-            editText.setError("Field cannot be empty");
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * DateTimePicker
-     * Adapted to take in inputs and set date/time for different texts
-     * https://stackoverflow.com/questions/2055509/how-to-edit-a-date-and-time-picker-in-android
-     */
-    public void dateTimePicker(EditText editText) {
-        final Calendar currentDate = Calendar.getInstance();
-        Calendar dateTime;
-
-        // Assign for different widgets
-        if (editText == editStart) {
-            if (startDateTime == null) {
-                startDateTime = Calendar.getInstance();
-            }
-            dateTime = startDateTime;
-        } else {
-            if (endDateTime == null) {
-                endDateTime = Calendar.getInstance();
-            }
-            dateTime = endDateTime;
-        }
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(EditEventActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                dateTime.set(year, monthOfYear, dayOfMonth);
-                new TimePickerDialog(EditEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        dateTime.set(Calendar.MINUTE, minute);
-
-                        // Adapted and allowed setting of text
-                        DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
-                        String stringDateTime = dateFormat.format(dateTime.getTime());
-
-                        editText.setText(stringDateTime);
-                        Log.i(TAG, "dateTimePicker: Success for " + getResources().getResourceEntryName(editText.getId()));
-                    }
-                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
-            }
-        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE));
-
-        // Limiting input to valid time frame
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
-        if (editText == editStart) {
-            if (endDateTime != null) {
-                datePickerDialog.getDatePicker().setMaxDate(endDateTime.getTimeInMillis());
-            }
-        } else {
-            if (startDateTime != null) {
-                datePickerDialog.getDatePicker().setMinDate(startDateTime.getTimeInMillis());
-            }
-        }
-        datePickerDialog.show();
-        Log.i(TAG, "dateTimePicker: Dialog launched");
     }
 }

@@ -9,28 +9,50 @@
     android:orientation="vertical"
     tools:context=".EditEventActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="10dp"
         android:paddingBottom="30dp"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/backButton"
-            android:layout_width="36dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toStartOf="@+id/editEventText"
-            app:layout_constraintHorizontal_bias="0.245"
-            app:layout_constraintStart_toStartOf="parent"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="horizontal"
+            android:weightSum="5"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/back_button" />
+            app:layout_constraintBottom_toTopOf="@+id/editEventTitle"
+            android:id="@+id/editTopBar">
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintHorizontal_bias="0.245"
+                app:srcCompat="@drawable/back_button" />
+
+<!--            Intended to skip a weight sum  -->
+            <TextView
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"/>
+
+            <Button
+                android:id="@+id/deleteEventButton"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:text="Delete Event"/>
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/editEventText"
+            android:id="@+id/editEventTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/edit_event_title"
@@ -39,16 +61,16 @@
             app:layout_constraintBottom_toTopOf="@+id/editEventImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/editTopBar" />
 
         <ImageView
             android:id="@+id/editEventImage"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editEventTitle"
             app:srcCompat="@drawable/sch_picture" />
 
         <Button
@@ -90,8 +112,6 @@
             android:id="@+id/editEventDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:lines="3"
-            android:maxLines="3"
             android:layout_marginStart="30dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="30dp"
@@ -101,12 +121,14 @@
             android:ems="10"
             android:hint="@string/event_description"
             android:inputType="textMultiLine"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
+            android:lines="3"
+            android:maxLines="3"
             android:paddingStart="20dp"
+            android:paddingTop="5dp"
             android:paddingEnd="20dp"
+            android:paddingBottom="5dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editEventName" />
 

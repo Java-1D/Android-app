@@ -1,10 +1,8 @@
 package com.example.myapplication2;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +13,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.fragments.CropDialogFragment;
+import com.example.myapplication2.fragments.ModuleDialogFragment;
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.utils.FirebaseContainer;
 import com.example.myapplication2.utils.FirebaseDocument;
@@ -35,7 +34,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,8 +80,14 @@ public class EditProfilePage extends AppCompatActivity {
         public void onClick(View view) {
             int id = view.getId();
             if (id == R.id.editProfilePicture) {
-                Intent intent = new Intent(EditProfilePage.this, ImageHandlerActivity.class);
-                startActivityForResult(intent, ImageHandlerActivity.IMAGECROP);
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogFragment.OnCropListener() {
+                    @Override
+                    public void onResult(Uri uri) {
+                        uploadImageToCloudStorage(uri);
+                    }
+                });
+
+                cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
             } else if (id == R.id.confirmButton) {
                 Intent confirmIntent = new Intent(EditProfilePage.this, ProfilePage.class);
                 confirmIntent.putExtra(PROFILE_ID, profileDocumentId);
@@ -94,23 +98,6 @@ public class EditProfilePage extends AppCompatActivity {
                 startActivity(backIntent);
             } else {
                 Log.w(TAG, "Button not Found");
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ImageHandlerActivity.IMAGECROP) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = Objects.requireNonNull(data).getParcelableExtra("croppedImage");
-                uploadImageToCloudStorage(selectedImageUri);
-            } else if (resultCode == RESULT_CANCELED) {
-                Log.i(TAG, "PermissionRequest: Result cancelled");
-            } else if (resultCode == ImageHandlerActivity.CAMERADENIED) {
-                Log.i(TAG, "PermissionRequest: Camera access denied");
-            } else if (resultCode == ImageHandlerActivity.GALLERYDENIED) {
-                Log.i(TAG, "PermissionRequest: Gallery access denied");
             }
         }
     }
@@ -247,28 +234,15 @@ public class EditProfilePage extends AppCompatActivity {
         editModules.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(EditProfilePage.this);
-                builder.setTitle("Select Modules").setCancelable(false)
-                        .setMultiChoiceItems(moduleArray, selectedModule,
-                        new DialogInterface.OnMultiChoiceClickListener() {
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new ArrayList<String>(modulesMap.keySet()),
+                        new ModuleDialogFragment.OnMultiSelectListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                                if (b) {
-                                    moduleList.add(i);
-                                    Collections.sort(moduleList);
-                                } else {
-                                    moduleList.remove(Integer.valueOf(i));
-                                }
-                            }
-                        }).setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                            public void onResult(ArrayList<Integer> integerArrayList) {
                                 StringBuilder stringBuilder = new StringBuilder();
-                                for (int j = 0; j < moduleList.size(); j++) {
-                                    String key = moduleArray[moduleList.get(j)];
+                                for (int j = 0; j < integerArrayList.size(); j++) {
+                                    String key = moduleArray[integerArrayList.get(j)];
                                     stringBuilder.append(key);
-                                    if (j != moduleList.size() - 1) {
+                                    if (j != integerArrayList.size() - 1) {
                                         stringBuilder.append(", ");
                                     }
                                     Log.i(TAG, "Modules Key: " + modulesMap.get(key));
@@ -277,21 +251,8 @@ public class EditProfilePage extends AppCompatActivity {
                                 Log.i(TAG, "Modules Array: " + modules.get().toString());
                                 editModules.setText(stringBuilder.toString());
                             }
-                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        }).setNeutralButton("Clear All", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Arrays.fill(selectedModule, false);
-                                moduleList.clear();
-                                editModules.setText("");
-                                modules.get().clear();
-                                Log.i(TAG, "Modules Array: " + modules.get().toString());
-                            }
-                        }).show();
+                        });
+                moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
             }
         });
     }
