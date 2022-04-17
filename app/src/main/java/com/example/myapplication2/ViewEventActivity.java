@@ -281,8 +281,9 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
             case R.id.backButton:
                 if (backButton.isEnabled()) {
                     // Create explicit intent to go into MainPage
-                    Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
-                    startActivity(mainActivityIntent);
+//                    Intent mainActivityIntent = new Intent(ViewEventActivity.this, MainPageActivity.class);
+//                    startActivity(mainActivityIntent);
+                    finish();
                 }
                 break;
         }
