@@ -1,8 +1,6 @@
 package com.example.myapplication2.utils;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -17,7 +15,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.example.myapplication2.CreateEventActivity;
+import androidx.fragment.app.FragmentManager;
+
+import com.example.myapplication2.fragments.DatePickerDialogFragment;
+import com.example.myapplication2.fragments.TimePickerDialogFragment;
+import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,14 +29,20 @@ import com.squareup.picasso.Transformation;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Utils {
 
     private static final String TAG = "UTILS";
+
+    // Global app dateFormat style
+    public static final DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
+
 
     public static boolean isNetworkAvailable(Context context) {
 
@@ -66,6 +74,7 @@ public class Utils {
     public static void loadImage(String url, ImageView imageView) {
         Picasso.get().load(url).into(imageView);
     }
+
 
     public static class CircleTransform implements Transformation {
         @Override
@@ -161,5 +170,27 @@ public class Utils {
         button.setEnabled(true);
         button.setClickable(true);
         button.setVisibility(View.VISIBLE);
+    }
+
+    public static void dateTimePicker(FragmentManager manager, Calendar minDate, Calendar maxDate, CustomDialogInterface customDialogInterface) {
+        DatePickerDialogFragment dateTimePickerDialogFragment = new DatePickerDialogFragment(
+                new DatePickerDialogFragment.OnDateSetListener() {
+                    @Override
+                    public void onResult(Calendar date) {
+                        TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment(date,
+                                new TimePickerDialogFragment.OnTimeSetListener() {
+                            @Override
+                            public void onResult(Calendar time) {
+                                Log.i(TAG, "dateTimePicker: " + ((Calendar) time).getTime());
+                                customDialogInterface.onResult((Calendar) time);
+                            }
+                        });
+                        timePickerDialogFragment.show(manager, TimePickerDialogFragment.TAG);
+                    }
+                });
+
+        dateTimePickerDialogFragment.setMinDate(minDate);
+        dateTimePickerDialogFragment.setMaxDate(maxDate);
+        dateTimePickerDialogFragment.show(manager, DatePickerDialogFragment.TAG);
     }
 }

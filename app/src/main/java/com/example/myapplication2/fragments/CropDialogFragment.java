@@ -24,21 +24,15 @@ import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.example.myapplication2.R;
-import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
 
 // https://developer.android.com/guide/fragments/dialogs
 public class CropDialogFragment extends DialogFragment {
     final public static String TAG = "CropDialog";
-    CustomDialogInterface customDialogInterface;
-//    URIDialogInterface uriDialogInterface;
+    OnCropListener onCropListener;
     AlertDialog dialog;
 
-//    public CropDialogFragment(URIDialogInterface uriDialogInterface){
-//        this.uriDialogInterface = uriDialogInterface;
-//    }
-
-    public CropDialogFragment(CustomDialogInterface customDialogInterface){
-        this.customDialogInterface = customDialogInterface;
+    public CropDialogFragment(OnCropListener onCropListener){
+        this.onCropListener = onCropListener;
     }
 
 
@@ -73,6 +67,10 @@ public class CropDialogFragment extends DialogFragment {
         };
         dialog.getListView().setOnItemClickListener(listener);
         return dialog;
+    }
+
+    public static interface OnCropListener{
+        void onResult(Uri uri);
     }
 
     public void cameraLaunch() {
@@ -123,7 +121,7 @@ public class CropDialogFragment extends DialogFragment {
                     if (result != null) {
                         if (result.isSuccessful() && result.getUriContent() != null) {
                             Uri selectedImageUri = result.getUriContent();
-                            customDialogInterface.onResult(selectedImageUri);
+                            onCropListener.onResult(selectedImageUri);
                             Log.i(TAG, "onActivityResult: Cropped image set");
                             dialog.dismiss();
                         } else {

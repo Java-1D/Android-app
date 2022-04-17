@@ -10,32 +10,43 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
-import com.example.myapplication2.interfaces.DialogInterfaces.IntegerListDialogInterface;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-// https://developer.android.com/guide/fragments/dialogs
+/**
+ * Dialog Fragment for module selection
+ * https://developer.android.com/guide/fragments/dialogsZ
+ */
 public class ModuleDialogFragment extends DialogFragment {
     final public static String TAG = "ModuleDialog";
-    IntegerListDialogInterface integerListDialogInterface;
-    CustomDialogInterface customDialogInterface;
+    OnMultiSelectListener onMultiSelectListener;
+    OnSingleSelectListener onSingleSelectListener;
     ArrayList<String> moduleStringList;
+
     boolean[] selectedModule;
     ArrayList<Integer> moduleList = new ArrayList<>();
 
-
-    public ModuleDialogFragment(IntegerListDialogInterface integerListDialogInterface, ArrayList<String> moduleStringList){
-        this.integerListDialogInterface = integerListDialogInterface;
+    // Used for multiple selections
+    public ModuleDialogFragment(ArrayList<String> moduleStringList, OnMultiSelectListener onMultiSelectListener){
+        this.onMultiSelectListener = onMultiSelectListener;
         this.moduleStringList = moduleStringList;
     }
 
-    public ModuleDialogFragment(CustomDialogInterface customDialogInterface, ArrayList<String> moduleStringList) {
-        this.customDialogInterface = customDialogInterface;
+    // Used for single selection
+    public ModuleDialogFragment(ArrayList<String> moduleStringList, OnSingleSelectListener onSingleSelectListener) {
+        this.onSingleSelectListener = onSingleSelectListener;
         this.moduleStringList = moduleStringList;
     }
+
+    public static interface OnSingleSelectListener {
+        void onResult(Integer i);
+    }
+
+    public static interface OnMultiSelectListener {
+        void onResult(ArrayList<Integer> integerArrayList);
+    }
+
 
     @NonNull
     @Override
@@ -50,20 +61,20 @@ public class ModuleDialogFragment extends DialogFragment {
             return dialog;
         }
 
-        if (customDialogInterface != null) {
+        if (onSingleSelectListener != null) {
             return new AlertDialog.Builder(requireContext())
                     .setTitle("Select Module")
                     .setItems(moduleArray, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            customDialogInterface.onResult(i);
+                            onSingleSelectListener.onResult(i);
                             Log.i(TAG, "onClick: module " + moduleStringList.get(i) + " chosen.");
                         }
                     })
                     .create();
         }
 
-        if (integerListDialogInterface != null) {
+        if (onMultiSelectListener != null) {
 
             selectedModule = new boolean[moduleArray.length];
 
@@ -85,7 +96,7 @@ public class ModuleDialogFragment extends DialogFragment {
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            integerListDialogInterface.onResult(moduleList);
+                            onMultiSelectListener.onResult(moduleList);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

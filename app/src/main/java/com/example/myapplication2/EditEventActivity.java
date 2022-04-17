@@ -2,8 +2,6 @@ package com.example.myapplication2;
 
 import static com.example.myapplication2.utils.Utils.getDocumentFromPath;
 
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,18 +10,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication2.fragments.CropDialogFragment;
 import com.example.myapplication2.fragments.ModuleDialogFragment;
-import com.example.myapplication2.interfaces.DialogInterfaces.CustomDialogInterface;
+import com.example.myapplication2.fragments.YesNoDialogFragment;
+import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
 import com.example.myapplication2.utils.LoggedInUser;
@@ -61,6 +59,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     EditText editStart;
     EditText editEnd;
 
+    Button deleteButton;
     Button editButton;
 
     ImageView backButton;
@@ -99,16 +98,12 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editEnd = (EditText) findViewById(R.id.editEventEndDateTime);
 
         editButton = (Button) findViewById(R.id.editEventButton);
+        deleteButton = (Button) findViewById(R.id.deleteEventButton);
 
         backButton = (ImageView) findViewById(R.id.backButton);
 
         db = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
-
-        // Getting ID from intent
-        String documentId = getIntent().getStringExtra("DOCUMENT_ID");
-        documentName = getDocumentFromPath(documentId);
-        Log.i(TAG, "Document Name" + documentName);
 
         // For module dropdown initialization purposes
         moduleReferences = new ArrayList<>();
@@ -130,10 +125,11 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        // Get edit documentID from previous intent
-        documentId = getIntent().getStringExtra("DOCUMENT_ID");
+        // Getting ID from intent
+        String documentId = getIntent().getStringExtra("DOCUMENT_ID");
+        documentName = getDocumentFromPath(documentId);
+        Log.i(TAG, "Document Name" + documentName);
 
-        // Checking that data exists in Firestore and can be retrieved and initializing values
         DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(documentId);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -181,6 +177,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editEnd.setOnClickListener(this);
         editName.setOnClickListener(this);
         backButton.setOnClickListener(this);
+        deleteButton.setOnClickListener(this);
     }
 
     @Override
@@ -295,90 +292,84 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.editEventModule:
-                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(new CustomDialogInterface() {
-                    @Override
-                    public void onResult(Object o) {
-                        selectedModuleReference = moduleReferences.get((int) o);
-                        editModule.setText(moduleStringList.get((int) o));
-                    }
-                }, moduleStringList);
+                ModuleDialogFragment moduleDialogFragment = new ModuleDialogFragment(moduleStringList,
+                        new ModuleDialogFragment.OnSingleSelectListener() {
+                            @Override
+                            public void onResult(Integer i) {
+                                selectedModuleReference = moduleReferences.get(i);
+                                editModule.setText(moduleStringList.get(i));
+                            }
+                        });
                 moduleDialogFragment.show(getSupportFragmentManager(), ModuleDialogFragment.TAG);
                 break;
 
             case R.id.setImageButton:
-                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CustomDialogInterface() {
+                CropDialogFragment cropDialogFragment = new CropDialogFragment(new CropDialogFragment.OnCropListener() {
                     @Override
-                    public void onResult(Object o) {
-                        editImage.setImageURI((Uri) o);
+                    public void onResult(Uri uri) {
+                        editImage.setImageURI(uri);
                     }
                 });
                 cropDialogFragment.show(getSupportFragmentManager(), CropDialogFragment.TAG);
                 break;
+
             case R.id.editEventStartDateTime:
-                dateTimePicker(editStart);
+                Utils.dateTimePicker(getSupportFragmentManager(), Calendar.getInstance(), endDateTime,
+                        new CustomDialogInterface() {
+                            @Override
+                            public void onResult(Object o) {
+                                startDateTime = (Calendar) o;
+                                String stringDateTime = Utils.dateFormat.format(startDateTime.getTime());
+                                editStart.setText(stringDateTime);
+                            }
+                        }
+                );
                 break;
 
             case R.id.editEventEndDateTime:
-                dateTimePicker(editEnd);
+                Utils.dateTimePicker(getSupportFragmentManager(), startDateTime, null,
+                        new CustomDialogInterface() {
+                            @Override
+                            public void onResult(Object o) {
+                                endDateTime = (Calendar) o;
+                                String stringDateTime = Utils.dateFormat.format(startDateTime.getTime());
+                                editEnd.setText(stringDateTime);
+                            }
+                        }
+                );
+                break;
+                
+            case R.id.deleteEventButton:
+                String message = "Are you sure you want to delete this event? \n" +
+                        "THIS IS NON-REVERSIBLE.";
+                YesNoDialogFragment yesNoDialogFragment = new YesNoDialogFragment(message,
+                        new YesNoDialogFragment.OnClickListener() {
+                            @Override
+                            public void onResult(boolean bool) {
+                                if (bool == true) {
+                                    String documentId = getIntent().getStringExtra("DOCUMENT_ID");
+                                    db.collection(EventModel.COLLECTION_ID).document(documentId)
+                                            .delete()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d(TAG, "Event successfully deleted!");
+                                                    // Create explicit intent to go into MainPage
+                                                    Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                                                    startActivity(intent);
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error deleting event", e);
+                                                }
+                                            });
+                                }
+                            }
+                        });
+                yesNoDialogFragment.show(getSupportFragmentManager(), YesNoDialogFragment.TAG);
                 break;
         }
-    }
-
-    /**
-     * DateTimePicker
-     * Adapted to take in inputs and set date/time for different texts
-     * https://stackoverflow.com/questions/2055509/how-to-edit-a-date-and-time-picker-in-android
-     */
-    public void dateTimePicker(EditText editText) {
-        final Calendar currentDate = Calendar.getInstance();
-        Calendar dateTime;
-
-        // Assign for different widgets
-        if (editText == editStart) {
-            if (startDateTime == null) {
-                startDateTime = Calendar.getInstance();
-            }
-            dateTime = startDateTime;
-        } else {
-            if (endDateTime == null) {
-                endDateTime = Calendar.getInstance();
-            }
-            dateTime = endDateTime;
-        }
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(EditEventActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                dateTime.set(year, monthOfYear, dayOfMonth);
-                new TimePickerDialog(EditEventActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        dateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        dateTime.set(Calendar.MINUTE, minute);
-
-                        // Adapted and allowed setting of text
-                        DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM @ hh:mm aa");
-                        String stringDateTime = dateFormat.format(dateTime.getTime());
-
-                        editText.setText(stringDateTime);
-                        Log.i(TAG, "dateTimePicker: Success for " + getResources().getResourceEntryName(editText.getId()));
-                    }
-                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
-            }
-        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE));
-
-        // Limiting input to valid time frame
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
-        if (editText == editStart) {
-            if (endDateTime != null) {
-                datePickerDialog.getDatePicker().setMaxDate(endDateTime.getTimeInMillis());
-            }
-        } else {
-            if (startDateTime != null) {
-                datePickerDialog.getDatePicker().setMinDate(startDateTime.getTimeInMillis());
-            }
-        }
-        datePickerDialog.show();
-        Log.i(TAG, "dateTimePicker: Dialog launched");
     }
 }
