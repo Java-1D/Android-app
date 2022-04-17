@@ -44,7 +44,7 @@ public class ExploreFragment extends Fragment {
 
     //RecyclerView
     private RecyclerView eventsList; // providing views that represent items in a data set.
-    private FirestoreRecyclerAdapter adapter;
+    private FirestoreRecyclerAdapter<EventModel, EventViewHolder> adapter;
 
     public ExploreFragment() {
         // Required empty public constructor

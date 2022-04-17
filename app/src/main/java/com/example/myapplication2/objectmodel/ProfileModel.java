@@ -141,7 +141,7 @@ public class ProfileModel implements ObjectModel {
     }
 
     public void setPillar(String pillar) {
-        if (!pillar.equals(this.pillar)) {
+        if (pillar != null || !pillar.equals(this.pillar)) {
             this.pillar = pillar;
         }
     }

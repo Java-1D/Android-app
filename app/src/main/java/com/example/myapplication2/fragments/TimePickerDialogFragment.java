@@ -4,9 +4,7 @@ import android.app.TimePickerDialog;
 import android.util.Log;
 import android.widget.TimePicker;
 
-import java.sql.Time;
 import java.util.Calendar;
-import java.util.Date;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -15,14 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.myapplication2.fragments.TimePickerDialogFragment.OnTimeSetListener;
-
 /**
  * Time Picker Fragment
  * https://developer.android.com/guide/topics/ui/controls/pickers
  */
 public class TimePickerDialogFragment extends DialogFragment {
-    final public static String TAG = "TimePickerDialog";
+    public static final String TAG = "TimePickerDialog";
     OnTimeSetListener timeDialogInterface;
     Calendar dateTime;
 
@@ -35,7 +31,7 @@ public class TimePickerDialogFragment extends DialogFragment {
         this.timeDialogInterface = timeDialogInterface;
     }
 
-    public static interface OnTimeSetListener{
+    public interface OnTimeSetListener{
         void onResult(Calendar calendar);
     }
 

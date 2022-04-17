@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
@@ -15,7 +16,7 @@ public abstract class FirebaseQuery {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private void getData(String collectionId) {
-        db.collection(collectionId)
+        getQuery(collectionId)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -24,7 +25,7 @@ public abstract class FirebaseQuery {
                             callbackOnSuccess(queryDocumentSnapshots);
                         }
                         else {
-                            Log.w(TAG, "Documents does not exist");
+                            Log.w(TAG, "Documents do not exist");
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -36,6 +37,10 @@ public abstract class FirebaseQuery {
     }
 
     public abstract void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots);
+
+    public Query getQuery(String collectionId) {
+        return db.collection(collectionId);
+    }
 
     public void run(String collectionId) {
         getData(collectionId);

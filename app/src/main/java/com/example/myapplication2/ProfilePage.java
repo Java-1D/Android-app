@@ -154,11 +154,15 @@ public class ProfilePage extends AppCompatActivity {
         FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
             public void callbackOnSuccess(DocumentSnapshot document) {
-                Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
-                ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
-                ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
-                if (ProfilePage.this.profile.get().getModules() != null) {
-                    ProfilePage.this.addModuleToRecyclerView();
+                if (document.exists()) {
+                    Log.i(ProfileModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ProfileModel.class)));
+                    ProfilePage.this.profile.set(document.toObject(ProfileModel.class));
+                    ProfilePage.this.setUIElements(ProfilePage.this.profile.get());
+                    if (ProfilePage.this.profile.get().getModules() != null) {
+                        ProfilePage.this.addModuleToRecyclerView();
+                    }
+                } else {
+                    Log.w(TAG, "Document does not exist");
                 }
             }
         };
@@ -173,12 +177,16 @@ public class ProfilePage extends AppCompatActivity {
             FirebaseDocument firebaseDocument = new FirebaseDocument() {
                 @Override
                 public void callbackOnSuccess(DocumentSnapshot document) {
-                    Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
-                    ProfilePage.this.module.set(document.toObject(ModuleModel.class));
+                    if (document.exists()) {
+                        Log.i(ModuleModel.TAG, "Contents of Firestore Document: " + Objects.requireNonNull(document.toObject(ModuleModel.class)));
+                        ProfilePage.this.module.set(document.toObject(ModuleModel.class));
 
-                    //Add modules from Firestore DocumentReference to Recycler View
-                    arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
-                    ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                        //Add modules from Firestore DocumentReference to Recycler View
+                        arrModules.add(new ProfileViewModel(ProfilePage.this.module.get()));
+                        ProfilePage.this.adapter.notifyItemInserted(arrModules.size());
+                    } else {
+                        Log.w(TAG, "Document does not exist");
+                    }
                 }
             };
 

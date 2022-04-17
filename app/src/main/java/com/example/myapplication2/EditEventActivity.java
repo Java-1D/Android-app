@@ -24,6 +24,8 @@ import com.example.myapplication2.fragments.YesNoDialogFragment;
 import com.example.myapplication2.interfaces.CustomDialogInterface;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.objectmodel.ModuleModel;
+import com.example.myapplication2.utils.FirebaseDocument;
+import com.example.myapplication2.utils.FirebaseQuery;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -110,20 +112,17 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         moduleStringList = new ArrayList<>();
 
         // https://stackoverflow.com/questions/50035752/how-to-get-list-of-documents-from-a-collection-in-firestore-android
-        db.collection(ModuleModel.COLLECTION_ID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        FirebaseQuery firebaseQuery = new FirebaseQuery() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        moduleReferences.add(documentSnapshot.getReference());
-                        moduleStringList.add(documentSnapshot.getString("name"));
-                        Log.i(TAG, "Module documentReferences loaded.");
-                    }
-                } else {
-                    Log.d(TAG, "Error getting module documents: ", task.getException());
+            public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    moduleReferences.add(documentSnapshot.getReference());
+                    moduleStringList.add(documentSnapshot.getString("name"));
+                    Log.i(TAG, "Module documentReferences loaded.");
                 }
             }
-        });
+        };
+        firebaseQuery.run(ModuleModel.getCollectionId());
 
         // Getting ID from intent
         String documentId = getIntent().getStringExtra("DOCUMENT_ID");
@@ -214,12 +213,11 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
                 // https://firebase.google.com/docs/firestore/quickstart#java
                 // Checking that the data does not exist in Firebase
-                DocumentReference docRef = db.collection(EventModel.COLLECTION_ID).document(eventName);
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                FirebaseDocument firebaseDocument = new FirebaseDocument() {
+
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
+                    public void callbackOnSuccess(DocumentSnapshot document) {
+                        if (document.exists()) {
                             // https://firebase.google.com/docs/storage/android/upload-files
                             // Uploading image into Firebase Storage
                             // Randomizing id for file name
@@ -271,14 +269,17 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
 
                                 }
                             });
-                        } else {
-                            Log.d(TAG, "get failed with ", task.getException());
-                            editButton.setEnabled(true);
-                            editButton.setText(R.string.edit_event);
                         }
                     }
-                });
 
+                    @Override
+                    public void callbackOnFailure(Exception e) {
+                        Log.d(TAG, "get failed with ", e);
+                        editButton.setEnabled(true);
+                        editButton.setText(R.string.edit_event);
+                    }
+                };
+                firebaseDocument.run(EventModel.getCollectionId(), eventName);
                 break;
 
             case R.id.backButton:

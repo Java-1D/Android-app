@@ -19,7 +19,7 @@ import java.util.Collections;
  * https://developer.android.com/guide/fragments/dialogsZ
  */
 public class ModuleDialogFragment extends DialogFragment {
-    final public static String TAG = "ModuleDialog";
+    public static final String TAG = "ModuleDialog";
     OnMultiSelectListener onMultiSelectListener;
     OnSingleSelectListener onSingleSelectListener;
     ArrayList<String> moduleStringList;
@@ -39,11 +39,11 @@ public class ModuleDialogFragment extends DialogFragment {
         this.moduleStringList = moduleStringList;
     }
 
-    public static interface OnSingleSelectListener {
+    public interface OnSingleSelectListener {
         void onResult(Integer i);
     }
 
-    public static interface OnMultiSelectListener {
+    public interface OnMultiSelectListener {
         void onResult(ArrayList<Integer> integerArrayList);
     }
 

@@ -27,7 +27,7 @@ import com.example.myapplication2.R;
 
 // https://developer.android.com/guide/fragments/dialogs
 public class CropDialogFragment extends DialogFragment {
-    final public static String TAG = "CropDialog";
+    public static final String TAG = "CropDialog";
     OnCropListener onCropListener;
     AlertDialog dialog;
 
@@ -69,7 +69,7 @@ public class CropDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public static interface OnCropListener{
+    public interface OnCropListener{
         void onResult(Uri uri);
     }
 
@@ -138,7 +138,7 @@ public class CropDialogFragment extends DialogFragment {
             new ActivityResultCallback<Boolean>() {
                 @Override
                 public void onActivityResult(Boolean result) {
-                    if (result == true) {
+                    if (Boolean.TRUE.equals(result)) {
                         // Permission is granted. Continue the action or workflow in your app.
                         cameraLaunch();
                     } else {
@@ -154,7 +154,7 @@ public class CropDialogFragment extends DialogFragment {
             new ActivityResultCallback<Boolean>() {
                 @Override
                 public void onActivityResult(Boolean result) {
-                    if (result == true) {
+                    if (Boolean.TRUE.equals(result)) {
                         // Permission is granted. Continue the action or workflow in your app.
                         galleryLaunch();
                     } else {

@@ -10,8 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.myapplication2.fragments.DatePickerDialogFragment.OnDateSetListener;
-
 import java.util.Calendar;
 
 /**
@@ -19,7 +17,7 @@ import java.util.Calendar;
  * https://developer.android.com/guide/topics/ui/controls/pickers
  */
 public class DatePickerDialogFragment extends DialogFragment {
-    final public static String TAG = "DatePickerDialog";
+    public static final String TAG = "DatePickerDialog";
     OnDateSetListener onDateSetListener;
     Calendar dateTime;
     Calendar minDate;
@@ -44,7 +42,7 @@ public class DatePickerDialogFragment extends DialogFragment {
         this.maxDate = maxDate;
     }
 
-    public static interface OnDateSetListener{
+    public interface OnDateSetListener{
         void onResult(Calendar calendar);
     }
 
