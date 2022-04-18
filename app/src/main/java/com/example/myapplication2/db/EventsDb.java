@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication2.R;
@@ -20,10 +21,9 @@ import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.UUID;
 
 public class EventsDb extends Db{
-    private final static String TAG = "EventsDb";
+    private static final String TAG = "EventsDb";
     private static OnEventModelSuccess onEventModelSuccess;
     private static OnEventUploadSuccess onEventUploadSuccess;
     private static OnEventUploadFailure onEventUploadFailure;
@@ -107,7 +107,7 @@ public class EventsDb extends Db{
         }.run(EventModel.getCollectionId(), eventName.getText().toString());
     }
 
-    public void convertToEventModel(Context context, ImageView eventImage, EditText eventName,
+    public void convertToEventModel(Context context, ImageView eventImage, TextView eventName,
                                                  EditText eventDescription, EditText eventVenue, EditText eventModule,
                                                  EditText eventCapacity, EditText eventStart, EditText eventEnd,
                                                  DocumentReference selectedModuleReference, Calendar startDateTime,
@@ -119,7 +119,7 @@ public class EventsDb extends Db{
             return;
         }
 
-        if (Utils.invalidData(eventName, eventDescription, eventVenue, eventModule, eventCapacity, eventStart, eventEnd)){
+        if (Utils.invalidData(eventDescription, eventVenue, eventModule, eventCapacity, eventStart, eventEnd)){
             onEventModelSuccess.onResult(null);
             return;
         }

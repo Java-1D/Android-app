@@ -86,17 +86,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editEventImage" />
 
-        <EditText
+        <TextView
             android:id="@+id/editEventName"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:layout_marginStart="30dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="30dp"
             android:background="@drawable/login_bar"
             android:ems="10"
-            android:drawableStart="@drawable/ic_baseline_boy_24"
+            android:textSize="18sp"
             android:drawablePadding="20dp"
+            android:gravity="center_vertical"
             android:hint="@string/event_name"
             android:focusable="false"
             android:paddingStart="20dp"
@@ -105,7 +106,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.266"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/setImageButton" />
+            app:layout_constraintTop_toBottomOf="@+id/setImageButton"
+            app:drawableStartCompat="@drawable/ic_baseline_boy_24" />
 
 
         <EditText

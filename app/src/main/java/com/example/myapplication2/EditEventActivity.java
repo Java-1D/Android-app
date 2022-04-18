@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,7 +55,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     ImageView editImage;
     Button setImageButton;
 
-    EditText editName;
+    TextView editName;
     EditText editDescription;
     EditText editVenue;
     EditText editModule;
@@ -92,7 +93,7 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
         editImage = findViewById(R.id.editEventImage);
         setImageButton = findViewById(R.id.setImageButton);
 
-        editName = (EditText) findViewById(R.id.editEventName);
+        editName = (TextView) findViewById(R.id.editEventName);
         editDescription = (EditText) findViewById(R.id.editEventDescription);
         editVenue = (EditText) findViewById(R.id.editEventVenue);
         editModule = (EditText) findViewById(R.id.editEventModule);
