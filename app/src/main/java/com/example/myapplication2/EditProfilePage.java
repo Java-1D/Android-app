@@ -211,20 +211,7 @@ public class EditProfilePage extends AppCompatActivity {
                     Log.i(TAG, String.valueOf(modulesMap.keySet()));
                     Set<String> keys = modulesMap.keySet();
                     moduleArray = keys.toArray(new String[keys.size()]);
-
-                    //Build String to set Text to editModules
                     Arrays.sort(moduleArray);
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int j = 0; j < moduleArray.length; j++) {
-                        String key = moduleArray[j];
-                        stringBuilder.append(key);
-                        if (j != moduleList.size() - 1) {
-                            stringBuilder.append(", ");
-                        }
-                    }
-
-                    //Set Dropdown Text
-                    editModules.setText(stringBuilder.toString());
 
                     //Build Dropdown list
                     buildModuleDropDown(moduleArray);
