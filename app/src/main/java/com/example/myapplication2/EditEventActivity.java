@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication2.db.EventsDb;
 import com.example.myapplication2.fragments.CropDialogFragment;
 import com.example.myapplication2.fragments.ModuleDialogFragment;
 import com.example.myapplication2.fragments.YesNoDialogFragment;
@@ -193,102 +194,28 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.editEventButton:
-                if (!Utils.isNetworkAvailable(this)) {
-                    Toast.makeText(EditEventActivity.this, R.string.internet_required, Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                editButton.setEnabled(false);
+                editButton.setText("Editing event...");
 
-                ArrayList<EditText> editTextArrayList = new ArrayList<>(
-                        Arrays.asList(editName,
-                                editDescription,
-                                editVenue,
-                                editModule,
-                                editCapacity,
-                                editStart,
-                                editEnd));
-
-                if (Utils.invalidData(editTextArrayList)) {
-                    editButton.setEnabled(true);
-                    editButton.setText(R.string.edit_event);
-                    return;
-                }
-
-                String eventName = editName.getText().toString();
-                String eventDescription = editDescription.getText().toString();
-                String eventVenue = editVenue.getText().toString();
-
-                DocumentReference userCreated = LoggedInUser.getInstance().getUserDocRef();
-
-                Integer eventCapacity = Integer.parseInt(editCapacity.getText().toString());
-
-                // https://firebase.google.com/docs/firestore/quickstart#java
-                // Checking that the data does not exist in Firebase
-                FirebaseDocument firebaseDocument = new FirebaseDocument() {
+                new EventsDb(new EventsDb.OnEventModelSuccess() {
                     @Override
-                    public void callbackOnSuccess(DocumentSnapshot document) {
-                        if (document.exists()) {
-                            // https://firebase.google.com/docs/storage/android/upload-files
-                            // Uploading image into Firebase Storage
-                            // Randomizing id for file name
-                            StorageReference eventImageRef = firebaseStorage.getReference().child(EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
+                    public void onResult(EventModel eventModel) {
+                        if (eventModel == null) {
+                            editButton.setEnabled(true);
+                            editButton.setText(R.string.edit_event);
+                        } else {
+                            new EventsDb().pushEvent(EditEventActivity.this, eventModel);
+                            Log.i(TAG, "createEvent: Successful. Event added to Firebase");
 
-                            // Get the data from an ImageView as bytes
-                            editImage.setDrawingCacheEnabled(true);
-                            editImage.buildDrawingCache();
-                            Bitmap bitmap = ((BitmapDrawable) editImage.getDrawable()).getBitmap();
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                            byte[] data = baos.toByteArray();
-
-                            UploadTask uploadTask = eventImageRef.putBytes(data);
-                            uploadTask.addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                                }
-                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    Log.i(TAG, "uploadTask: Image successfully uploaded");
-                                    taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Uri> task) {
-                                            String eventImage = task.getResult().toString();
-
-                                            EventModel eventModel = new EventModel(
-                                                    eventName,
-                                                    eventDescription,
-                                                    eventVenue,
-                                                    selectedModuleReference,
-                                                    eventCapacity,
-                                                    startDateTime.getTime(),
-                                                    endDateTime.getTime(),
-                                                    eventImage,
-                                                    userCreated
-                                            );
-
-                                            db.collection(EventModel.COLLECTION_ID).document(eventName).set(eventModel);
-                                            Log.i(TAG, "editEvent: Successful. Event pushed to Firebase");
-
-                                            // Create explicit intent to go into MainPage
-                                            Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
-                                            startActivity(intent);
-                                        }
-                                    });
-
-                                }
-                            });
+                            // Create explicit intent to go into MainPage
+                            Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                            startActivity(intent);
                         }
                     }
-
-                    @Override
-                    public void callbackOnFailure(Exception e) {
-                        Log.d(TAG, "get failed with ", e);
-                        editButton.setEnabled(true);
-                        editButton.setText(R.string.edit_event);
-                    }
-                };
-                firebaseDocument.run(EventModel.getCollectionId(), eventName);
+                }).convertToEventModel(this, editImage, editName,
+                        editDescription, editVenue, editModule,
+                        editCapacity, editStart, editEnd,
+                        selectedModuleReference, startDateTime, endDateTime);
                 break;
 
             case R.id.backButton:
@@ -337,6 +264,10 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.editEventEndDateTime:
+                if (startDateTime == null) {
+                    startDateTime = Calendar.getInstance();
+                }
+
                 Utils.dateTimePicker(getSupportFragmentManager(), startDateTime, null,
                         new CustomDialogInterface() {
                             @Override
