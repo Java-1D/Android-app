@@ -322,7 +322,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                         ViewEventActivity.this.startActivity(intent);
                     }
                 });
-
             }
         };
     }
