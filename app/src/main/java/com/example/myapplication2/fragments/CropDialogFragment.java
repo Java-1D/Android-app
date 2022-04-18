@@ -35,7 +35,6 @@ public class CropDialogFragment extends DialogFragment {
         this.onCropListener = onCropListener;
     }
 
-
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -165,12 +164,4 @@ public class CropDialogFragment extends DialogFragment {
 
                 }
             });
-
 }
-
-
-
-
-
-
-

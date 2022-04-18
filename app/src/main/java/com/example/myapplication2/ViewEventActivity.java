@@ -298,7 +298,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                 .setQuery(query, ProfileModel.class)
                 .build();
 
-
         adapter = new FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder>(options) {
             @NonNull
             @Override

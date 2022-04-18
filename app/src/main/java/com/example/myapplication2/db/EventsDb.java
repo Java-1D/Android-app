@@ -136,9 +136,7 @@ public class EventsDb extends Db{
         }.run(EventModel.getCollectionId(), eventName.getText().toString());
     }
 
-    public static interface OnEventModelSuccess{
+    public interface OnEventModelSuccess{
         void onResult(EventModel eventModel);
     }
 }
-
-

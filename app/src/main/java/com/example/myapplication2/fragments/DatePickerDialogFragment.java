@@ -70,7 +70,6 @@ public class DatePickerDialogFragment extends DialogFragment {
         if (maxDate != null) {
             datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
         }
-
         return datePickerDialog;
     }
 }

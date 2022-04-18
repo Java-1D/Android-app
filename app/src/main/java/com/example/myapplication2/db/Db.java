@@ -17,7 +17,6 @@ abstract class Db {
         this.collection = db.collection(collectionName);
     }
 
-
     public CollectionReference getCollection() {
         return this.collection;
     }

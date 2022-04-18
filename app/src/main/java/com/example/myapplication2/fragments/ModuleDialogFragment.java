@@ -114,15 +114,6 @@ public class ModuleDialogFragment extends DialogFragment {
                     })
                     .create();
         }
-
         return dialog;
     }
 }
-
-
-
-
-
-
-
-

@@ -86,7 +86,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 return getDb().collection(collectionId).whereEqualTo("email", email);
             }
         };
-
         firebaseQuery.run(UserModel.getCollectionId());
     }
 }
