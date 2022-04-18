@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -128,12 +129,22 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                             createButton.setEnabled(true);
                             createButton.setText(R.string.create_event);
                         } else {
-                            new EventsDb().pushEvent(CreateEventActivity.this, eventModel);
-                            Log.i(TAG, "createEvent: Successful. Event added to Firebase");
-
-                            // Create explicit intent to go into MainPage
-                            Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
-                            startActivity(intent);
+                            new EventsDb(new EventsDb.OnEventUploadSuccess() {
+                                @Override
+                                public void onResult() {
+                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Toast.makeText(CreateEventActivity.this, "Event successfully uploaded!", Toast.LENGTH_SHORT).show();
+                                    // Create explicit intent to go into MainPage
+                                    Intent intent = new Intent(CreateEventActivity.this, MainPageActivity.class);
+                                    startActivity(intent);
+                                }
+                            }, new EventsDb.OnEventUploadFailure() {
+                                @Override
+                                public void onResult() {
+                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Toast.makeText(CreateEventActivity.this, "Uploading of event failed. Please try again", Toast.LENGTH_SHORT).show();
+                                }
+                            }).pushNewEvent(CreateEventActivity.this, eventModel, createName);
                         }
                     }
                 }).convertToEventModel(this, createImage, createName,

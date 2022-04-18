@@ -207,6 +207,37 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     public void onResult(EventModel eventModel) {
                         if (eventModel == null) {
                             editButton.setEnabled(true);
+                            editButton.setText(R.string.create_event);
+                        } else {
+                            new EventsDb(new EventsDb.OnEventUploadSuccess() {
+                                @Override
+                                public void onResult() {
+                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Toast.makeText(EditEventActivity.this, "Event successfully uploaded!", Toast.LENGTH_SHORT).show();
+                                    // Create explicit intent to go into MainPage
+                                    Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
+                                    startActivity(intent);
+                                }
+                            }, new EventsDb.OnEventUploadFailure() {
+                                @Override
+                                public void onResult() {
+                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Toast.makeText(EditEventActivity.this, "Uploading of event failed. Please try again", Toast.LENGTH_SHORT).show();
+                                }
+                            }).pushEvent(EditEventActivity.this, eventModel);
+                        }
+                    }
+                }).convertToEventModel(this, editImage, editName,
+                        editDescription, editVenue, editModule,
+                        editCapacity, editStart, editEnd,
+                        selectedModuleReference, startDateTime, endDateTime);
+
+
+                new EventsDb(new EventsDb.OnEventModelSuccess() {
+                    @Override
+                    public void onResult(EventModel eventModel) {
+                        if (eventModel == null) {
+                            editButton.setEnabled(true);
                             editButton.setText(R.string.edit_event);
                         } else {
                             new EventsDb().pushEvent(EditEventActivity.this, eventModel);

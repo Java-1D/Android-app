@@ -25,6 +25,8 @@ import java.util.UUID;
 public class EventsDb extends Db{
     private final static String TAG = "EventsDb";
     private static OnEventModelSuccess onEventModelSuccess;
+    private static OnEventUploadSuccess onEventUploadSuccess;
+    private static OnEventUploadFailure onEventUploadFailure;
 
     public EventsDb() {
         super(EventModel.getCollectionId());
@@ -33,6 +35,12 @@ public class EventsDb extends Db{
     public EventsDb(OnEventModelSuccess onEventModelSuccess) {
         super(EventModel.getCollectionId());
         this.onEventModelSuccess = onEventModelSuccess;
+    }
+
+    public EventsDb(OnEventUploadSuccess onEventUploadSuccess, OnEventUploadFailure onEventUploadFailure) {
+        super(EventModel.getCollectionId());
+        this.onEventUploadSuccess = onEventUploadSuccess;
+        this.onEventUploadFailure = onEventUploadFailure;
     }
 
     public void updateUserList(Context context, String documentName, DocumentReference user, Boolean toAdd) {
@@ -71,7 +79,32 @@ public class EventsDb extends Db{
         }
         CollectionReference eventsCollection = getCollection();
         eventsCollection.document(eventModel.getTitle()).set(eventModel);
-        Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+        Log.i(TAG, "Successful. Event pushed to Firebase");
+        onEventUploadSuccess.onResult();
+    }
+
+    public void pushNewEvent(Context context, EventModel eventModel, EditText eventName) {
+        if (!Utils.isNetworkAvailable(context)) {
+            Toast.makeText(context, R.string.internet_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Checking that the data does not exist in Firebase
+        new FirebaseDocument() {
+            @Override
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                if (!document.exists()) {
+                    CollectionReference eventsCollection = getCollection();
+                    eventsCollection.document(eventModel.getTitle()).set(eventModel);
+                    Log.i(TAG, "Successful. Event added to Firebase");
+                    onEventUploadSuccess.onResult();
+                } else {
+                    eventName.requestFocus();
+                    eventName.setError("Please use a different event name.");
+                    onEventUploadFailure.onResult();
+                }
+            }
+        }.run(EventModel.getCollectionId(), eventName.getText().toString());
     }
 
     public void convertToEventModel(Context context, ImageView eventImage, EditText eventName,
@@ -97,46 +130,42 @@ public class EventsDb extends Db{
         DocumentReference userCreated = LoggedInUser.getInstance().getUserDocRef();
         Integer capacity = Integer.parseInt(eventCapacity.getText().toString());
 
-        // Checking that the data does not exist in Firebase
-        new FirebaseDocument() {
+        FirebaseStorageReference firebaseStorageReference = new FirebaseStorageReference() {
             @Override
-            public void callbackOnSuccess(DocumentSnapshot document) {
-                if (!document.exists()) {
-                    FirebaseStorageReference firebaseStorageReference = new FirebaseStorageReference() {
-                        @Override
-                        public void uploadSuccess(String string) {
-                            EventModel eventModel = new EventModel(
-                                    name,
-                                    description,
-                                    venue,
-                                    selectedModuleReference,
-                                    capacity,
-                                    startDateTime.getTime(),
-                                    endDateTime.getTime(),
-                                    string,
-                                    userCreated);
+            public void uploadSuccess(String string) {
+                EventModel eventModel = new EventModel(
+                        name,
+                        description,
+                        venue,
+                        selectedModuleReference,
+                        capacity,
+                        startDateTime.getTime(),
+                        endDateTime.getTime(),
+                        string,
+                        userCreated);
 
-                            Log.i(TAG, "onFailure: Storage upload successful");
-                            onEventModelSuccess.onResult(eventModel);
-                        }
-                        @Override
-                        public void uploadFailed() {
-                            Toast.makeText(context, "Uploading failed, please try again.", Toast.LENGTH_SHORT).show();
-                            Log.i(TAG, "onFailure: Storage upload unsuccessful");
-                            onEventModelSuccess.onResult(null);
-                        }
-                    };
-                    firebaseStorageReference.uploadImage(eventImage, EventModel.COLLECTION_ID + "/" + UUID.randomUUID().toString());
-                } else {
-                    eventName.requestFocus();
-                    eventName.setError("Please use a different event name.");
-                    onEventModelSuccess.onResult(null);
-                }
+                Log.i(TAG, "onFailure: Storage upload successful");
+                onEventModelSuccess.onResult(eventModel);
             }
-        }.run(EventModel.getCollectionId(), eventName.getText().toString());
+            @Override
+            public void uploadFailed() {
+                Toast.makeText(context, "Uploading failed, please try again.", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onFailure: Storage upload unsuccessful");
+                onEventModelSuccess.onResult(null);
+            }
+        };
+        firebaseStorageReference.uploadImage(eventImage, EventModel.COLLECTION_ID + "/" + eventName);
     }
 
     public interface OnEventModelSuccess{
         void onResult(EventModel eventModel);
+    }
+
+    public interface OnEventUploadSuccess{
+        void onResult();
+    }
+
+    public interface OnEventUploadFailure{
+        void onResult();
     }
 }
