@@ -267,6 +267,9 @@ public class EditProfilePage extends AppCompatActivity {
         StorageReference imageRef = storageRef.child("Profiles" + "/" + profileDocumentId);
         UploadTask uploadTask = imageRef.putFile(imageUri);
 
+        confirmEdit.setEnabled(false);
+        confirmEdit.setText("Uploading...");
+
         // Register observers to listen for when the download is done or if it fails
         uploadTask.continueWithTask(task -> {
             if (!task.isSuccessful()) {
@@ -279,6 +282,8 @@ public class EditProfilePage extends AppCompatActivity {
                 Uri downloadUri = task.getResult();
                 profile.get().setImagePath(downloadUri.toString());
                 setImage(profile.get().getImagePath());
+                confirmEdit.setEnabled(true);
+                confirmEdit.setText("Confirm");
                 Log.i(TAG, "Profile imagePath successfully updated: " + profile.get().getImagePath());
             } else {
                 // Handle failures

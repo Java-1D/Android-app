@@ -31,7 +31,6 @@ import com.example.myapplication2.utils.Utils;
 import com.example.myapplication2.viewholder.ProfileViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.firestore.DocumentReference;
@@ -73,7 +72,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
     DocumentReference docRef;
     ImageView backButton;
     EventsDb db;
-
 
     // Recycler View
     private FirestoreRecyclerAdapter<ProfileModel, ProfileViewHolder> adapter;
@@ -156,7 +154,6 @@ public class ViewEventActivity extends AppCompatActivity implements View.OnClick
                             enableButton(leave_button);
                         }
                     }
-
 
                     adapter.startListening();
                     usersList.setHasFixedSize(true);

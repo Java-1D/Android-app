@@ -39,7 +39,11 @@ public abstract class FirebaseQuery {
     public abstract void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots);
 
     public Query getQuery(String collectionId) {
-        return db.collection(collectionId);
+        return getDb().collection(collectionId);
+    }
+
+    protected FirebaseFirestore getDb() {
+        return this.db;
     }
 
     public void run(String collectionId) {

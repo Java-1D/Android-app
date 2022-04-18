@@ -5,24 +5,18 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.myapplication2.objectmodel.EventModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.net.URL;
-import java.util.UUID;
 
 public abstract class FirebaseStorageReference {
     private static final String TAG = "FirebaseStorage";
@@ -30,10 +24,6 @@ public abstract class FirebaseStorageReference {
 
     private StorageReference getStorageReference(String documentID) {
         return firebaseStorage.getReference().child(documentID);
-    }
-
-    private void uploadData(StorageReference storageReference) {
-
     }
 
     public void callbackOnFailure(@NonNull Exception e) {
@@ -54,15 +44,14 @@ public abstract class FirebaseStorageReference {
                     public void onComplete(@NonNull Task<Uri> task) {
                         String imageURL = task.getResult().toString();
                         uploadSuccess(imageURL);
-                        Log.i(TAG, "onFailure: Storage upload successful");
                     }
                 });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                callbackOnFailure(e);
                 uploadFailed();
-                Log.i(TAG, "onFailure: Storage upload unsuccessful");
             }
         });
     }

@@ -1,41 +1,24 @@
 package com.example.myapplication2.db;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
-import com.example.myapplication2.EditEventActivity;
 import com.example.myapplication2.R;
-import com.example.myapplication2.ViewEventActivity;
 import com.example.myapplication2.objectmodel.EventModel;
 import com.example.myapplication2.utils.FirebaseDocument;
-import com.example.myapplication2.utils.FirebaseQuery;
 import com.example.myapplication2.utils.FirebaseStorageReference;
 import com.example.myapplication2.utils.LoggedInUser;
 import com.example.myapplication2.utils.Utils;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -133,6 +116,7 @@ public class EventsDb extends Db{
                                     string,
                                     userCreated);
 
+                            Log.i(TAG, "onFailure: Storage upload successful");
                             onEventModelSuccess.onResult(eventModel);
                         }
                         @Override

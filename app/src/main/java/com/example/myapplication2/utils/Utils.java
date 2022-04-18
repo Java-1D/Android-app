@@ -22,7 +22,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.myapplication2.CreateEventActivity;
 import com.example.myapplication2.MainPageActivity;
 import com.example.myapplication2.R;
 import com.example.myapplication2.fragments.DatePickerDialogFragment;

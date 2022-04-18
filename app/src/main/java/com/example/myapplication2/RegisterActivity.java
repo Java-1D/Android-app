@@ -17,10 +17,9 @@ import android.widget.Toast;
 
 import com.example.myapplication2.objectmodel.ProfileModel;
 import com.example.myapplication2.objectmodel.UserModel;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.example.myapplication2.utils.FirebaseDocument;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -82,81 +81,75 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docIdRef = db.collection("Users").document(enteredName);
-        docIdRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+        FirebaseDocument firebaseDocument = new FirebaseDocument() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        UserModel userModel = document.toObject(UserModel.class);
-                        if (enteredEmail.equals(userModel.getEmail())) {
-                            Toast toast = Toast.makeText(getApplicationContext(),
-                                    "Email has been used!",
-                                    Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                        else {
-                            Toast toast = Toast.makeText(getApplicationContext(),
-                                    "Username not available!",
-                                    Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
+            public void callbackOnSuccess(DocumentSnapshot document) {
+                if (document.exists()) {
+                    UserModel userModel = document.toObject(UserModel.class);
+                    if (enteredEmail.equals(userModel.getEmail())) {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Email has been used!",
+                                Toast.LENGTH_SHORT);
+                        toast.show();
                     }
                     else {
-                        // add profile to firestore
-                        ProfileModel emptyProfileModel = new ProfileModel();
-                        setProfileDetails(emptyProfileModel);
-
-
-                        db.collection("Profiles")
-                                .document(enteredName)
-                                .set(emptyProfileModel)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "emptyProfileModel: Successful. New empty profile added to Firebase");
-
-                                        DocumentReference profileRef = db.collection("Profiles").document(enteredName);
-                                        profileRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot document = task.getResult();
-                                                    if (document.exists()) {
-                                                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-
-                                                        // add user to firestore
-                                                        UserModel newUserModel = new UserModel(
-                                                                enteredEmail,
-                                                                enteredPassword,
-                                                                profileRef,
-                                                                enteredName
-                                                        );
-
-                                                        db.collection("Users").document(enteredName).set(newUserModel);
-                                                        Log.i(TAG, "userModel: Successful. New user added to Firebase");
-                                                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                                                    } else {
-                                                        Log.d(TAG, "No such document");
-                                                    }
-                                                } else {
-                                                    Log.d(TAG, "get failed with ", task.getException());
-                                                }
-                                            }
-                                        });
-
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Username not available!",
+                                Toast.LENGTH_SHORT);
+                        toast.show();
                     }
                 }
                 else {
-                    Log.d(TAG, "Failed with: ", task.getException());
+                    // Add profile to Firestore
+                    ProfileModel emptyProfileModel = new ProfileModel();
+                    setProfileDetails(emptyProfileModel);
+
+                    db.collection("Profiles")
+                            .document(enteredName)
+                            .set(emptyProfileModel)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "emptyProfileModel: Successful. New empty profile added to Firebase");
+
+                                    DocumentReference profileRef = db.collection("Profiles").document(enteredName);
+                                    FirebaseDocument profileDocument = new FirebaseDocument() {
+                                        @Override
+                                        public void callbackOnSuccess(DocumentSnapshot document) {
+                                            if (document.exists()) {
+                                                Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+
+                                                // Add user to Firestore DB
+                                                UserModel newUserModel = new UserModel(
+                                                        enteredEmail,
+                                                        enteredPassword,
+                                                        profileRef,
+                                                        enteredName
+                                                );
+
+                                                db.collection("Users").document(enteredName).set(newUserModel);
+                                                Log.i(TAG, "userModel: Successful. New user added to Firebase");
+                                                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                            } else {
+                                                Log.w(TAG, "Document does not exist");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void callbackOnFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error retrieving document from Firestore", e);
+                                        }
+                                    };
+                                    profileDocument.run(profileRef);
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
                 }
             }
 
@@ -168,6 +161,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 emptyProfileModel.setPillar("CSD");
                 emptyProfileModel.setTerm(5);
             }
-        });
+        };
+        firebaseDocument.run(docIdRef);
     }
 }

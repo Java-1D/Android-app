@@ -14,7 +14,7 @@ public abstract class FirebaseDocument {
     private static final String TAG = "FirebaseDocument";
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private DocumentReference getDocumentReference(String collectionId, String documentId) {
+    public DocumentReference getDocumentReference(String collectionId, String documentId) {
         return db.collection(collectionId).document(documentId);
     }
 
