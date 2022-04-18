@@ -21,19 +21,14 @@ public abstract class FirebaseQuery {
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            callbackOnSuccess(queryDocumentSnapshots);
-                        }
-                        else {
-                            Log.w(TAG, "Documents do not exist");
-                        }
+                        callbackOnSuccess(queryDocumentSnapshots);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(TAG, "Error getting documents: ", e);
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Error getting documents: ", e);
+                    }
+                });
     }
 
     public abstract void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots);

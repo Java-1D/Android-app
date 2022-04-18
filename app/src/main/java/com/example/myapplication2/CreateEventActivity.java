@@ -92,10 +92,15 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
         FirebaseQuery firebaseQuery = new FirebaseQuery() {
             @Override
             public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                    moduleReferences.add(documentSnapshot.getReference());
-                    moduleStringList.add(documentSnapshot.getString("name"));
-                    Log.i(TAG, "Module documentReferences loaded.");
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        moduleReferences.add(documentSnapshot.getReference());
+                        moduleStringList.add(documentSnapshot.getString("name"));
+                        Log.i(TAG, "Module documentReferences loaded.");
+                    }
+                }
+                else {
+                    Log.w(TAG, "Documents do not exist");
                 }
             }
         };

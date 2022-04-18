@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+    private static final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Invalid email", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Invalid email has been entered");
                 }
                 else {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
@@ -76,6 +79,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         }
                         else {
                             Toast.makeText(getApplicationContext(), "Invalid password", Toast.LENGTH_SHORT).show();
+                            Log.i(TAG, "Invalid password has been entered");
                         }
                     }
                 }

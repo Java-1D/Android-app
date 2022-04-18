@@ -86,15 +86,20 @@ public class FilterActivity extends AppCompatActivity {
 
             @Override
             public void callbackOnSuccess(QuerySnapshot queryDocumentSnapshots) {
-                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                    Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
-                    modulesMap.put(document.getString("name"), document.getReference());
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Log.i(TAG, document.getId() + " => " + document.getData() + "\n" + document.getReference());
+                        modulesMap.put(document.getString("name"), document.getReference());
+                    }
+                    Log.i(TAG, "HashMap Keys: " + modulesMap.keySet());
+                    Set<String> keys = modulesMap.keySet();
+                    moduleItems = new ArrayList<>(keys);
+                    Log.i(TAG, "ArrayList: moduleItems: " + moduleItems);
+                    setAutoCompleteTxt();
                 }
-                Log.i(TAG, "HashMap Keys: " + modulesMap.keySet());
-                Set<String> keys = modulesMap.keySet();
-                moduleItems = new ArrayList<>(keys);
-                Log.i(TAG, "ArrayList: moduleItems: " + moduleItems);
-                setAutoCompleteTxt();
+                else {
+                    Log.w(TAG, "Documents do not exist");
+                }
             }
         };
         firebaseQuery.run(collectionId);
