@@ -141,8 +141,10 @@ public class CreateEventActivity extends AppCompatActivity implements View.OnCli
                             }, new EventsDb.OnEventUploadFailure() {
                                 @Override
                                 public void onResult() {
-                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Log.i(TAG, "createEvent: Failed");
                                     Toast.makeText(CreateEventActivity.this, "Uploading of event failed. Please try again", Toast.LENGTH_SHORT).show();
+                                    createButton.setEnabled(true);
+                                    createButton.setText(R.string.create_event);
                                 }
                             }).pushNewEvent(CreateEventActivity.this, eventModel, createName);
                         }

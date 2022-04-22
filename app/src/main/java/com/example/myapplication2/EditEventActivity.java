@@ -208,12 +208,12 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                     public void onResult(EventModel eventModel) {
                         if (eventModel == null) {
                             editButton.setEnabled(true);
-                            editButton.setText(R.string.create_event);
+                            editButton.setText(R.string.edit_event);
                         } else {
                             new EventsDb(new EventsDb.OnEventUploadSuccess() {
                                 @Override
                                 public void onResult() {
-                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Log.i(TAG, "editEvent: Successful. Event added to Firebase");
                                     Toast.makeText(EditEventActivity.this, "Event successfully uploaded!", Toast.LENGTH_SHORT).show();
                                     // Create explicit intent to go into MainPage
                                     Intent intent = new Intent(EditEventActivity.this, MainPageActivity.class);
@@ -222,8 +222,10 @@ public class EditEventActivity extends AppCompatActivity implements View.OnClick
                             }, new EventsDb.OnEventUploadFailure() {
                                 @Override
                                 public void onResult() {
-                                    Log.i(TAG, "createEvent: Successful. Event added to Firebase");
+                                    Log.i(TAG, "editEvent: Successful. Event added to Firebase");
                                     Toast.makeText(EditEventActivity.this, "Uploading of event failed. Please try again", Toast.LENGTH_SHORT).show();
+                                    editButton.setEnabled(true);
+                                    editButton.setText(R.string.edit_event);
                                 }
                             }).pushEvent(EditEventActivity.this, eventModel);
                         }
