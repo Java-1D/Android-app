@@ -25,3 +25,5 @@ Implemented using Firebase Cloud Firestore and Android Studio.
 - Edit Events
 - View Profile
 - Edit Profile
+
+Video and Poster Link : https://istd.sutd.edu.sg/term4-design-exhibition/50001/study-buddy
